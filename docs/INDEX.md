@@ -13,12 +13,18 @@ The docs tree is the repository's long-term memory. Agents and humans ground the
 
 ## Security
 
-| File                                             | What it answers                                            |
-| ------------------------------------------------ | ---------------------------------------------------------- |
+| File                                                 | What it answers                                          |
+| ---------------------------------------------------- | -------------------------------------------------------- |
 | [security/threat-model.md](security/threat-model.md) | Assets, trust boundaries, attacker classes, data classes |
-| [security/checklist.md](security/checklist.md)   | The enforceable `SEC-*` rule catalog                       |
+| [security/checklist.md](security/checklist.md)       | The enforceable `SEC-*` rule catalog                     |
 
 (Coverage matrix lives in `SECURITY.md` at the repo root.)
+
+## Web production-readiness
+
+| File                                     | What it answers                                          |
+| ---------------------------------------- | -------------------------------------------------------- |
+| [web/checklist.md](web/checklist.md)     | `WEB-*` launch checklist (SEO, PWA, errors, a11y, perf); `pnpm web:check` |
 
 ## Conventions (how we write code)
 
