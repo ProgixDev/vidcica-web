@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,6 @@ import {
   type Network,
   type PlatformMeta,
 } from "@/lib/vidcica/network";
-import { useNetworksRealtime } from "@/lib/vidcica/use-networks-realtime";
 import { disconnectNetwork, setNetworkPublish } from "../actions";
 
 const STATUS_VARIANT = {
@@ -30,11 +29,27 @@ function NetworkRow({ platform, net }: { platform: PlatformMeta; net?: Network }
   const [message, setMessage] = useState<string | null>(null);
   const status = networkStatus(platform, net);
 
+  // Abort an in-flight OAuth poll if the user navigates away (no leaked popup /
+  // setState-after-unmount).
+  const abortRef = useRef<AbortController | null>(null);
+  useEffect(() => () => abortRef.current?.abort(), []);
+
   async function connect() {
+    // The popup MUST be opened synchronously in the click handler, or the
+    // browser blocks it (oauth-start is an async call that would break that).
+    const popup =
+      typeof window !== "undefined"
+        ? window.open("", "vidcica-oauth", "width=600,height=720")
+        : null;
+    const controller = new AbortController();
+    abortRef.current = controller;
     setPending(true);
     setMessage(null);
     const supabase = createClient();
-    const out = await startNetworkOAuth(supabase, platform.id);
+    const out = await startNetworkOAuth(supabase, platform.id, popup, {
+      signal: controller.signal,
+    });
+    if (controller.signal.aborted) return;
     setPending(false);
     if (out.ok) {
       router.refresh();
@@ -113,12 +128,15 @@ function NetworkRow({ platform, net }: { platform: PlatformMeta; net?: Network }
   );
 }
 
-/** The networks screen — a fixed catalog of platforms kept live over the
- *  `networks` realtime channel (connect/disconnect reflect without refresh). */
-export function NetworkList({ userId, initial }: { userId: string; initial: Network[] }) {
-  const networks = useNetworksRealtime(userId, initial);
-  const byPlatform = new Map(networks.map((n) => [n.platform, n]));
-
+/**
+ * The networks screen — a fixed catalog of platforms rendered from the
+ * server-seeded rows. Connect (via popup) / disconnect / toggle each call
+ * router.refresh() to re-read; we deliberately do NOT subscribe to the
+ * `networks` realtime channel because it would stream token-ciphertext columns
+ * to the browser (RLS gates rows, not columns).
+ */
+export function NetworkList({ initial }: { initial: Network[] }) {
+  const byPlatform = new Map(initial.map((n) => [n.platform, n]));
   return (
     <div className="flex flex-col gap-3" data-testid="network-list">
       {PLATFORMS.map((p) => (

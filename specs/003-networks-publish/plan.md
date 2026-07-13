@@ -61,6 +61,27 @@ the user's connected networks). Simpler than a dialog and screenshot-friendly.
 | AC-11 dedup/skipped              | unit `publish/store.test.ts` (`skipped` set surfaced, not re-published)                                            |
 | AC-12 states everywhere          | RTL empty/loading/error + `pnpm e2e:shots` + `/verify-ui`                                                          |
 
+## Verification status (post-review, 2026-07-13)
+
+The AC→test table above predates implementation and over-states coverage. Corrected record after
+the review board + fixes:
+
+- **Running tests:** AC-1 (`networks-queries.test.ts`), AC-2/3/4 + abort (`oauth.test.ts`),
+  AC-5 disconnect/toggle write actions (`networks/actions.test.ts` — patch shapes + non-uuid +
+  zero-row), AC-6/7/8/11 (`publish/store.test.ts`), AC-9 merge (`realtime-merges.test.ts`),
+  AC-10 reason mapping (`publishing.test.ts`), AC-1 render + AC-4 unavailable (`network-list.test.tsx`).
+- **Corrected claims:** AC-7/AC-8 — the web store does **not** set the video status; `publishing`
+  /`programme` are written **server-side** by `enqueue-publish` and surfaced via the `videos`
+  realtime channel. The store tests assert the enqueue call + `scheduledFor`, not the video row.
+- **Screenshot-only:** networks list states, publish form, publish status
+  (`artifacts/screenshots/003-networks-publish/`); AC-12 network loading/error and AC-10 recovery-CTA
+  rendering are captured but not RTL-asserted (follow-up).
+- **Accepted residual risk:** the authenticated CUJ-04 (real OAuth connect + real publish) needs a
+  seeded test user + provider apps — e2e is in place and skips until `E2E_TEST_*` is set.
+- **Security fix (appsec):** the `networks` realtime subscription was **removed** — it would have
+  streamed `access_token_ciphertext`/`refresh_token_ciphertext` to the browser (RLS gates rows, not
+  columns). Connect detection uses the popup poll (safe-column select) + `router.refresh()`.
+
 ## Risks & unknowns
 
 - **Popup-detect reliability.** De-risk: token is persisted before the redirect, so detection only

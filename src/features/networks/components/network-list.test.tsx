@@ -21,7 +21,6 @@ describe("<NetworkList /> (AC-1, AC-4 states)", () => {
   it("renders every platform with its status", () => {
     render(
       <NetworkList
-        userId=""
         initial={[net("youtube"), net("linkedin", { connected: false, needsReconnect: false })]}
       />,
     );
@@ -36,7 +35,7 @@ describe("<NetworkList /> (AC-1, AC-4 states)", () => {
   });
 
   it("shows reconnect for a needs-reconnect account", () => {
-    render(<NetworkList userId="" initial={[net("youtube", { needsReconnect: true })]} />);
+    render(<NetworkList initial={[net("youtube", { needsReconnect: true })]} />);
     expect(screen.getByTestId("network-status-youtube")).toHaveTextContent("Reconnexion requise");
     expect(screen.getByRole("button", { name: "Reconnecter" })).toBeInTheDocument();
   });

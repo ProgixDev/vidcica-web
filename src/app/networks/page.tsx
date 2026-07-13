@@ -27,7 +27,7 @@ export default async function NetworksPage() {
       <p className="text-muted-foreground text-sm">
         Connectez vos comptes pour publier vos vidéos en un clic.
       </p>
-      <NetworkList userId={user.id} initial={networks} />
+      <NetworkList initial={networks} />
     </main>
   );
 }

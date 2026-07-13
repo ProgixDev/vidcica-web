@@ -154,6 +154,7 @@ export function PublishFlow({ userId, available }: { userId: string; available: 
         {mode === "schedule" ? (
           <input
             type="datetime-local"
+            aria-label="Date de publication"
             className="border-input h-9 rounded-md border bg-transparent px-3 text-sm"
             data-testid="publish-schedule"
             onChange={(e) => {

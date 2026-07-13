@@ -13,9 +13,16 @@ async function updateOwnNetwork(rowId: string, patch: NetworkUpdate): Promise<Ac
   const parsed = RowId.safeParse(rowId);
   if (!parsed.success) return { ok: false, message: "Identifiant invalide" };
   const supabase = await createClient();
-  // RLS restricts the update to the caller's own row.
-  const { error } = await supabase.from("networks").update(patch).eq("id", parsed.data);
+  // RLS restricts the update to the caller's own row. `.select` lets us tell a
+  // real update from a zero-row match (someone else's / stale id) — RLS blocks
+  // the write either way, but we shouldn't report success on a no-op.
+  const { data, error } = await supabase
+    .from("networks")
+    .update(patch)
+    .eq("id", parsed.data)
+    .select("id");
   if (error) return { ok: false, message: error.message };
+  if (!data || data.length === 0) return { ok: false, message: "Réseau introuvable" };
   return { ok: true };
 }
 

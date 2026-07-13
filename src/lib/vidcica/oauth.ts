@@ -3,12 +3,19 @@
  *
  * The existing `oauth-start` returns the provider authorize URL; `oauth-callback`
  * exchanges + persists the token SERVER-SIDE, then 302s to `vidcica://` (a mobile
- * scheme a browser can't follow). So on web we open the authorize URL in a popup
- * and — since the token is saved before that redirect — DETECT success by reading
- * the `networks` row (poll while the popup is open). No backend change.
+ * scheme a browser can't follow). So on web we open a popup and — since the token
+ * is saved before that redirect — DETECT success by reading the `networks` row
+ * (poll while the popup is open). No backend change.
  *
- * The orchestration is dependency-injected (`runNetworkOAuth`) so cancel /
- * not-configured / detect are unit-testable without a browser (spec AC-2/3/4).
+ * IMPORTANT: the popup MUST be opened synchronously inside the click handler
+ * (before any `await`), or the browser popup-blocks it. So the caller opens a
+ * blank popup and hands the window in; the orchestrator navigates it to the
+ * authorize URL once `oauth-start` resolves. The provider URL is server-issued
+ * and points only at trusted IdPs — the reason we can keep the `opener` handle
+ * (needed to poll `popup.closed`) rather than using `noopener`.
+ *
+ * Dependency-injected (`runNetworkOAuth`) so cancel / not-configured / detect /
+ * abort are unit-testable without a browser (spec AC-2/3/4).
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { clientEnv } from "@/core/env.client";
@@ -26,7 +33,8 @@ export type OAuthOutcome =
       message?: string;
     };
 
-type PopupHandle = { closed: boolean; close: () => void };
+/** A live handle to the pre-opened popup (`closed` is read each poll). */
+export type PopupHandle = { readonly closed: boolean; close: () => void };
 
 export type OAuthDeps = {
   /** Get the provider authorize URL (or a not-configured/err signal). */
@@ -34,29 +42,39 @@ export type OAuthDeps = {
     | { ok: true; url: string }
     | { ok: false; reason: "platform_not_configured" | "error"; message?: string }
   >;
-  openPopup: (url: string) => PopupHandle | null;
+  /** Point the already-open popup at the authorize URL. */
+  navigate: (url: string) => void;
   /** True once the target network row is connected (and not needing reconnect). */
   isConnected: () => Promise<boolean>;
   wait: (ms: number) => Promise<void>;
   now: () => number;
 };
 
-/** Pure orchestration: start → popup → poll-detect. Injected deps make it testable. */
+export type RunOpts = { timeoutMs?: number; pollMs?: number; signal?: AbortSignal };
+
+/** Pure orchestration over an already-open popup. Injected deps make it testable. */
 export async function runNetworkOAuth(
   deps: OAuthDeps,
-  opts: { timeoutMs?: number; pollMs?: number } = {},
+  popup: PopupHandle | null,
+  opts: RunOpts = {},
 ): Promise<OAuthOutcome> {
+  if (!popup) return { ok: false, reason: "error", message: "Popup bloquée par le navigateur." };
   const timeoutMs = opts.timeoutMs ?? 120_000;
   const pollMs = opts.pollMs ?? 2_000;
 
   const started = await deps.start();
-  if (!started.ok) return { ok: false, reason: started.reason, message: started.message };
-
-  const popup = deps.openPopup(started.url);
-  if (!popup) return { ok: false, reason: "error", message: "Popup bloquée par le navigateur." };
+  if (!started.ok) {
+    popup.close();
+    return { ok: false, reason: started.reason, message: started.message };
+  }
+  deps.navigate(started.url);
 
   const t0 = deps.now();
   while (deps.now() - t0 < timeoutMs) {
+    if (opts.signal?.aborted) {
+      popup.close();
+      return { ok: false, reason: "cancelled" };
+    }
     if (await deps.isConnected()) {
       popup.close();
       return { ok: true };
@@ -71,10 +89,30 @@ export async function runNetworkOAuth(
   return { ok: false, reason: "timeout" };
 }
 
-/** Real entry point: build deps from the Supabase client + the browser. */
-export async function startNetworkOAuth(supabase: DB, platform: PlatformId): Promise<OAuthOutcome> {
+/**
+ * Real entry point. `popup` MUST already be opened by the click handler
+ * (`window.open("", "vidcica-oauth", …)`) so the browser doesn't block it.
+ */
+export async function startNetworkOAuth(
+  supabase: DB,
+  platform: PlatformId,
+  popup: Window | null,
+  opts: RunOpts = {},
+): Promise<OAuthOutcome> {
   const provider = platformToProvider(platform);
-  if (!provider) return { ok: false, reason: "platform_not_configured" };
+  if (!provider) {
+    popup?.close();
+    return { ok: false, reason: "platform_not_configured" };
+  }
+
+  const handle: PopupHandle | null = popup
+    ? {
+        get closed() {
+          return popup.closed;
+        },
+        close: () => popup.close(),
+      }
+    : null;
 
   const deps: OAuthDeps = {
     start: async () => {
@@ -102,10 +140,13 @@ export async function startNetworkOAuth(supabase: DB, platform: PlatformId): Pro
         return { ok: false, reason: "error", message: (e as Error).message };
       }
     },
-    openPopup: (url) =>
-      typeof window === "undefined"
-        ? null
-        : window.open(url, "vidcica-oauth", "width=600,height=720"),
+    navigate: (url) => {
+      try {
+        if (popup) popup.location.href = url;
+      } catch {
+        // cross-origin after the provider navigates — expected, ignore.
+      }
+    },
     isConnected: async () => {
       const { data } = await supabase
         .from("networks")
@@ -118,5 +159,5 @@ export async function startNetworkOAuth(supabase: DB, platform: PlatformId): Pro
     now: () => Date.now(),
   };
 
-  return runNetworkOAuth(deps);
+  return runNetworkOAuth(deps, handle, opts);
 }

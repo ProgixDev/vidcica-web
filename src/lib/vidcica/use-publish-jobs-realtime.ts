@@ -31,7 +31,15 @@ export function mergePublishJob(map: PublishStatusMap, row: JobRow): PublishStat
  */
 export function usePublishJobsRealtime(userId: string, videoId: string): PublishStatusMap {
   const [statuses, setStatuses] = useState<PublishStatusMap>({});
+  // Reset the map when the target video changes (render-phase, not an effect).
+  const [prevVideoId, setPrevVideoId] = useState(videoId);
+  if (videoId !== prevVideoId) {
+    setPrevVideoId(videoId);
+    setStatuses({});
+  }
 
+  // Supabase realtime filters on a single column, so we filter to the user here
+  // and match the specific video client-side below.
   useEffect(() => {
     if (!userId || !videoId) return;
     const supabase = createClient();

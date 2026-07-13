@@ -5,19 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 import { enqueuePublish, type EnqueueOutcome } from "@/lib/vidcica/publishing";
 import type { PlatformId } from "@/lib/vidcica/network";
 
-const PLATFORMS = [
-  "youtube",
-  "tiktok",
-  "instagram",
-  "facebook",
-  "linkedin",
-  "x",
-  "threads",
-] as const;
+// Only connectable platforms are publishable (X has no provider — never valid).
+const CONNECTABLE = ["youtube", "tiktok", "instagram", "facebook", "linkedin", "threads"] as const;
 
 const Input = z.object({
   videoId: z.string().uuid(),
-  platforms: z.array(z.enum(PLATFORMS)).min(1),
+  platforms: z.array(z.enum(CONNECTABLE)).min(1),
   scheduledFor: z.string().datetime().optional(),
   asShort: z.boolean().optional(),
 });
