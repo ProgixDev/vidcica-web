@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { BoostWizard, type VideoOption } from "./boost-wizard";
 import { BoostStoreProvider } from "../provider";
@@ -40,5 +40,19 @@ describe("<BoostWizard /> (AC-2)", () => {
   it("guides the user to create a video when none are ready to boost", async () => {
     renderWizard({}, []);
     expect(await screen.findByText("Aucune vidéo prête à booster")).toBeInTheDocument();
+  });
+
+  it("shows the checking skeleton while the gate resolves (AC-12)", () => {
+    renderWizard({ resolveAccount: () => new Promise(() => {}) }); // never resolves
+    expect(screen.getByTestId("boost-checking")).toBeInTheDocument();
+  });
+
+  it("walks the steps and renders the created/in-review success (AC-3)", async () => {
+    renderWizard({});
+    // video step: pick a video (auto-fills the name) → then next through each step
+    fireEvent.change(await screen.findByTestId("bw-video"), { target: { value: "v1" } });
+    for (let i = 0; i < 4; i++) fireEvent.click(screen.getByTestId("boost-next"));
+    fireEvent.click(screen.getByTestId("boost-submit"));
+    expect(await screen.findByText("Campagne créée (en révision)")).toBeInTheDocument();
   });
 });

@@ -1,20 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import {
-  OBJECTIVE_LABEL,
-  STATUS_META,
-  type Campaign,
-  type SupportedObjective,
-} from "@/lib/vidcica/campaign";
+import { budgetLabel, objectiveLabel, STATUS_META, type Campaign } from "@/lib/vidcica/campaign";
 import { ActivatePauseControls } from "./activate-pause-controls";
-
-function objectiveLabel(objective: Campaign["objective"]): string {
-  return OBJECTIVE_LABEL[objective as SupportedObjective] ?? objective;
-}
-
-function budgetLabel(c: Campaign): string {
-  return c.budgetMode === "total" ? `${c.budgetTotal} € au total` : `${c.budgetDaily ?? 0} €/jour`;
-}
 
 type NumericMetric = Exclude<keyof Campaign["metrics"], "updatedAt">;
 const METRICS: { key: NumericMetric; label: string; fmt: (n: number) => string }[] = [

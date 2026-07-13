@@ -51,11 +51,12 @@ export function LeadsStoreProvider({
     ),
   );
 
-  const [prevInitial, setPrevInitial] = useState(initial);
-  if (initial !== prevInitial) {
-    setPrevInitial(initial);
+  // Re-seed from the server list after a router.refresh. Done in an effect (not
+  // during render) because the store is external with mounted subscribers —
+  // mutating it mid-render would update a component while rendering another.
+  useEffect(() => {
     store.getState().seed(initial);
-  }
+  }, [initial, store]);
 
   useEffect(() => {
     if (!userId) return;

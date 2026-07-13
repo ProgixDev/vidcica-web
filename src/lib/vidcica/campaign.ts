@@ -184,3 +184,15 @@ export const OBJECTIVE_LABEL: Record<SupportedObjective, string> = {
   trafic: "Trafic",
   engagement: "Engagement",
 };
+
+/** FR label for a campaign objective (legacy values fall back to their raw key). */
+export function objectiveLabel(objective: CampaignObjective): string {
+  return OBJECTIVE_LABEL[objective as SupportedObjective] ?? objective;
+}
+
+/** FR budget summary — daily or lifetime. */
+export function budgetLabel(
+  c: Pick<Campaign, "budgetMode" | "budgetTotal" | "budgetDaily">,
+): string {
+  return c.budgetMode === "total" ? `${c.budgetTotal} € au total` : `${c.budgetDaily ?? 0} €/jour`;
+}

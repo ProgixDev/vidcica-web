@@ -86,6 +86,13 @@ describe("toCsv (AC-11)", () => {
     const csv = toCsv([rowToLead(row({ campaign_name: 'Promo "été", 2026' }))]);
     expect(csv).toContain('"Promo ""été"", 2026"');
   });
+
+  it("neutralizes formula-injection payloads from lead form data", () => {
+    const csv = toCsv([rowToLead(row({ first_name: '=HYPERLINK("http://evil","x")' }))]);
+    // leading '=' → prefixed with a single quote, then quoted for the comma inside
+    expect(csv).toContain("'=HYPERLINK");
+    expect(csv).not.toMatch(/(^|\n)=HYPERLINK/);
+  });
 });
 
 describe("STATUS_ORDER", () => {

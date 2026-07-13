@@ -104,9 +104,15 @@ const CSV_HEADER = [
   "Capturé le",
 ];
 
-/** Escape a CSV cell (RFC-4180: quote + double inner quotes when needed). */
+/**
+ * Escape a CSV cell. RFC-4180 quoting (quote + double inner quotes) PLUS CSV
+ * formula-injection defense: lead names/city originate from external Meta Lead Ads
+ * form submissions, so a cell starting with a formula trigger (= + - @ tab CR) is
+ * prefixed with a single quote to stop Excel/Sheets from executing it on open.
+ */
 function cell(v: string): string {
-  return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+  const safe = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+  return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
 /** Serialize leads to a CSV string (header + one row per lead). Pure — unit-tested. */

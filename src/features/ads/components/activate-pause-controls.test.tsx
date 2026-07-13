@@ -45,6 +45,19 @@ describe("<ActivatePauseControls /> (AC-5/6)", () => {
     expect(refresh).not.toHaveBeenCalled();
   });
 
+  it("surfaces the below-min-budget error and does not refresh", async () => {
+    const onSetStatus = vi.fn(async () => ({
+      ok: false as const,
+      reason: "below_min_budget",
+      minDaily: 500,
+    }));
+    render(<ActivatePauseControls campaign={launched("in_review")} onSetStatus={onSetStatus} />);
+    fireEvent.click(screen.getByTestId("activate-btn"));
+    fireEvent.click(screen.getByTestId("activate-confirm-btn"));
+    expect(await screen.findByTestId("activate-error")).toHaveTextContent(/budget/i);
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
   it("pauses an active campaign directly (no confirm)", async () => {
     const onSetStatus = vi.fn(async () => ({ ok: true as const, status: "en_pause" as const }));
     render(<ActivatePauseControls campaign={launched("active")} onSetStatus={onSetStatus} />);

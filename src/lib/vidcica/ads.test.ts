@@ -99,9 +99,16 @@ describe("setCampaignStatus (AC-5/6)", () => {
 });
 
 describe("adsErrorMessage", () => {
-  it("maps known reasons to French copy and falls back", () => {
+  it("maps known reasons to distinct French copy and falls back", () => {
     expect(adsErrorMessage("monthly_cap_exceeded")).toMatch(/plafond/i);
     expect(adsErrorMessage("needs_reconnect")).toMatch(/facebook/i);
-    expect(adsErrorMessage("weird")).toMatch(/erreur/i);
+    expect(adsErrorMessage("no_video_url")).toMatch(/vidéo/i);
+    expect(adsErrorMessage("objective_unsupported_phase1")).toMatch(/objectif/i);
+    expect(adsErrorMessage("below_min_budget")).toMatch(/budget/i);
+    // distinct reasons must not collapse into the generic fallback
+    const generic = adsErrorMessage("weird");
+    expect(adsErrorMessage("no_video_url")).not.toBe(generic);
+    expect(adsErrorMessage("objective_unsupported_phase1")).not.toBe(generic);
+    expect(generic).toMatch(/erreur/i);
   });
 });

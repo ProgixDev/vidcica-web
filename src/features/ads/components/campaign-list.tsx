@@ -6,20 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useCampaignsRealtime } from "@/lib/vidcica/use-campaigns-realtime";
-import {
-  OBJECTIVE_LABEL,
-  STATUS_META,
-  type Campaign,
-  type SupportedObjective,
-} from "@/lib/vidcica/campaign";
-
-function objectiveLabel(objective: Campaign["objective"]): string {
-  return OBJECTIVE_LABEL[objective as SupportedObjective] ?? objective;
-}
-
-function budgetLabel(c: Campaign): string {
-  return c.budgetMode === "total" ? `${c.budgetTotal} € au total` : `${c.budgetDaily ?? 0} €/jour`;
-}
+import { budgetLabel, objectiveLabel, STATUS_META, type Campaign } from "@/lib/vidcica/campaign";
 
 function CampaignCard({ c }: { c: Campaign }) {
   const meta = STATUS_META[c.status];
