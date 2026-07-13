@@ -4,12 +4,17 @@ import { NotificationCenter } from "./notification-center";
 import type { AppNotification } from "@/lib/vidcica/notification";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
+const markRead = vi.fn(async () => ({ ok: true as const }));
 const markAllRead = vi.fn(async () => ({ ok: true as const }));
 vi.mock("../actions", () => ({
-  markRead: vi.fn(async () => ({ ok: true as const })),
-  markAllRead: () => markAllRead(),
+  markRead: (...a: unknown[]) => markRead(...(a as [])),
+  markAllRead: (...a: unknown[]) => markAllRead(...(a as [])),
 }));
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  markRead.mockClear();
+  markAllRead.mockClear();
+});
 
 const n = (over: Partial<AppNotification>): AppNotification => ({
   id: "x",
@@ -34,19 +39,33 @@ describe("<NotificationCenter /> (AC-1/2/6/7)", () => {
       />,
     );
     expect(screen.getByTestId("unread-count")).toHaveTextContent("1");
-    // video-linked item is an anchor to the video (AC-6)
     expect(screen.getByTestId("notification-a")).toHaveAttribute("href", "/videos/v1");
-    // unlinked item is a button (no dead link)
     expect(screen.getByTestId("notification-b").tagName).toBe("BUTTON");
   });
 
-  it("mark-all is offered when there are unread and triggers the action", () => {
+  it("AC-4: clicking an unread row marks it read (optimistic) and calls the action", () => {
     render(<NotificationCenter userId="" initial={[n({ id: "a", read: false })]} />);
-    fireEvent.click(screen.getByTestId("mark-all-read"));
-    expect(markAllRead).toHaveBeenCalled();
+    expect(screen.getByTestId("unread-count")).toHaveTextContent("1");
+    fireEvent.click(screen.getByTestId("notification-a"));
+    expect(markRead).toHaveBeenCalledWith("a");
+    expect(screen.getByTestId("unread-count")).toHaveTextContent("0"); // optimistic flip
+    expect(screen.getByTestId("notification-a")).toHaveAttribute("data-read", "true");
   });
 
-  it("shows a friendly empty state when there are none (AC-7)", () => {
+  it("AC-5: mark-all clears the unread count and calls the action", () => {
+    render(
+      <NotificationCenter
+        userId=""
+        initial={[n({ id: "a", read: false }), n({ id: "c", read: false })]}
+      />,
+    );
+    expect(screen.getByTestId("unread-count")).toHaveTextContent("2");
+    fireEvent.click(screen.getByTestId("mark-all-read"));
+    expect(markAllRead).toHaveBeenCalled();
+    expect(screen.getByTestId("unread-count")).toHaveTextContent("0");
+  });
+
+  it("AC-7: shows a friendly empty state when there are none", () => {
     render(<NotificationCenter userId="" initial={[]} />);
     expect(screen.getByText("Aucune notification")).toBeInTheDocument();
     expect(screen.queryByTestId("notification-list")).not.toBeInTheDocument();

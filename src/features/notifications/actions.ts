@@ -22,7 +22,8 @@ export async function markRead(id: string): Promise<ActionResult> {
     .update({ read: true, read_at: nowIso() })
     .eq("id", parsed.data)
     .select("id");
-  if (error) return { ok: false, message: error.message };
+  // Don't leak the raw driver message to the client.
+  if (error) return { ok: false, message: "Impossible de mettre à jour la notification." };
   if (!data || data.length === 0) return { ok: false, message: "Notification introuvable" };
   return { ok: true };
 }
@@ -30,10 +31,15 @@ export async function markRead(id: string): Promise<ActionResult> {
 /** Mark all of the caller's unread notifications read. */
 export async function markAllRead(): Promise<ActionResult> {
   const supabase = await createClient();
+  // Fail closed on an anonymous/expired caller, independent of RLS.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Session expirée." };
   const { error } = await supabase
     .from("notifications")
     .update({ read: true, read_at: nowIso() })
     .eq("read", false);
-  if (error) return { ok: false, message: error.message };
+  if (error) return { ok: false, message: "Impossible de mettre à jour les notifications." };
   return { ok: true };
 }

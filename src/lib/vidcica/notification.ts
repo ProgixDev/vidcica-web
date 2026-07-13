@@ -32,12 +32,23 @@ export type AppNotification = {
 };
 
 const TYPES: ReadonlyArray<NotificationType> = ["success", "warning", "info"];
+const CATEGORIES: ReadonlyArray<NotificationCategory> = [
+  "video_ready",
+  "publish_success",
+  "new_lead",
+  "ads_alert",
+  "payment",
+];
 
 export function rowToNotification(r: NotificationRow): AppNotification {
   return {
     id: r.id,
     type: (TYPES as readonly string[]).includes(r.type) ? (r.type as NotificationType) : "info",
-    category: r.category as NotificationCategory,
+    // Validate at the boundary (same as `type`) so an unknown category can't
+    // render a blank label downstream.
+    category: (CATEGORIES as readonly string[]).includes(r.category)
+      ? (r.category as NotificationCategory)
+      : "video_ready",
     title: r.title,
     body: r.body,
     createdAt: r.created_at,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -80,17 +80,44 @@ export function NotificationCenter({
   userId: string;
   initial: AppNotification[];
 }) {
-  const router = useRouter();
   const items = useNotificationsRealtime(userId, initial);
-  const unread = unreadCount(items);
+  // Optimistic read overlay: flip immediately, roll back if the write fails.
+  // Realtime/next-load reconciles the authoritative state.
+  const [readIds, setReadIds] = useState<Set<string>>(() => new Set());
+  const [message, setMessage] = useState<string | null>(null);
+
+  const effective = items.map((n) => (readIds.has(n.id) ? { ...n, read: true } : n));
+  const unread = unreadCount(effective);
 
   function open(n: AppNotification) {
-    if (!n.read) void markRead(n.id).then(() => router.refresh());
+    if (n.read || readIds.has(n.id)) return;
+    setReadIds((s) => new Set(s).add(n.id));
+    setMessage(null);
+    void markRead(n.id).then((res) => {
+      if (!res.ok) {
+        setReadIds((s) => {
+          const next = new Set(s);
+          next.delete(n.id);
+          return next;
+        });
+        setMessage(res.message);
+      }
+    });
   }
 
   async function readAll() {
-    await markAllRead();
-    router.refresh();
+    const unreadIds = effective.filter((n) => !n.read).map((n) => n.id);
+    setReadIds((s) => new Set([...s, ...unreadIds]));
+    setMessage(null);
+    const res = await markAllRead();
+    if (!res.ok) {
+      setReadIds((s) => {
+        const next = new Set(s);
+        for (const id of unreadIds) next.delete(id);
+        return next;
+      });
+      setMessage(res.message);
+    }
   }
 
   return (
@@ -109,7 +136,13 @@ export function NotificationCenter({
         ) : null}
       </div>
 
-      {items.length === 0 ? (
+      {message ? (
+        <p role="alert" className="text-destructive text-sm">
+          {message}
+        </p>
+      ) : null}
+
+      {effective.length === 0 ? (
         <EmptyState
           className="py-16"
           title="Aucune notification"
@@ -117,7 +150,7 @@ export function NotificationCenter({
         />
       ) : (
         <div className="flex flex-col gap-2" data-testid="notification-list">
-          {items.map((n) => (
+          {effective.map((n) => (
             <Row key={n.id} n={n} onOpen={open} />
           ))}
         </div>

@@ -25,6 +25,7 @@ export function NotificationBell({
       Notifications
       {unread > 0 ? (
         <span
+          aria-label={`${unread} non lues`}
           className={cn(
             "bg-primary text-primary-foreground inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold",
           )}

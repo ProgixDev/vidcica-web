@@ -19,6 +19,7 @@ function builder() {
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(async () => ({
+    auth: { getUser: async () => ({ data: { user: { id: "u1" } } }) },
     from: (...args: unknown[]) => {
       calls.push({ method: "from", args });
       return builder();

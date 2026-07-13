@@ -46,6 +46,34 @@ so streaming its row over realtime is safe (unlike the 003 networks token-cipher
 | AC-7 empty state      | RTL: `[]` → friendly empty state, not an empty list                                               |
 | AC-8 states           | RTL empty/error + `pnpm e2e:shots` + `/verify-ui`                                                 |
 
+## Verification status (post-review, 2026-07-13)
+
+Corrected AC→test record after the review board + fixes:
+
+- **Running tests:** AC-1 (`notifications-queries.test.ts` + RTL), AC-2 (`notification.test.ts` +
+  RTL + bell incl. the 99+ cap), AC-3 (`use-notifications-realtime.test.ts` merge **and** the mounted
+  hook: fake INSERT prepends, DELETE removes), AC-4 (`notification-center.test.tsx` — clicking a row
+  calls `markRead` and optimistically flips read), AC-5 (`actions.test.ts` + RTL count→0),
+  AC-6 (`notification.test.ts` + RTL href/button), AC-7 (RTL empty state).
+- **Optimistic UI:** the centre now flips read locally on click / mark-all and rolls back on a failed
+  write (surfacing the action's FR error via `role="alert"`); no `router.refresh()` (realtime/next
+  load reconciles).
+- **AC-8 error path (corrected):** `listMyNotifications` degrades a query failure to `[]` (graceful,
+  consistent with the videos/networks reads), so the route `error.tsx` boundary covers render/auth
+  throws, not load-failure. A **failed write** now shows an inline `role="alert"`. Loading + error
+  boundary states are screenshotted.
+- **Accepted residual risk:** real live-arrival + mark-read e2e needs a seeded user + a trigger firing.
+
+## Security note (appsec P1 — verified safe)
+
+The review flagged that no `notifications` RLS migration exists — but it read the **skeleton's**
+`supabase/migrations` (0001–0004), not the source-of-truth **ClipFlow** repo. ClipFlow's
+`20260603140000_notifications_table_and_triggers.sql` creates `notifications` with **RLS enabled**,
+own-row `SELECT/INSERT/UPDATE/DELETE` policies (`user_id = auth.uid()`), server-side trigger minting,
+and adds the table to the `supabase_realtime` publication. So the cross-user isolation the web
+delegates to RLS **is** enforced on the live DB. Confirmed clean: no client INSERT path, title/body
+rendered as text (no XSS), realtime carries no sensitive columns.
+
 ## Risks & unknowns
 
 - **`notifications` realtime publication** — verify in step 0; if unpublished, AC-3 degrades to

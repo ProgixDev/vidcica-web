@@ -26,4 +26,9 @@ describe("<NotificationBell /> (AC-2)", () => {
     render(<NotificationBell userId="" initial={[n(true)]} />);
     expect(screen.queryByTestId("bell-count")).not.toBeInTheDocument();
   });
+
+  it("caps the badge at 99+", () => {
+    render(<NotificationBell userId="" initial={Array.from({ length: 100 }, () => n(false))} />);
+    expect(screen.getByTestId("bell-count")).toHaveTextContent("99+");
+  });
 });
