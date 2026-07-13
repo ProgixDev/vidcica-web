@@ -27,11 +27,11 @@ ship → /update-docs                           status: shipped; learnings disti
 
 ## Index
 
-| #                                     | Spec                                                        | Status  |
-| ------------------------------------- | ----------------------------------------------------------- | ------- |
-| [001](001-task-list/spec.md)          | Task list demo feature                                      | shipped |
-| [002](002-video-workspace-p0/spec.md) | P0 video workspace: sign in → create → render → download    | active  |
-| [003](003-networks-publish/spec.md)   | Connect social networks & publish (OAuth + enqueue-publish) | active  |
-| [004](004-billing/spec.md)            | Billing: subscriptions & credits (Stripe on web)            | active  |
-| [005](005-notifications/spec.md)      | Notification centre (notifications table + realtime)        | active  |
-| [006](006-support/spec.md)            | Support: Lia chat (support-chat) & contact form             | active  |
+| #                                                                                           | Spec                                                        | Status  |
+| ------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------- |
+| [001](001-task-list/spec.md)                                                                | Task list demo feature                                      | shipped |
+| [002](002-video-workspace-p0/spec.md) · [report](../docs/reports/002-video-workspace-p0.md) | P0 video workspace: sign in → create → render → download    | active  |
+| [003](003-networks-publish/spec.md)                                                         | Connect social networks & publish (OAuth + enqueue-publish) | active  |
+| [004](004-billing/spec.md)                                                                  | Billing: subscriptions & credits (Stripe on web)            | active  |
+| [005](005-notifications/spec.md)                                                            | Notification centre (notifications table + realtime)        | active  |
+| [006](006-support/spec.md)                                                                  | Support: Lia chat (support-chat) & contact form             | active  |
