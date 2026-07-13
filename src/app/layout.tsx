@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, Geist_Mono } from "next/font/google";
 import { MotionProvider } from "@/components/motion";
 import { site } from "@/core/site";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Outfit is the Vidcica brand face (mobile uses @expo-google-fonts/outfit).
+// A distinctive geometric sans — satisfies the quality bar's "not Inter/system".
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -53,8 +56,8 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
+    <html lang="fr" suppressHydrationWarning>
+      <body className={`${outfit.variable} ${geistMono.variable} font-sans antialiased`}>
         <script
           type="application/ld+json"
           // JSON-LD is static, app-controlled data — safe to inline.

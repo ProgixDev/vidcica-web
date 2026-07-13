@@ -5,7 +5,11 @@ export const metadata = { title: "Sign in" };
 
 export default function SignInPage() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl items-center justify-center px-6 py-16">
+    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col items-center justify-center gap-8 px-6 py-16">
+      <div className="flex items-center gap-2">
+        <span aria-hidden className="bg-primary inline-block size-3 rounded-full" />
+        <span className="text-lg font-semibold tracking-tight">Vidcica</span>
+      </div>
       <Suspense>
         <SignInForm />
       </Suspense>
