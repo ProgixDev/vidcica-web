@@ -6,8 +6,13 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { rowToVideo, type Video } from "@/lib/vidcica/video";
-import type { GenerationJobState } from "@/lib/vidcica/generation";
 import type { GenerationJobStatus } from "@/lib/vidcica/video";
+
+export type LatestJob = {
+  jobId: string;
+  status: GenerationJobStatus;
+  lastError: string | null;
+};
 
 /** Columns the workspace UI needs — keep in sync with rowToVideo. */
 const VIDEO_COLUMNS =
@@ -38,19 +43,19 @@ export async function getMyVideo(id: string): Promise<Video | null> {
 }
 
 /** The most recent generation job for a video (drives the render-progress view). */
-export async function getLatestJob(videoId: string): Promise<GenerationJobState | null> {
+export async function getLatestJob(videoId: string): Promise<LatestJob | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("generation_jobs")
-    .select("status, last_error, video_id")
+    .select("id, status, last_error")
     .eq("video_id", videoId)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
   if (error || !data) return null;
   return {
+    jobId: data.id,
     status: data.status as GenerationJobStatus,
     lastError: data.last_error ?? null,
-    videoId: data.video_id,
   };
 }
