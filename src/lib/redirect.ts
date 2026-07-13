@@ -8,8 +8,21 @@
 /** Absolute hosts an external redirect may target (https only). Usually empty. */
 const ALLOWED_HOSTS: readonly string[] = [];
 
+/** Backslash (→ "/" normalization), whitespace, and ASCII control chars are all
+ *  open-redirect bypass vectors (e.g. "/\evil.com" resolves to https://evil.com). */
+function hasUnsafeChars(s: string): boolean {
+  if (s.includes("\\")) return true;
+  for (let i = 0; i < s.length; i++) {
+    const code = s.charCodeAt(i);
+    // C0 controls + space (0x20) and below, and DEL (0x7f).
+    if (code <= 0x20 || code === 0x7f) return true;
+  }
+  return false;
+}
+
 export function safeRedirectPath(target: string | null | undefined, fallback = "/"): string {
   if (!target) return fallback;
+  if (hasUnsafeChars(target)) return fallback;
   try {
     // Same-origin relative path — but reject protocol-relative "//evil.com".
     if (target.startsWith("/") && !target.startsWith("//")) return target;

@@ -22,6 +22,30 @@ export const ComposerSchema = z.object({
 
 export type ComposerInput = z.infer<typeof ComposerSchema>;
 
+/**
+ * The AI plan is a server-action argument (comes from the client store), so it
+ * is untrusted at the edge and must be parsed before it hits the videos insert.
+ * Bounds cap the stored content (appsec + frontend review).
+ */
+export const VideoPlanSchema = z.object({
+  title: z.string().trim().min(1).max(300),
+  description: z.string().max(2000),
+  hashtags: z.array(z.string().max(100)).max(30),
+  script: z.string().max(20000),
+  segments: z
+    .array(
+      z.object({
+        index: z.number().int().min(0).max(200),
+        narration_fr: z.string().max(2000),
+        visual_prompt_en: z.string().max(2000),
+        search_keywords: z.string().max(500).optional(),
+        duration_sec: z.number().min(0).max(120),
+      }),
+    )
+    .min(1)
+    .max(30),
+});
+
 export const DEFAULT_COMPOSER_INPUT: ComposerInput = {
   kind: "idea",
   prompt: "",

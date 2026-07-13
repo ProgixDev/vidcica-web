@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { rowToVideo, type Video, type VideoRow } from "@/lib/vidcica/video";
 
@@ -26,15 +26,14 @@ export function removeVideo(list: Video[], id: string): Video[] {
  */
 export function useVideosRealtime(userId: string, initial: Video[]): Video[] {
   const [videos, setVideos] = useState<Video[]>(initial);
-  // Keep the latest seed if the server re-renders with fresh data.
-  const seeded = useRef(false);
-  useEffect(() => {
-    if (!seeded.current) {
-      seeded.current = true;
-    } else {
-      setVideos(initial);
-    }
-  }, [initial]);
+  // Re-seed from the server during render (not an effect) when a router.refresh()
+  // hands down a new `initial` — the sanctioned "adjust state on prop change"
+  // pattern (docs/conventions/react.md), not prop→state syncing via useEffect.
+  const [prevInitial, setPrevInitial] = useState(initial);
+  if (initial !== prevInitial) {
+    setPrevInitial(initial);
+    setVideos(initial);
+  }
 
   useEffect(() => {
     if (!userId) return;

@@ -50,6 +50,21 @@ Three thin feature slices (`auth`, `videos`, `create`) over a small **shared dat
 | AC-14 download                 | e2e: ready video detail → player present + download anchor has finished URL + `download` attr                                                                            |
 | AC-15 states everywhere        | `pnpm e2e:shots` captures empty/loading/error/success for each screen; `/verify-ui` inspects                                                                             |
 
+## Verification status (post-review, 2026-07-13)
+
+The AC→verification table above was written before implementation and **overstates the e2e
+coverage** — the actual `e2e/create-video.spec.ts` covers the guard (AC-3) and the sign-in surface;
+the full authenticated journey is written but **skips until a seeded test user** (`E2E_TEST_EMAIL`
+/`PASSWORD`) exists. Corrected mapping of what actually proves each AC:
+
+- **Running tests:** AC-3 (e2e guard), AC-5/8/9/10/11/12/13 (unit reducers/queries), AC-2/4 (OTP
+  reducer), AC-7 (merge reducer), AC-6 (RTL `video-list.test.tsx`), AC-14 (RTL `video-detail.test.tsx`),
+  plan-boundary guard (`schema.test.ts`), open-redirect (`redirect.test.ts`).
+- **Screenshots only:** every screen's states (`artifacts/screenshots/002-video-workspace-p0/`).
+- **Accepted residual risk (needs a seeded test user):** the end-to-end authenticated CUJ
+  (sign-in success → enqueue nav → live render advance → download) and the real OTP SMS round-trip.
+  The e2e is in place and un-skips automatically once the creds are set in CI.
+
 ## Risks & unknowns
 
 - **Interim DB types drift** from the live schema. De-risk: copy from the same project; a `queries.test.ts` asserts the columns we read exist in the type; regenerate before ship.

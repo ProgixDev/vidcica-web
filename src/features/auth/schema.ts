@@ -2,8 +2,8 @@ import { z } from "zod";
 
 /** Auth input contract — validated at the edge before any network call. */
 export const CredentialsSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z.string().email("Adresse e-mail invalide"),
+  password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caractères"),
 });
 
 export type Credentials = z.infer<typeof CredentialsSchema>;
@@ -13,7 +13,7 @@ export const PhoneSchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(/^\+[1-9]\d{6,14}$/, "Enter a phone number in international format (+33…)"),
+    .regex(/^\+[1-9]\d{6,14}$/, "Numéro au format international (+33…)"),
 });
 export type PhoneInput = z.infer<typeof PhoneSchema>;
 
@@ -22,6 +22,6 @@ export const OtpSchema = z.object({
   code: z
     .string()
     .trim()
-    .regex(/^\d{6}$/, "The code is 6 digits"),
+    .regex(/^\d{6}$/, "Le code contient 6 chiffres"),
 });
 export type OtpInput = z.infer<typeof OtpSchema>;

@@ -13,6 +13,16 @@ describe("safeRedirectPath", () => {
     expect(safeRedirectPath("javascript:alert(1)")).toBe("/");
   });
 
+  it("rejects backslash / whitespace / control-char bypasses (appsec)", () => {
+    // Backslash is normalized to "/" by the URL parser + router → https://evil.com
+    expect(safeRedirectPath("/\\evil.com")).toBe("/");
+    expect(safeRedirectPath("/\\/evil.com")).toBe("/");
+    expect(safeRedirectPath("/\tfoo")).toBe("/");
+    expect(safeRedirectPath("/ /evil.com")).toBe("/");
+    // A legitimate hyphenated path is still allowed (regression guard).
+    expect(safeRedirectPath("/videos/abc-def")).toBe("/videos/abc-def");
+  });
+
   it("falls back safely on empty / malformed input", () => {
     expect(safeRedirectPath(null)).toBe("/");
     expect(safeRedirectPath(undefined, "/home")).toBe("/home");

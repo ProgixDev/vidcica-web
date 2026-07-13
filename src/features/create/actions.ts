@@ -8,7 +8,7 @@ import {
   type VideoPlan,
 } from "@/lib/vidcica/generation";
 import type { Json } from "@/lib/supabase/database.types";
-import { ComposerSchema, type ComposerInput } from "./schema";
+import { ComposerSchema, VideoPlanSchema, type ComposerInput } from "./schema";
 import type { EnqueueResult } from "./store";
 
 /**
@@ -41,6 +41,15 @@ export async function enqueueAction(input: ComposerInput, plan: VideoPlan): Prom
   }
   const opts = parsed.data;
 
+  // The plan is client-controlled at this boundary — parse it before it reaches
+  // the videos insert (a caller can invoke this action directly, skipping the
+  // plan step). Bounds cap the stored JSON.
+  const planParsed = VideoPlanSchema.safeParse(plan);
+  if (!planParsed.success) {
+    return { ok: false, reason: "no_plan", message: "Plan invalide" };
+  }
+  const safePlan = planParsed.data;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -51,10 +60,10 @@ export async function enqueueAction(input: ComposerInput, plan: VideoPlan): Prom
   const { error: insertError } = await supabase.from("videos").insert({
     id: videoId,
     user_id: user.id,
-    title: plan.title,
-    script: plan.script,
-    description: plan.description,
-    hashtags: plan.hashtags,
+    title: safePlan.title,
+    script: safePlan.script,
+    description: safePlan.description,
+    hashtags: safePlan.hashtags,
     format: opts.ratio,
     tone: "energique",
     status: "brouillon",
@@ -62,7 +71,7 @@ export async function enqueueAction(input: ComposerInput, plan: VideoPlan): Prom
     duration_sec: opts.length,
     voice: opts.voice,
     music_mood: opts.music === "none" ? null : opts.music,
-    segments: plan.segments as unknown as Json,
+    segments: safePlan.segments as unknown as Json,
   });
   if (insertError) {
     return { ok: false, reason: "error", message: insertError.message };
@@ -70,7 +79,7 @@ export async function enqueueAction(input: ComposerInput, plan: VideoPlan): Prom
 
   const outcome = await enqueueGeneration(supabase, {
     videoId,
-    segments: plan.segments,
+    segments: safePlan.segments,
     model: opts.model,
     quality: opts.quality,
     ratio: opts.ratio,
