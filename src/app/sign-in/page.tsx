@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import { SignInForm } from "@/features/auth";
+import { AuthPanel } from "@/features/auth";
 
-export const metadata = { title: "Sign in" };
+export const metadata = { title: "Connexion" };
 
 export default function SignInPage() {
   return (
@@ -11,7 +11,7 @@ export default function SignInPage() {
         <span className="text-lg font-semibold tracking-tight">Vidcica</span>
       </div>
       <Suspense>
-        <SignInForm />
+        <AuthPanel />
       </Suspense>
     </main>
   );
