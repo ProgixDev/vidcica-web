@@ -33,3 +33,4 @@ ship → /update-docs                           status: shipped; learnings disti
 | [002](002-video-workspace-p0/spec.md) | P0 video workspace: sign in → create → render → download    | active  |
 | [003](003-networks-publish/spec.md)   | Connect social networks & publish (OAuth + enqueue-publish) | active  |
 | [004](004-billing/spec.md)            | Billing: subscriptions & credits (Stripe on web)            | active  |
+| [005](005-notifications/spec.md)      | Notification centre (notifications table + realtime)        | active  |
