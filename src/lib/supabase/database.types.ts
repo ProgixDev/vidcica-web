@@ -210,6 +210,57 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          body: string;
+          campaign_id: string | null;
+          category: string;
+          created_at: string;
+          dedupe_key: string | null;
+          id: string;
+          lead_id: string | null;
+          read: boolean;
+          read_at: string | null;
+          title: string;
+          type: string;
+          updated_at: string;
+          user_id: string;
+          video_id: string | null;
+        };
+        Insert: {
+          body: string;
+          campaign_id?: string | null;
+          category: string;
+          created_at?: string;
+          dedupe_key?: string | null;
+          id?: string;
+          lead_id?: string | null;
+          read?: boolean;
+          read_at?: string | null;
+          title: string;
+          type?: string;
+          updated_at?: string;
+          user_id: string;
+          video_id?: string | null;
+        };
+        Update: {
+          body?: string;
+          campaign_id?: string | null;
+          category?: string;
+          created_at?: string;
+          dedupe_key?: string | null;
+          id?: string;
+          lead_id?: string | null;
+          read?: boolean;
+          read_at?: string | null;
+          title?: string;
+          type?: string;
+          updated_at?: string;
+          user_id?: string;
+          video_id?: string | null;
+        };
+        Relationships: [];
+      };
       networks: {
         Row: {
           access_token_ciphertext: string | null;
