@@ -27,7 +27,8 @@ ship → /update-docs                           status: shipped; learnings disti
 
 ## Index
 
-| #                                     | Spec                                                     | Status  |
-| ------------------------------------- | -------------------------------------------------------- | ------- |
-| [001](001-task-list/spec.md)          | Task list demo feature                                   | shipped |
-| [002](002-video-workspace-p0/spec.md) | P0 video workspace: sign in → create → render → download | active  |
+| #                                     | Spec                                                        | Status  |
+| ------------------------------------- | ----------------------------------------------------------- | ------- |
+| [001](001-task-list/spec.md)          | Task list demo feature                                      | shipped |
+| [002](002-video-workspace-p0/spec.md) | P0 video workspace: sign in → create → render → download    | active  |
+| [003](003-networks-publish/spec.md)   | Connect social networks & publish (OAuth + enqueue-publish) | active  |
