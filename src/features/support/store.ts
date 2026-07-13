@@ -35,11 +35,10 @@ export type SupportStore = ReturnType<typeof createSupportStore>;
 const GREETING =
   "Bonjour, je suis Lia 👋 Comment puis-je vous aider ? Posez-moi une question sur la création, la publication ou votre abonnement.";
 
-let seq = 0;
-const nextId = () => `m${++seq}`;
-
+// Per-message ids use crypto.randomUUID() — never a module-level counter, which
+// would be shared across requests during SSR (docs/conventions/state.md).
 export function greeting(): SupportMessage {
-  return { id: nextId(), author: "lia", body: GREETING };
+  return { id: crypto.randomUUID(), author: "lia", body: GREETING };
 }
 
 export function createSupportStore(deps: SupportDeps) {
@@ -53,7 +52,10 @@ export function createSupportStore(deps: SupportDeps) {
       if (!trimmed || get().typing) return; // blank / in-flight no-op (AC-7)
 
       const prior = get().messages;
-      set({ messages: [...prior, { id: nextId(), author: "user", body: trimmed }], typing: true });
+      set({
+        messages: [...prior, { id: crypto.randomUUID(), author: "user", body: trimmed }],
+        typing: true,
+      });
 
       const turns: SupportTurn[] = [
         ...prior.map(
@@ -75,7 +77,10 @@ export function createSupportStore(deps: SupportDeps) {
       }
 
       set((s) => ({
-        messages: [...s.messages, { id: nextId(), author: "lia", body: reply.reply, suggestions }],
+        messages: [
+          ...s.messages,
+          { id: crypto.randomUUID(), author: "lia", body: reply.reply, suggestions },
+        ],
         typing: false,
         handoff: s.handoff || reply.handoff,
       }));

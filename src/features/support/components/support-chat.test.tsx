@@ -30,6 +30,33 @@ describe("<SupportChat /> (AC-1/3/5)", () => {
     expect(screen.getByText("Créer une vidéo")).toBeInTheDocument(); // suggestion chip
   });
 
+  it("AC-2: shows the typing indicator and disables send while Lia replies", async () => {
+    let resolve!: (v: AskSupportOutcome) => void;
+    renderChat(() => new Promise<AskSupportOutcome>((r) => (resolve = r)));
+    fireEvent.change(screen.getByTestId("chat-input"), { target: { value: "coucou" } });
+    fireEvent.click(screen.getByTestId("chat-send"));
+    expect(screen.getByTestId("typing")).toBeInTheDocument();
+    expect(screen.getByTestId("chat-send")).toBeDisabled();
+
+    resolve({ ok: true, reply: "Voilà.", suggestions: [], handoff: false });
+    expect(await screen.findByText("Voilà.")).toBeInTheDocument();
+    expect(screen.queryByTestId("typing")).not.toBeInTheDocument();
+  });
+
+  it("AC-3: clicking a normal suggestion sends it as the next turn", async () => {
+    renderChat(async () => ({
+      ok: true,
+      reply: "Réponse.",
+      suggestions: ["Créer une vidéo"],
+      handoff: false,
+    }));
+    fireEvent.change(screen.getByTestId("chat-input"), { target: { value: "salut" } });
+    fireEvent.click(screen.getByTestId("chat-send"));
+    fireEvent.click(await screen.findByText("Créer une vidéo"));
+    const userTurns = await screen.findAllByTestId("msg-user");
+    expect(userTurns.at(-1)).toHaveTextContent("Créer une vidéo");
+  });
+
   it("a contact-form suggestion triggers the handoff instead of sending", async () => {
     const { onHandoff } = renderChat(async () => ({
       ok: true,

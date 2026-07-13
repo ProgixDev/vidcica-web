@@ -30,7 +30,13 @@ export function SupportChat({ onHandoff }: { onHandoff: () => void }) {
 
   return (
     <div className="flex flex-col gap-4" data-testid="support-chat">
-      <div className="flex flex-col gap-3" data-testid="chat-thread">
+      <div
+        className="flex flex-col gap-3"
+        data-testid="chat-thread"
+        role="log"
+        aria-live="polite"
+        aria-label="Conversation avec Lia"
+      >
         {messages.map((m) => (
           <div
             key={m.id}

@@ -4,12 +4,22 @@
  * degrades to `fallbackReply()` so the chat never dead-ends — mirrors
  * ClipFlow/src/lib/support-chat.ts.
  */
+import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { clientEnv } from "@/core/env.client";
 import type { Database } from "@/lib/supabase/database.types";
 
 type DB = SupabaseClient<Database>;
 const SUPABASE_URL = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
+
+/** The `support-chat` edge response is untrusted input — parse, don't cast. */
+const replySchema = z.object({
+  ok: z.boolean().optional(),
+  reply: z.string().optional(),
+  suggestions: z.array(z.string()).optional(),
+  handoff: z.boolean().optional(),
+  error: z.string().optional(),
+});
 
 export type SupportTurn = { role: "user" | "assistant"; content: string };
 export type SupportReply = { reply: string; suggestions: string[]; handoff: boolean };
@@ -47,20 +57,15 @@ export async function askSupport(
       body: JSON.stringify({ messages: turns, locale }),
     });
     if (res.status === 503) return { ok: false, reason: "not_configured" };
-    const body = (await res.json().catch(() => ({}))) as {
-      ok?: boolean;
-      reply?: string;
-      suggestions?: string[];
-      handoff?: boolean;
-      error?: string;
-    };
+    const parsed = replySchema.safeParse(await res.json().catch(() => ({})));
+    const body = parsed.success ? parsed.data : {};
     if (!res.ok || !body.ok || !body.reply) {
       return { ok: false, reason: "error", message: body.error ?? `HTTP ${res.status}` };
     }
     return {
       ok: true,
       reply: body.reply,
-      suggestions: Array.isArray(body.suggestions) ? body.suggestions : [],
+      suggestions: body.suggestions ?? [],
       handoff: body.handoff === true,
     };
   } catch (e) {
