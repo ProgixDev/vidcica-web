@@ -2,7 +2,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { listMyVideos } from "@/lib/vidcica/queries";
+import { listMyNotifications } from "@/lib/vidcica/notifications-queries";
 import { VideoList } from "@/features/videos";
+import { NotificationBell } from "@/features/notifications";
 import { buttonVariants } from "@/components/ui/button";
 
 export const metadata = { title: "Tableau de bord" };
@@ -17,7 +19,7 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/dashboard");
 
-  const videos = await listMyVideos();
+  const [videos, notifications] = await Promise.all([listMyVideos(), listMyNotifications()]);
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8">
@@ -26,9 +28,12 @@ export default async function DashboardPage() {
           <span aria-hidden className="bg-primary inline-block size-3 rounded-full" />
           <h1 className="text-lg font-semibold tracking-tight">Mes vidéos</h1>
         </div>
-        <Link href="/create" className={buttonVariants()}>
-          Créer une vidéo
-        </Link>
+        <div className="flex items-center gap-4">
+          <NotificationBell userId={user.id} initial={notifications} />
+          <Link href="/create" className={buttonVariants()}>
+            Créer une vidéo
+          </Link>
+        </div>
       </header>
       <VideoList userId={user.id} initial={videos} />
     </main>

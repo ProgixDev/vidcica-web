@@ -10,6 +10,7 @@ const PROTECTED_PREFIXES = [
   "/videos",
   "/networks",
   "/billing",
+  "/notifications",
 ];
 
 /**
