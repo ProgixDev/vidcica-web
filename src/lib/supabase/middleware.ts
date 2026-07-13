@@ -3,7 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { clientEnv } from "@/core/env.client";
 
 /** Routes that require an authenticated session. Edit per app. */
-const PROTECTED_PREFIXES = ["/dashboard", "/account", "/create", "/videos", "/networks"];
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/account",
+  "/create",
+  "/videos",
+  "/networks",
+  "/billing",
+];
 
 /**
  * Refreshes the Supabase auth session on every request (tokens are short-lived)
