@@ -107,11 +107,19 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-6 py-8 text-sm">
+      <footer className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm">
         <Wordmark />
-        <span className="text-muted-foreground text-xs">
-          Vidéos IA · Publication multi-réseaux · Publicités &amp; prospects
-        </span>
+        <nav className="text-muted-foreground flex items-center gap-4 text-xs">
+          <Link href="/privacy" className="hover:text-foreground">
+            Confidentialité
+          </Link>
+          <Link href="/terms" className="hover:text-foreground">
+            Conditions
+          </Link>
+          <a href="mailto:hello@vidcica.com" className="hover:text-foreground">
+            Contact
+          </a>
+        </nav>
       </footer>
     </div>
   );
