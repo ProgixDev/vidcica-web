@@ -347,6 +347,54 @@ export type Database = {
           },
         ];
       };
+      profiles: {
+        Row: {
+          account_status: Database["public"]["Enums"]["account_status"];
+          audience: string;
+          avatar_url: string | null;
+          created_at: string;
+          deletion_scheduled_at: string | null;
+          display_name: string;
+          id: string;
+          locale: string;
+          marketing_opt_in: boolean;
+          niche: string;
+          preferred_tone: string | null;
+          tier: string;
+          updated_at: string;
+        };
+        Insert: {
+          account_status?: Database["public"]["Enums"]["account_status"];
+          audience?: string;
+          avatar_url?: string | null;
+          created_at?: string;
+          deletion_scheduled_at?: string | null;
+          display_name?: string;
+          id: string;
+          locale?: string;
+          marketing_opt_in?: boolean;
+          niche?: string;
+          preferred_tone?: string | null;
+          tier?: string;
+          updated_at?: string;
+        };
+        Update: {
+          account_status?: Database["public"]["Enums"]["account_status"];
+          audience?: string;
+          avatar_url?: string | null;
+          created_at?: string;
+          deletion_scheduled_at?: string | null;
+          display_name?: string;
+          id?: string;
+          locale?: string;
+          marketing_opt_in?: boolean;
+          niche?: string;
+          preferred_tone?: string | null;
+          tier?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       videos: {
         Row: {
           approved: boolean | null;
