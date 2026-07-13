@@ -10,9 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { openBillingPortal, startCheckout } from "@/lib/vidcica/billing";
-import { ORDERED_TIERS, TIERS, isUpgrade, type Plan } from "@/lib/vidcica/tiers";
+import { ORDERED_TIERS, TIERS, isUpgrade, type Entitlement, type Plan } from "@/lib/vidcica/tiers";
 import { useCreditsRealtime } from "@/lib/vidcica/use-credits-realtime";
-import type { Entitlement } from "@/lib/vidcica/billing-queries";
 
 const POPUP = "width=520,height=760";
 
@@ -44,10 +43,13 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
 
   async function manage() {
     const popup = typeof window !== "undefined" ? window.open("", "vidcica-portal", POPUP) : null;
+    const controller = new AbortController();
+    abortRef.current = controller;
     setPendingPlan("portal");
     setMessage(null);
     const supabase = createClient();
     const out = await openBillingPortal(supabase, popup);
+    if (controller.signal.aborted) return;
     setPendingPlan(null);
     if (!out.ok) {
       if (out.reason === "no_customer") setMessage("Aucun abonnement à gérer pour le moment.");

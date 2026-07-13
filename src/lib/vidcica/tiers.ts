@@ -62,6 +62,15 @@ export const TIERS: Readonly<Record<Plan, TierDef>> = {
 
 export const ORDERED_TIERS: ReadonlyArray<Plan> = ["free", "starter", "pro", "studio"];
 
+/** Current entitlement (kept here, not in the server-only queries module, so the
+ *  client paywall can import the type without touching `server-only`). */
+export type Entitlement = { plan: Plan; credits: number };
+
+/** Coerce an untrusted tier string (from the DB) to a known plan; unknown → free. */
+export function toPlan(tier: string | null | undefined): Plan {
+  return (ORDERED_TIERS as readonly string[]).includes(tier ?? "") ? (tier as Plan) : "free";
+}
+
 export const tierDef = (plan: Plan): TierDef => TIERS[plan];
 
 /** Rank for upgrade/downgrade comparisons (free < starter < pro < studio). */

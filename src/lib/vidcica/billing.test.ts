@@ -1,5 +1,28 @@
-import { describe, expect, it, vi } from "vitest";
-import { runCheckout, type CheckoutDeps } from "./billing";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { openBillingPortal, runCheckout, startCheckout, type CheckoutDeps } from "./billing";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/database.types";
+
+// Minimal fake Supabase client: a session token + a profiles read.
+function fakeSupabase(tier = "free"): SupabaseClient<Database> {
+  return {
+    auth: { getSession: async () => ({ data: { session: { access_token: "t" } } }) },
+    from: () => ({ select: () => ({ maybeSingle: async () => ({ data: { tier } }) }) }),
+  } as unknown as SupabaseClient<Database>;
+}
+
+function fakePopup() {
+  return { closed: false, close: vi.fn(), location: { href: "" } } as unknown as Window;
+}
+
+function stubFetch(status: number, body: Record<string, unknown>) {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => ({ status, ok: status >= 200 && status < 300, json: async () => body })),
+  );
+}
+
+afterEach(() => vi.unstubAllGlobals());
 
 function deps(over: Partial<CheckoutDeps> = {}): CheckoutDeps {
   return {
@@ -68,6 +91,50 @@ describe("runCheckout (AC-3/4/5)", () => {
 
   it("a blocked (null) popup → error", async () => {
     const out = await runCheckout(deps(), null);
+    expect(out.ok).toBe(false);
+  });
+});
+
+describe("startCheckout HTTP mapping (AC-5)", () => {
+  it("maps 503 to not_configured (no navigation, popup closed)", async () => {
+    stubFetch(503, {});
+    const pop = fakePopup();
+    const out = await startCheckout(fakeSupabase(), "pro", pop);
+    expect(out).toEqual({ ok: false, reason: "not_configured" });
+    expect(pop.close as unknown as ReturnType<typeof vi.fn>).toHaveBeenCalled();
+  });
+
+  it("maps a non-ok response to error", async () => {
+    stubFetch(500, { error: "boom" });
+    const out = await startCheckout(fakeSupabase(), "pro", fakePopup());
+    expect(out.ok).toBe(false);
+    if (!out.ok) expect(out.reason).toBe("error");
+  });
+});
+
+describe("openBillingPortal (AC-6)", () => {
+  it("opens the portal in the popup on success", async () => {
+    stubFetch(200, { url: "https://billing.stripe.com/p" });
+    const pop = fakePopup();
+    const out = await openBillingPortal(fakeSupabase(), pop);
+    expect(out).toEqual({ ok: true });
+    expect(pop.location.href).toBe("https://billing.stripe.com/p");
+  });
+
+  it("maps 400 no_customer", async () => {
+    stubFetch(400, { error: "no_customer" });
+    const out = await openBillingPortal(fakeSupabase(), fakePopup());
+    expect(out).toEqual({ ok: false, reason: "no_customer" });
+  });
+
+  it("maps 503 not_configured", async () => {
+    stubFetch(503, {});
+    const out = await openBillingPortal(fakeSupabase(), fakePopup());
+    expect(out).toEqual({ ok: false, reason: "not_configured" });
+  });
+
+  it("a blocked (null) popup → error", async () => {
+    const out = await openBillingPortal(fakeSupabase(), null);
     expect(out.ok).toBe(false);
   });
 });

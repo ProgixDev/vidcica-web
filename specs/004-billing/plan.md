@@ -55,6 +55,34 @@ it changes, then closes the popup and refreshes. Zero backend change. The portal
 | AC-7 live credits     | unit `use-credits-realtime.test.ts` (balance change merges)                                                 |
 | AC-8 states           | RTL loading/error + `pnpm e2e:shots` + `/verify-ui`                                                         |
 
+## Verification status (post-review, 2026-07-13)
+
+Corrected AC→test record after the review board + fixes:
+
+- **Running tests:** AC-1 (`billing-queries.test.ts` + RTL), AC-2 (`tiers.test.ts` + RTL incl. a
+  highlight + the "Actuel" marking), AC-3/AC-4 (`billing.test.ts` runCheckout DI), AC-5
+  (`billing.test.ts` HTTP mapping 503→not_configured / non-ok→error), AC-6 (`billing.test.ts`
+  `openBillingPortal` branches: ok / no_customer / not_configured / null-popup), AC-7
+  (`use-credits-realtime.test.ts` merge **and** the hook's live subscription wiring), AC-8
+  (`paywall.test.tsx` surfaces the not-configured `role="alert"`).
+- **Screenshot-only:** paywall free/paid success + the error state; `loading.tsx`/`error.tsx` route
+  boundaries are captured but not RTL-asserted.
+- **Accepted residual risk:** the real Stripe checkout (AC-3) + portal (AC-6) need Stripe test-mode
+  keys + a seeded test user — e2e is in place and skips until `E2E_TEST_*` is set.
+
+## ⚠️ Backend finding (out of web-repo scope — needs human sign-off)
+
+The appsec review flagged that **`profiles.tier`** (the entitlement column) appears to be
+**client-writable** on the live DB: the ClipFlow migration adds `tier` with only a CHECK constraint
+
+- a row-ownership `UPDATE` policy — no column-scoped grant or trigger excluding `tier`. If so, a
+  scripted authenticated client could `update profiles set tier='studio'` and self-grant a paid plan
+  (Stripe never involved). The **web code is correct** (it only reads `tier` and sends `{plan}`;
+  entitlement is webhook-written) — this is a **backend RLS gap** that must be fixed with a migration in
+  the ClipFlow repo (column-scope the grant to exclude `tier`/`account_status`, or a `BEFORE UPDATE`
+  trigger rejecting non-service-role `tier` changes). Could not verify the live policy directly (MCP
+  `execute_sql` is permission-restricted this session). Raised for sign-off; not fixable in this repo.
+
 ## Risks & unknowns
 
 - **Popup-detect for checkout.** De-risk: identical to the proven 003 OAuth orchestrator; the webhook
