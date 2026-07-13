@@ -1,88 +1,95 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { adsErrorMessage, createAdCampaign, resolveAdAccount, setCampaignStatus } from "./ads";
 
 type DB = SupabaseClient<Database>;
+type InvokeResult = { data: unknown; error: unknown };
 
-/** Fake client whose session yields `token` (null → signed out). */
-function db(token: string | null): DB {
+/** Fake client: a session (unless signed out) + a stubbed functions.invoke. */
+function db(signedIn: boolean, invoke?: () => Promise<InvokeResult>): DB {
   return {
     auth: {
-      getSession: async () => ({ data: { session: token ? { access_token: token } : null } }),
+      getSession: async () => ({ data: { session: signedIn ? { access_token: "t" } : null } }),
     },
+    functions: { invoke: invoke ?? (async () => ({ data: {}, error: null })) },
   } as unknown as DB;
 }
 
-/** Stub one fetch response. */
-function stubFetch(status: number, body: unknown) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async () => ({ status, ok: status >= 200 && status < 300, json: async () => body })),
-  );
-}
+/** A 2xx invoke: data set, no error (what functions.invoke returns on success). */
+const ok = (body: unknown) => async (): Promise<InvokeResult> => ({ data: body, error: null });
 
-afterEach(() => vi.unstubAllGlobals());
+/** A non-2xx invoke: FunctionsHttpError whose `context` is the raw Response. */
+const httpError = (status: number, body: unknown) => async (): Promise<InvokeResult> => ({
+  data: null,
+  error: { name: "FunctionsHttpError", context: { status, json: async () => body } },
+});
 
 describe("resolveAdAccount (AC-2 gate)", () => {
-  it("returns unauthenticated with no session (no fetch)", async () => {
-    const out = await resolveAdAccount(db(null));
+  it("returns unauthenticated with no session (no invoke)", async () => {
+    const out = await resolveAdAccount(db(false));
     expect(out).toEqual({ ok: false, reason: "unauthenticated" });
   });
 
-  it("maps 503 to ads_not_configured", async () => {
-    stubFetch(503, {});
-    const out = await resolveAdAccount(db("t"));
+  it("maps a 503 to ads_not_configured", async () => {
+    const out = await resolveAdAccount(db(true, httpError(503, {})));
     expect(out).toEqual({ ok: false, reason: "ads_not_configured" });
   });
 
   it("returns the account + page when present", async () => {
-    stubFetch(200, {
-      ok: true,
-      hasAccount: true,
-      hasPage: true,
-      adAccountId: "act_1",
-      pageName: "P",
-    });
-    const out = await resolveAdAccount(db("t"));
+    const out = await resolveAdAccount(
+      db(
+        true,
+        ok({ ok: true, hasAccount: true, hasPage: true, adAccountId: "act_1", pageName: "P" }),
+      ),
+    );
     expect(out).toMatchObject({ ok: true, hasAccount: true, hasPage: true, adAccountId: "act_1" });
   });
 });
 
 describe("createAdCampaign (AC-3/4)", () => {
   it("returns in_review + external id on success", async () => {
-    stubFetch(200, { ok: true, status: "in_review", external_campaign_id: "123" });
-    const out = await createAdCampaign(db("t"), "camp-1");
+    const out = await createAdCampaign(
+      db(true, ok({ ok: true, status: "in_review", external_campaign_id: "123" })),
+      "camp-1",
+    );
     expect(out).toEqual({ ok: true, status: "in_review", externalCampaignId: "123" });
   });
 
-  it("surfaces a create error reason + message (stays a draft)", async () => {
-    stubFetch(412, { error: "needs_reconnect" });
-    const out = await createAdCampaign(db("t"), "camp-1");
-    expect(out).toEqual({ ok: false, reason: "needs_reconnect", message: undefined });
+  it("surfaces a create error reason (stays a draft)", async () => {
+    const out = await createAdCampaign(
+      db(true, httpError(412, { error: "needs_reconnect" })),
+      "camp-1",
+    );
+    expect(out).toMatchObject({ ok: false, reason: "needs_reconnect" });
   });
 });
 
 describe("setCampaignStatus (AC-5/6)", () => {
   it("activates", async () => {
-    stubFetch(200, { ok: true, status: "active" });
-    expect(await setCampaignStatus(db("t"), "c", "activate")).toEqual({
-      ok: true,
-      status: "active",
-    });
+    const out = await setCampaignStatus(
+      db(true, ok({ ok: true, status: "active" })),
+      "c",
+      "activate",
+    );
+    expect(out).toEqual({ ok: true, status: "active" });
   });
 
   it("pauses", async () => {
-    stubFetch(200, { ok: true, status: "en_pause" });
-    expect(await setCampaignStatus(db("t"), "c", "pause")).toEqual({
-      ok: true,
-      status: "en_pause",
-    });
+    const out = await setCampaignStatus(
+      db(true, ok({ ok: true, status: "en_pause" })),
+      "c",
+      "pause",
+    );
+    expect(out).toEqual({ ok: true, status: "en_pause" });
   });
 
   it("carries the monthly cap on monthly_cap_exceeded", async () => {
-    stubFetch(422, { error: "monthly_cap_exceeded", cap: 50000, projected: 60000 });
-    const out = await setCampaignStatus(db("t"), "c", "activate");
+    const out = await setCampaignStatus(
+      db(true, httpError(422, { error: "monthly_cap_exceeded", cap: 50000, projected: 60000 })),
+      "c",
+      "activate",
+    );
     expect(out).toMatchObject({
       ok: false,
       reason: "monthly_cap_exceeded",
@@ -92,8 +99,11 @@ describe("setCampaignStatus (AC-5/6)", () => {
   });
 
   it("carries the min daily budget on below_min_budget", async () => {
-    stubFetch(422, { error: "below_min_budget", minDaily: 500 });
-    const out = await setCampaignStatus(db("t"), "c", "activate");
+    const out = await setCampaignStatus(
+      db(true, httpError(422, { error: "below_min_budget", minDaily: 500 })),
+      "c",
+      "activate",
+    );
     expect(out).toMatchObject({ ok: false, reason: "below_min_budget", minDaily: 500 });
   });
 });

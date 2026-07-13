@@ -10,31 +10,39 @@
  */
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { clientEnv } from "@/core/env.client";
 import type { Database } from "@/lib/supabase/database.types";
 
 type DB = SupabaseClient<Database>;
-const SUPABASE_URL = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
 
-/** POST an edge function with the caller's session bearer; normalize failures. */
-async function call(db: DB, fn: string, body: unknown): Promise<Record<string, unknown>> {
-  const { data } = await db.auth.getSession();
-  const token = data.session?.access_token;
-  if (!token) return { ok: false, reason: "unauthenticated" };
-  try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/${fn}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.status === 503) return { ok: false, reason: "ads_not_configured" };
-    const parsed = z.record(z.string(), z.unknown()).safeParse(await res.json().catch(() => ({})));
-    const json = parsed.success ? parsed.data : {};
-    if (!res.ok) return { ok: false, reason: String(json.error ?? `http_${res.status}`), ...json };
-    return json;
-  } catch (e) {
-    return { ok: false, reason: (e as Error).message };
+/**
+ * Invoke an existing edge function via the Supabase client (`functions.invoke`) —
+ * the client injects the base URL + the caller's auth; we never re-implement the
+ * function. Request bodies mirror ClipFlow/src/lib/ads-launch.ts exactly.
+ *
+ * A non-2xx response (incl. the 503 `ads_not_configured` gate) comes back as a
+ * `FunctionsHttpError` whose `context` is the raw Response, so we can still read
+ * the status + structured error codes the functions return (`cap`, `minDaily`, …)
+ * that drive the honest fallback + recovery UX.
+ */
+async function call(
+  db: DB,
+  fn: string,
+  body: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const { data: sess } = await db.auth.getSession();
+  if (!sess.session) return { ok: false, reason: "unauthenticated" };
+
+  const { data, error } = await db.functions.invoke(fn, { body });
+  if (!error) return (data ?? {}) as Record<string, unknown>;
+
+  const ctx = (error as { context?: { status?: number; json?: () => Promise<unknown> } }).context;
+  if (ctx && typeof ctx.status === "number") {
+    if (ctx.status === 503) return { ok: false, reason: "ads_not_configured" };
+    const raw = ctx.json ? await ctx.json().catch(() => ({})) : {};
+    const payload = z.record(z.string(), z.unknown()).safeParse(raw).data ?? {};
+    return { ok: false, reason: String(payload.error ?? `http_${ctx.status}`), ...payload };
   }
+  return { ok: false, reason: (error as Error).message ?? "error" };
 }
 
 // ── resolve-ad-account ──────────────────────────────────────────────
