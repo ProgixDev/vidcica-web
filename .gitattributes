@@ -1,0 +1,17 @@
+# Normalize line endings to LF across platforms so prettier/format:check and the
+# other gates behave identically on Windows, macOS, and Linux. Git stores LF;
+# with core.autocrlf=false the working tree stays LF too.
+* text=auto eol=lf
+
+# Binary assets — never normalize.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.mp4 binary

@@ -8,3 +8,7 @@ test-results
 artifacts
 public
 docs/reports/*/img
+
+# Planning/reference docs dropped in by the human (not shipped source).
+VIDCICA_WEB_BUILD_BRIEF.md
+VIDCICA_WEB_PROMPTS.md
