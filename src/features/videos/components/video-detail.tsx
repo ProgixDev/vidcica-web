@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { STATUS_META, type Video } from "@/lib/vidcica/video";
@@ -38,6 +39,13 @@ export function VideoDetail({ video }: { video: Video }) {
             Télécharger le MP4
           </a>
         ) : null}
+        <Link
+          href={`/videos/${video.id}/publish`}
+          className={buttonVariants({ variant: "outline" })}
+          data-testid="publish-link"
+        >
+          Publier
+        </Link>
         <span className="text-muted-foreground text-xs">
           {video.format} · {Math.round(video.durationSec)} s
         </span>
