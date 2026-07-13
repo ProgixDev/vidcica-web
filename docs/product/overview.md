@@ -1,24 +1,25 @@
 # Product Overview
 
-> **This file is a template placeholder.** When you clone the skeleton for a real project, this is the FIRST file to fill in — every agent grounds product decisions here. Keep it under a page.
-
 ## What this product is
 
-NEXTJS-SKELETON itself is the product right now: a canonical starting point for our company's websites and web apps, plus the demo feature used to prove the harness end-to-end (`task-list`).
+**Vidcica Web** is the logged-in desktop workspace for Vidcica — a French-first (bilingual fr/en) product that turns a short script into an AI-generated short-form video and auto-publishes it to social networks (YouTube, LinkedIn, Instagram, Facebook live; TikTok/X/Threads partial), with credits + subscription billing and, later, in-app Meta Ads.
 
-For a real project, replace with: the one-paragraph pitch — who the user is, the problem, the bet.
+The bet: creators and small businesses want finished, publishable vertical video without editing skills. Vidcica already ships as an Expo mobile app; the web is a **second front-end over the same live Supabase backend** (project `scoozakhhmowpzwotxgp`) — it reuses that backend's schema, RLS, realtime, and edge functions and **never owns migrations**. The web-specific win over mobile is Stripe billing (mobile uses RevenueCat IAP) and real wide desktop layouts. A marketing landing site already exists; this repo is the workspace, not marketing. Ground rules and non-obvious decisions: [VIDCICA_WEB_BUILD_BRIEF.md](../../VIDCICA_WEB_BUILD_BRIEF.md).
 
 ## Users
 
-| User                      | Wants                                          | Success looks like                                                      |
-| ------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------- |
-| Engineers & AI agents     | Start a project with quality encoded           | First feature shipped on day one without process questions              |
-| PMs / designers / testers | Ship via specs and reviews, not by asking devs | A spec becomes a verified, reported PR without synchronous hand-holding |
+| User                    | Wants                                                  | Success looks like                                                        |
+| ----------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------- |
+| Creator / solo marketer | Turn a script into a publishable vertical video, fast  | Sign in → create → watch it render → download/publish, no editing skills  |
+| Small-business owner    | Consistent multi-network presence without a video team | One script auto-published to several networks; credits/subscription clear |
+| Returning mobile user   | The same account and content on a bigger screen        | Same Supabase user/videos as mobile, adapted to a desktop workspace       |
 
 ## What we will NOT do (anti-goals)
 
+- **No new backend.** No migrations or new tables in this repo; no re-implementing edge-function logic — the web calls the existing functions. Schema-shaped changes belong in the mobile repo and are raised with a human.
+- **No marketing site here** — a landing already exists; this repo is the authenticated workspace only.
+- **No mobile transplant** — do not copy phone type sizes or the bottom-tab nav onto desktop; adapt the brand tokens to wide layouts with a left sidebar.
 - No multi-app monorepo (see ADR-0001) — clone per project instead.
-- No backend platform here: the skeleton stubs persistence; real projects add their data layer behind `features/*/actions.ts` and record it in an ADR.
 
 ## Current feature map
 

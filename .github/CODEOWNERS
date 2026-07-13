@@ -2,25 +2,25 @@
 # Shared layers and gate-bearing files get mandatory owner review (docs/conventions/git.md).
 # Replace the placeholder teams with real GitHub teams/users when cloning the skeleton.
 
-*                           @your-org/engineering
+*                           @ProgixDev/engineering
 
 # The harness itself — changes here steer every agent and every PR.
-/AGENTS.md                  @your-org/eng-leads
-/CLAUDE.md                  @your-org/eng-leads
-/.claude/                   @your-org/eng-leads
-/docs/                      @your-org/eng-leads
-/specs/constitution.md      @your-org/eng-leads
-/scripts/                   @your-org/eng-leads
+/AGENTS.md                  @ProgixDev/eng-leads
+/CLAUDE.md                  @ProgixDev/eng-leads
+/.claude/                   @ProgixDev/eng-leads
+/docs/                      @ProgixDev/eng-leads
+/specs/constitution.md      @ProgixDev/eng-leads
+/scripts/                   @ProgixDev/eng-leads
 
 # Gates and CI.
-/.github/                   @your-org/eng-leads
-/eslint.config.mjs          @your-org/eng-leads
-/tsconfig.json              @your-org/eng-leads
+/.github/                   @ProgixDev/eng-leads
+/eslint.config.mjs          @ProgixDev/eng-leads
+/tsconfig.json              @ProgixDev/eng-leads
 
 # Shared design system.
-/src/components/            @your-org/design-system
-/src/core/                  @your-org/eng-leads
+/src/components/            @ProgixDev/design-system
+/src/core/                  @ProgixDev/eng-leads
 
 # Product knowledge.
-/docs/product/              @your-org/product
-/specs/                     @your-org/product
+/docs/product/              @ProgixDev/product
+/specs/                     @ProgixDev/product

@@ -1,6 +1,6 @@
-# NEXTJS-SKELETON
+# Vidcica Web
 
-A production-grade Next.js starting point built on one premise: **AI agents write most of the code, the repository itself guarantees the quality.** Docs carry the knowledge, specs carry the intent, gates enforce the taste, screenshots prove the result.
+The **Vidcica** web app — the desktop workspace for a French-first (bilingual fr/en) product that generates short-form videos from a script via AI and auto-publishes them to social networks. It is a second front-end over the same Supabase backend that powers the Vidcica mobile app; the web repo reuses that backend's schema and edge functions and never owns migrations. Built on the NEXTJS-SKELETON harness, whose premise is: **AI agents write most of the code, the repository itself guarantees the quality.** Docs carry the knowledge, specs carry the intent, gates enforce the taste, screenshots prove the result.
 
 > Agents: your entry point is [AGENTS.md](AGENTS.md). Humans: keep reading.
 
