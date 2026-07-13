@@ -210,6 +210,143 @@ export type Database = {
           },
         ];
       };
+      networks: {
+        Row: {
+          access_token_ciphertext: string | null;
+          avatar_url: string | null;
+          connected: boolean;
+          connected_at: string | null;
+          created_at: string;
+          external_user_id: string | null;
+          external_username: string | null;
+          followers: number | null;
+          handle: string | null;
+          id: string;
+          last_sync: string | null;
+          name: string;
+          needs_reconnect: boolean;
+          platform: string;
+          platform_metadata: Json | null;
+          publishes_enabled: boolean;
+          refresh_token_ciphertext: string | null;
+          scope: string | null;
+          token_expires_at: string | null;
+          updated_at: string;
+          user_id: string;
+          workspace_id: string | null;
+        };
+        Insert: {
+          access_token_ciphertext?: string | null;
+          avatar_url?: string | null;
+          connected?: boolean;
+          connected_at?: string | null;
+          created_at?: string;
+          external_user_id?: string | null;
+          external_username?: string | null;
+          followers?: number | null;
+          handle?: string | null;
+          id: string;
+          last_sync?: string | null;
+          name: string;
+          needs_reconnect?: boolean;
+          platform: string;
+          platform_metadata?: Json | null;
+          publishes_enabled?: boolean;
+          refresh_token_ciphertext?: string | null;
+          scope?: string | null;
+          token_expires_at?: string | null;
+          updated_at?: string;
+          user_id: string;
+          workspace_id?: string | null;
+        };
+        Update: {
+          access_token_ciphertext?: string | null;
+          avatar_url?: string | null;
+          connected?: boolean;
+          connected_at?: string | null;
+          created_at?: string;
+          external_user_id?: string | null;
+          external_username?: string | null;
+          followers?: number | null;
+          handle?: string | null;
+          id?: string;
+          last_sync?: string | null;
+          name?: string;
+          needs_reconnect?: boolean;
+          platform?: string;
+          platform_metadata?: Json | null;
+          publishes_enabled?: boolean;
+          refresh_token_ciphertext?: string | null;
+          scope?: string | null;
+          token_expires_at?: string | null;
+          updated_at?: string;
+          user_id?: string;
+          workspace_id?: string | null;
+        };
+        Relationships: [];
+      };
+      publish_jobs: {
+        Row: {
+          as_short: boolean;
+          attempts: number;
+          created_at: string;
+          external_post_id: string | null;
+          external_post_url: string | null;
+          id: string;
+          last_error: string | null;
+          platform: string;
+          post_deleted_at: string | null;
+          provider_ref: string | null;
+          scheduled_for: string;
+          status: string;
+          updated_at: string;
+          user_id: string;
+          video_id: string;
+        };
+        Insert: {
+          as_short?: boolean;
+          attempts?: number;
+          created_at?: string;
+          external_post_id?: string | null;
+          external_post_url?: string | null;
+          id?: string;
+          last_error?: string | null;
+          platform: string;
+          post_deleted_at?: string | null;
+          provider_ref?: string | null;
+          scheduled_for?: string;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+          video_id: string;
+        };
+        Update: {
+          as_short?: boolean;
+          attempts?: number;
+          created_at?: string;
+          external_post_id?: string | null;
+          external_post_url?: string | null;
+          id?: string;
+          last_error?: string | null;
+          platform?: string;
+          post_deleted_at?: string | null;
+          provider_ref?: string | null;
+          scheduled_for?: string;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+          video_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "publish_jobs_video_id_fkey";
+            columns: ["video_id"];
+            isOneToOne: false;
+            referencedRelation: "videos";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       videos: {
         Row: {
           approved: boolean | null;
