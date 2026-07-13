@@ -12,6 +12,8 @@ const PROTECTED_PREFIXES = [
   "/billing",
   "/notifications",
   "/support",
+  "/ads",
+  "/leads",
 ];
 
 /**

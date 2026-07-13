@@ -140,13 +140,13 @@ export const STATUS_ORDER: LeadStatus[] = [
 
 export const STATUS_META: Record<
   LeadStatus,
-  { label: string; variant: "muted" | "brand" | "success" | "warning" | "destructive" }
+  { label: string; variant: "muted" | "brand" | "success" | "warning" | "outline" }
 > = {
   new: { label: "Nouveau", variant: "brand" },
   contacted: { label: "Contacté", variant: "warning" },
   qualified: { label: "Qualifié", variant: "warning" },
   converted: { label: "Converti", variant: "success" },
-  rejected: { label: "Rejeté", variant: "destructive" },
+  rejected: { label: "Rejeté", variant: "outline" },
 };
 
 export const SCORE_META: Record<

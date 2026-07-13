@@ -169,14 +169,14 @@ export function isLaunched(c: Pick<Campaign, "externalCampaignId">): boolean {
 /** Badge presentation per status: FR label + shadcn role token variant. */
 export const STATUS_META: Record<
   CampaignStatus,
-  { label: string; variant: "muted" | "brand" | "success" | "warning" | "destructive" }
+  { label: string; variant: "muted" | "brand" | "success" | "warning" | "outline" }
 > = {
   brouillon: { label: "Brouillon", variant: "muted" },
   in_review: { label: "En révision", variant: "warning" },
   active: { label: "Active", variant: "success" },
   en_pause: { label: "En pause", variant: "muted" },
   terminee: { label: "Terminée", variant: "muted" },
-  rejected: { label: "Refusée", variant: "destructive" },
+  rejected: { label: "Refusée", variant: "outline" },
 };
 
 export const OBJECTIVE_LABEL: Record<SupportedObjective, string> = {
