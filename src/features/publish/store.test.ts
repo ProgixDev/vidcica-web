@@ -11,13 +11,11 @@ type EnqueueInput = {
 };
 
 function make(over: Partial<PublishDeps> = {}) {
-  const enqueue = vi.fn(
-    async (_input: EnqueueInput): Promise<EnqueueOutcome> => ({
-      ok: true,
-      jobs: [{ id: "j1", platform: "youtube" }],
-      skipped: [],
-    }),
-  );
+  const enqueue = vi.fn<(input: EnqueueInput) => Promise<EnqueueOutcome>>(async () => ({
+    ok: true,
+    jobs: [{ id: "j1", platform: "youtube" }],
+    skipped: [],
+  }));
   const store = createPublishStore({ enqueue, ...over }, { videoId: "v1" });
   return { store, enqueue };
 }

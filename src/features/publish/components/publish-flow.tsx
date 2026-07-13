@@ -35,7 +35,6 @@ export function PublishFlow({ userId, available }: { userId: string; available: 
   const videoId = usePublishStore((s) => s.videoId);
   const selected = usePublishStore((s) => s.selected);
   const mode = usePublishStore((s) => s.mode);
-  const scheduledAt = usePublishStore((s) => s.scheduledAt);
   const asShort = usePublishStore((s) => s.youtubeAsShort);
   const phase = usePublishStore((s) => s.phase);
   const error = usePublishStore((s) => s.error);
