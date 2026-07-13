@@ -8,7 +8,7 @@ Adding or changing a CUJ is a product decision — PR must be approved by the pr
 
 | ID     | Journey                     | Steps (user's words)                                                                                      | E2E spec                | Screenshots |
 | ------ | --------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------- | ----------- |
-| CUJ-01 | Land and orient             | Open `/` → understand what this is → reach the example or docs in one click                               | `e2e/home.spec.ts`      | `home-*`    |
+| CUJ-01 | Land and orient             | Open `/` → understand what Vidcica does → reach "Commencer" (sign-in) in one click                        | `e2e/home.spec.ts`      | `home-*`    |
 | CUJ-02 | Manage tasks (demo feature) | Open `/examples/tasks` → add a task → see it appear (animated) → toggle it done → remaining count updates | `e2e/task-list.spec.ts` | `tasks-*`   |
 
 ## Rules

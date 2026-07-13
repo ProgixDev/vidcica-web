@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Dark mode follows the `.dark` class (set by the no-flash script + ThemeToggle),
+   not `prefers-color-scheme` — so a manual toggle wins over the system setting and
+   `dark:` utilities stay consistent with the class-driven role tokens below. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
  * Vidcica design tokens — Tailwind v4 CSS-first config (docs/conventions/styling.md).
  * Ported from the mobile source of truth: ClipFlow/src/theme/{palette,tokens,typography}.ts.

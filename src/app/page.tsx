@@ -1,54 +1,118 @@
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
+
+const PLATFORMS = ["Instagram", "TikTok", "YouTube Shorts", "Facebook", "LinkedIn", "X", "Threads"];
+
+const STEPS: { n: string; title: string; body: string }[] = [
+  {
+    n: "1",
+    title: "Décrivez votre idée",
+    body: "Un script complet ou une simple phrase suffit. Choisissez le ton, le format et la voix.",
+  },
+  {
+    n: "2",
+    title: "L’IA monte la vidéo",
+    body: "Séquences, voix off, sous-titres et musique — assemblés au format vertical, prêts à poster.",
+  },
+  {
+    n: "3",
+    title: "Publiez et amplifiez",
+    body: "Diffusez sur tous vos réseaux, puis boostez la vidéo en campagne Meta et suivez vos prospects.",
+  },
+];
+
+function Wordmark() {
+  return (
+    <span className="flex items-center gap-2 font-semibold tracking-tight">
+      <span aria-hidden className="bg-primary inline-block size-3 rounded-full" />
+      Vidcica
+    </span>
+  );
+}
 
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-10 px-6 py-16">
-      <header className="space-y-3">
-        <p className="text-muted-foreground font-mono text-sm">nextjs-skeleton</p>
-        <h1 className="text-4xl font-semibold tracking-tight">
-          A codebase that explains itself — to people and to agents.
-        </h1>
-        <p className="text-muted-foreground max-w-prose">
-          Specs drive features, docs carry the knowledge, gates enforce the taste, and every change
-          ships with screenshot evidence. Start with the example feature, then read the operating
-          model.
-        </p>
+    <div className="flex min-h-dvh flex-col">
+      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5">
+        <Wordmark />
+        <nav className="flex items-center gap-1">
+          <ThemeToggle />
+          <Link
+            href="/sign-in"
+            className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "rounded-full")}
+          >
+            Se connecter
+          </Link>
+        </nav>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Example feature</CardTitle>
-            <CardDescription>
-              The canonical slice: SSR-safe store, animated UI, e2e evidence.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/examples/tasks" className={cn(buttonVariants())}>
-              Open the task list
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-16 px-6 py-16">
+        <section className="flex max-w-2xl flex-col items-start gap-6">
+          <span className="bg-accent text-accent-foreground rounded-full px-3 py-1 text-xs font-medium">
+            Studio vidéo IA
+          </span>
+          <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-5xl">
+            Transformez un script en vidéo courte — publiée partout, automatiquement.
+          </h1>
+          <p className="text-muted-foreground max-w-xl text-base leading-relaxed text-pretty">
+            Vidcica génère des vidéos verticales à partir de vos idées — voix, sous-titres, musique
+            — puis les publie sur vos réseaux pendant que vous préparez la suivante.
+          </p>
+          <div className="flex flex-wrap items-center gap-4 pt-1">
+            <Link href="/sign-in" className={cn(buttonVariants({ size: "lg" }), "px-7")}>
+              Commencer
             </Link>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Operating model</CardTitle>
-            <CardDescription>
-              How work flows here: ground, plan, implement, verify, encode.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-muted-foreground font-mono text-sm">
-            AGENTS.md · docs/INDEX.md · specs/
-          </CardContent>
-        </Card>
-      </div>
+            <Link href="/sign-in" className="text-muted-foreground hover:text-foreground text-sm">
+              J’ai déjà un compte →
+            </Link>
+          </div>
+          <p className="text-muted-foreground/80 flex flex-wrap gap-x-2 gap-y-1 pt-4 text-xs">
+            <span className="text-foreground/70 font-medium">Publie sur</span>
+            {PLATFORMS.map((p, i) => (
+              <span key={p}>
+                {p}
+                {i < PLATFORMS.length - 1 ? (
+                  <span aria-hidden className="ml-2 opacity-50">
+                    ·
+                  </span>
+                ) : null}
+              </span>
+            ))}
+          </p>
+        </section>
 
-      <footer className="text-muted-foreground text-sm">
-        Run <code className="font-mono">pnpm verify</code> before every PR — it is the same gate CI
-        runs.
+        <section className="flex flex-col gap-6" aria-labelledby="how">
+          <h2
+            id="how"
+            className="text-muted-foreground text-sm font-medium tracking-wide uppercase"
+          >
+            Comment ça marche
+          </h2>
+          <ol className="grid gap-4 sm:grid-cols-3">
+            {STEPS.map((s) => (
+              <li
+                key={s.n}
+                className="bg-card flex flex-col gap-2 rounded-2xl border p-5 transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
+              >
+                <span className="text-primary text-2xl font-semibold" aria-hidden>
+                  {s.n}
+                </span>
+                <h3 className="font-medium">{s.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{s.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </main>
+
+      <footer className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-6 py-8 text-sm">
+        <Wordmark />
+        <span className="text-muted-foreground text-xs">
+          Vidéos IA · Publication multi-réseaux · Publicités &amp; prospects
+        </span>
       </footer>
-    </main>
+    </div>
   );
 }

@@ -55,8 +55,15 @@ export default function RootLayout({
     description: site.description,
   };
 
+  // Resolve the theme before first paint (stored choice → system preference) so
+  // the designed dark tokens apply with no flash. Runs synchronously in <head>.
+  const themeScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
+
   return (
     <html lang="fr" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className={`${outfit.variable} ${geistMono.variable} font-sans antialiased`}>
         <script
           type="application/ld+json"
