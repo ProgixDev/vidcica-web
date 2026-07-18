@@ -32,9 +32,9 @@ test("@cuj CUJ-03: full create journey (email user)", async ({ page }) => {
   test.skip(!email || !password, "Set E2E_TEST_EMAIL / E2E_TEST_PASSWORD to run the full journey.");
 
   await page.goto("/sign-in");
-  await page.getByLabel("Email").fill(email!);
-  await page.getByLabel("Password").fill(password!);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByLabel("Adresse e-mail").fill(email!);
+  await page.getByLabel("Mot de passe").fill(password!);
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard/);
   await shot(page, "dashboard");
 

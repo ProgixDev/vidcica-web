@@ -117,4 +117,14 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+  /* Chrome/Safari paint autofilled inputs pale blue — repaint with our tokens
+     (inset box-shadow trick; the background-color transition delays the UA fill). */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-foreground);
+    caret-color: var(--color-foreground);
+    box-shadow: 0 0 0 1000px var(--color-background) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }

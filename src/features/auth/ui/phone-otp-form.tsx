@@ -16,7 +16,7 @@ import { initialOtpState, otpReducer } from "../otp-flow";
  */
 export function PhoneOtpForm() {
   const router = useRouter();
-  const next = safeRedirectPath(useSearchParams().get("next"));
+  const next = safeRedirectPath(useSearchParams().get("next"), "/dashboard");
   const [state, dispatch] = useReducer(otpReducer, initialOtpState);
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");

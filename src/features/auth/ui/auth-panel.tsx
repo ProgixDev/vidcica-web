@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { SignInForm } from "./sign-in-form";
 import { PhoneOtpForm } from "./phone-otp-form";
+import { GoogleButton } from "./google-button";
 
 type Method = "email" | "phone";
 
 /**
- * Sign-in with a method toggle: email + password OR phone + SMS code (the same
- * accounts as mobile). A lightweight segmented control keeps it dependency-free.
+ * Sign-in with the same methods as the mobile app: email + password, phone +
+ * SMS code, or Google OAuth — all against the same Supabase project, so one
+ * account works everywhere.
  */
 export function AuthPanel() {
   const [method, setMethod] = useState<Method>("email");
+  const oauthFailed = useSearchParams().get("error") === "oauth";
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-5">
@@ -41,6 +45,21 @@ export function AuthPanel() {
         ))}
       </div>
       {method === "email" ? <SignInForm /> : <PhoneOtpForm />}
+
+      {/* Divider + Google — same alternative-provider block as the app */}
+      <div className="flex items-center gap-3" aria-hidden>
+        <span className="bg-border h-px flex-1" />
+        <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
+          ou
+        </span>
+        <span className="bg-border h-px flex-1" />
+      </div>
+      <GoogleButton />
+      {oauthFailed ? (
+        <p role="alert" className="text-destructive text-center text-sm">
+          La connexion Google n’a pas abouti. Réessaie ou utilise l’e-mail.
+        </p>
+      ) : null}
     </div>
   );
 }

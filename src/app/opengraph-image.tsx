@@ -1,16 +1,21 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { site } from "@/core/site";
 
 /**
- * Open Graph card (1200×630) — rendered at request time by next/og. Brand
- * gradient + wordmark; raw hexes are sanctioned here (logo surface, see
- * globals.css). Referenced automatically via the file convention.
+ * Open Graph card (1200×630) — rendered by next/og (prerendered at build).
+ * Uses the real V-G logo mark from /public/brand; raw hexes are sanctioned
+ * here (brand surface, see globals.css). Wired via the file convention.
  */
 export const alt = "Vidcica — studio vidéo IA";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OpengraphImage() {
+export default async function OpengraphImage() {
+  const logo = await readFile(join(process.cwd(), "public/brand/logo-mark.png"));
+  const logoSrc = `data:image/png;base64,${logo.toString("base64")}`;
+
   return new ImageResponse(
     <div
       style={{
@@ -26,14 +31,8 @@ export default function OpengraphImage() {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-        <div
-          style={{
-            width: 88,
-            height: 88,
-            borderRadius: 22,
-            background: "linear-gradient(135deg, #C75A1A 0%, #FF8A3D 55%, #FFD9B0 100%)",
-          }}
-        />
+        {/* eslint-disable-next-line @next/next/no-img-element -- next/og renders plain img */}
+        <img src={logoSrc} alt="" width={96} height={96} />
         <div style={{ fontSize: 56, fontWeight: 700 }}>Vidcica</div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

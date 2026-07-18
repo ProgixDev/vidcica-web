@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { BrandLockup } from "@/components/brand";
@@ -6,37 +7,81 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 /**
- * Public static app assets (same bucket the mobile app uses — Pexels footage
- * transcoded + rehosted on our Supabase `app-assets` public bucket, see
- * ClipFlow/src/mocks/media.ts APP_ASSET_BASE).
+ * Landing media — Pexels footage/photos (free license), transcoded small and
+ * self-hosted in /public/media so it ships on our own CDN (no hotlinking).
+ * The `welcome-*` clips reuse the mobile app's onboarding assets, already
+ * hosted on the Supabase `app-assets` public bucket (ClipFlow media.ts).
  */
-const ASSET_BASE =
-  "https://scoozakhhmowpzwotxgp.supabase.co/storage/v1/object/public/app-assets/onboarding";
-
-const clip = (n: number) => ({
-  src: `${ASSET_BASE}/welcome-${n}.mp4`,
-  poster: `${ASSET_BASE}/welcome-${n}.jpg`,
+const clip = (name: string) => ({
+  src: `/media/${name}.mp4`,
+  poster: `/media/${name}.jpg`,
 });
 
-const HERO_CLIP = clip(1);
+const BUCKET_BASE =
+  "https://scoozakhhmowpzwotxgp.supabase.co/storage/v1/object/public/app-assets/onboarding";
+
+const bucketClip = (name: string) => ({
+  src: `${BUCKET_BASE}/${name}.mp4`,
+  poster: `${BUCKET_BASE}/${name}.jpg`,
+});
+
+const HERO_CLIP = clip("hero");
 
 const PLATFORMS = ["Instagram", "TikTok", "YouTube Shorts", "Facebook", "LinkedIn", "Threads"];
 
 const SHOWCASE: { clip: ReturnType<typeof clip>; chip: string; caption: string }[] = [
   {
-    clip: clip(1),
+    clip: clip("clip-restaurant"),
     chip: "Voix off IA",
     caption: "Une voix naturelle, générée à partir de votre script.",
   },
   {
-    clip: clip(2),
+    clip: clip("clip-boutique"),
     chip: "Sous-titres animés",
     caption: "Incrustés automatiquement, lisibles sans le son.",
   },
   {
-    clip: clip(3),
+    clip: clip("clip-sport"),
     chip: "Musique intégrée",
     caption: "Une ambiance choisie dans le catalogue, mixée sous la voix.",
+  },
+  {
+    clip: bucketClip("welcome-1"),
+    chip: "Script par IA",
+    caption: "Partez d’une phrase : le script est écrit pour vous.",
+  },
+  {
+    clip: bucketClip("welcome-2"),
+    chip: "Séquences incluses",
+    caption: "Une banque de séquences libres de droits, choisies par l’IA.",
+  },
+  {
+    clip: bucketClip("welcome-3"),
+    chip: "Prête à publier",
+    caption: "Exportée en 9:16, publiée sur vos réseaux en un clic.",
+  },
+];
+
+const USE_CASES: { img: string; title: string; body: string }[] = [
+  {
+    img: "/media/use-restaurant.jpg",
+    title: "Restaurants & food",
+    body: "Menus du jour, coulisses, plats signatures — des vidéos qui donnent faim.",
+  },
+  {
+    img: "/media/use-immo.jpg",
+    title: "Immobilier",
+    body: "Chaque bien devient une visite vidéo publiée sur tous vos réseaux.",
+  },
+  {
+    img: "/media/use-coach.jpg",
+    title: "Coachs & sport",
+    body: "Conseils, séances, transformations — un rendez-vous vidéo régulier.",
+  },
+  {
+    img: "/media/use-ecom.jpg",
+    title: "E-commerce",
+    body: "Présentez vos produits en vidéo courte et boostez les meilleures en campagne.",
   },
 ];
 
@@ -79,7 +124,7 @@ function FeatureIcon({ path, circles }: { path?: string; circles?: [number, numb
     >
       {path ? <path d={path} /> : null}
       {circles?.map(([cx, cy, r]) => (
-        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={r} />
+        <circle key={`${cx}-${cy}-${r}`} cx={cx} cy={cy} r={r} />
       ))}
     </svg>
   );
@@ -295,7 +340,7 @@ export default function Home() {
               déjà en place — il ne reste qu’à publier.
             </p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {SHOWCASE.map((item) => (
               <figure key={item.chip} className="group flex flex-col gap-3">
                 <div className="border-border bg-card relative overflow-hidden rounded-lg border shadow-lg transition-transform duration-300 group-hover:-translate-y-1 motion-reduce:transition-none">
@@ -345,6 +390,41 @@ export default function Home() {
               ))}
             </ul>
           </div>
+        </section>
+
+        {/* ---------- Use cases ---------- */}
+        <section className="mx-auto w-full max-w-6xl px-6 py-20" aria-labelledby="metiers-h">
+          <div className="mb-10 flex max-w-2xl flex-col gap-3">
+            <h2 id="metiers-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              Pensé pour votre métier.
+            </h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Peu importe votre activité : si vos clients sont sur les réseaux, Vidcica vous y rend
+              visible chaque semaine.
+            </p>
+          </div>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {USE_CASES.map((u) => (
+              <li
+                key={u.title}
+                className="group border-border bg-card overflow-hidden rounded-md border transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
+              >
+                <div className="relative aspect-4/3 overflow-hidden">
+                  <Image
+                    src={u.img}
+                    alt={u.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 p-4">
+                  <h3 className="text-sm font-medium">{u.title}</h3>
+                  <p className="text-muted-foreground text-xs leading-relaxed">{u.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* ---------- How it works ---------- */}
