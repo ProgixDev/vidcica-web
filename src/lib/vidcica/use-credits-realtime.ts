@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 /** Read the balance from a credits_accounts change payload. Pure — unit-tested. */
@@ -20,11 +20,17 @@ export function useCreditsRealtime(userId: string, initial: number): number {
     setCredits(initial);
   }
 
+  // Channel topics must be unique PER MOUNT: the browser client is a
+  // singleton, and `channel(name)` returns the existing instance for a
+  // duplicate topic — adding a callback to an already-subscribed channel
+  // throws (the shell mounts this hook twice: sidebar card + topbar chip).
+  const mountId = useId();
+
   useEffect(() => {
     if (!userId) return;
     const supabase = createClient();
     const channel = supabase
-      .channel(`credits_accounts:${userId}`)
+      .channel(`credits_accounts:${userId}:${mountId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "credits_accounts", filter: `user_id=eq.${userId}` },
@@ -36,7 +42,7 @@ export function useCreditsRealtime(userId: string, initial: number): number {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, mountId]);
 
   return credits;
 }
