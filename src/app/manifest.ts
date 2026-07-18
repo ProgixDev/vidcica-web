@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: site.description,
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#0a0a0a",
+    background_color: "#FFFBF6",
+    theme_color: "#FF7A2E",
     // TODO(app): add real PWA icons (192/512 PNG + maskable) to /public.
     icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
   };

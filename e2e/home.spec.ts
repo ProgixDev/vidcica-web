@@ -10,7 +10,8 @@ test("@cuj CUJ-01: visitor lands, understands Vidcica, reaches start", async ({ 
   ).toBeVisible();
   await shot(page, "home-landing");
 
-  await page.getByRole("link", { name: "Commencer" }).click();
+  // exact: the CTA band also has a "Commencer gratuitement" link (substring match).
+  await page.getByRole("link", { name: "Commencer", exact: true }).click();
   await expect(page).toHaveURL(/\/sign-in/);
   await expect(page.getByText("Vidcica", { exact: true })).toBeVisible();
 });
