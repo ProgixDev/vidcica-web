@@ -9,6 +9,14 @@ import { estimateCost } from "../cost";
 import { LENGTHS, MUSIC_MOODS, RATIOS, VOICES } from "../options";
 import { ModelMenu } from "./model-menu";
 
+/** Clickable starter ideas — kills the blank-page freeze on first visit. */
+const SUGGESTIONS = [
+  "3 astuces pour gagner du temps le matin",
+  "Présente ton produit phare en 20 secondes",
+  "Avant / après : la transformation d’un client",
+  "Une idée reçue de ton métier, démontée",
+];
+
 /**
  * The PromptComposer — same surface as the app's home composer: kind pills, a
  * big borderless textarea, a live credit-cost line and a control row of pill
@@ -184,6 +192,21 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
           </button>
         </div>
       </div>
+
+      {input.prompt.trim() === "" ? (
+        <div className="flex flex-wrap gap-2" aria-label="Suggestions d’idées">
+          {SUGGESTIONS.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setInput({ prompt: s, kind: "idea" })}
+              className="border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground rounded-full border border-dashed px-3 py-1.5 text-xs transition-colors"
+            >
+              ✦ {s}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       <p className="text-muted-foreground/80 text-xs">
         L’IA prépare d’abord un plan (titre, script, séquences) que tu valides avant de lancer le

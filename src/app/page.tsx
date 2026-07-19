@@ -2,8 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { BrandLockup } from "@/components/brand";
+import { HeaderCta } from "@/components/header-cta";
 import { LandingVideo } from "@/components/landing-video";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ORDERED_TIERS, TIERS } from "@/lib/vidcica/tiers";
 import { cn } from "@/lib/utils";
 
 /**
@@ -190,6 +192,33 @@ const FEATURES: {
   },
 ];
 
+const FAQ: { q: string; a: string }[] = [
+  {
+    q: "Comment fonctionnent les crédits ?",
+    a: "Chaque rendu consomme des crédits selon le modèle et la durée choisis — le coût exact s’affiche avant de lancer la génération, et rien n’est débité tant que tu n’as pas validé le plan proposé par l’IA. Tes crédits se rechargent chaque mois avec ton offre.",
+  },
+  {
+    q: "À qui appartiennent les vidéos générées ?",
+    a: "À toi. Tu peux les publier, les télécharger et les utiliser commercialement pour ton activité, sans mention obligatoire de Vidcica.",
+  },
+  {
+    q: "Les musiques et les séquences sont-elles libres de droits ?",
+    a: "Oui. Le catalogue musical est composé de titres libres de droits sélectionnés pour l’usage sur les réseaux sociaux, et les séquences proviennent de banques licenciées ou de modèles d’IA générative.",
+  },
+  {
+    q: "Sur quels réseaux puis-je publier ?",
+    a: "Instagram, TikTok, YouTube Shorts, Facebook, LinkedIn et Threads. Tu connectes tes comptes une fois, puis chaque vidéo se publie en un clic.",
+  },
+  {
+    q: "La voix off existe-t-elle en plusieurs langues ?",
+    a: "Oui — français et anglais aujourd’hui, avec des voix naturelles générées par IA. D’autres langues arriveront ensuite.",
+  },
+  {
+    q: "Puis-je changer d’offre ou résilier à tout moment ?",
+    a: "Oui. L’abonnement se gère depuis la page Facturation (paiement sécurisé par Stripe) : changement d’offre immédiat, résiliation effective à la fin de la période en cours, sans engagement.",
+  },
+];
+
 function GlassChip({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <span
@@ -204,8 +233,23 @@ function GlassChip({ className, children }: { className?: string; children: Reac
 }
 
 export default function Home() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div className="flex min-h-dvh flex-col">
+      <script
+        type="application/ld+json"
+        // Static, app-controlled data — safe to inline.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <header className="border-border/60 bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
           <Link href="/" aria-label="Vidcica — accueil">
@@ -218,8 +262,11 @@ export default function Home() {
             <a href="#fonctionnalites" className="hover:text-foreground transition-colors">
               Fonctionnalités
             </a>
-            <a href="#comment" className="hover:text-foreground transition-colors">
-              Comment ça marche
+            <a href="#tarifs" className="hover:text-foreground transition-colors">
+              Tarifs
+            </a>
+            <a href="#faq" className="hover:text-foreground transition-colors">
+              FAQ
             </a>
           </nav>
           <div className="flex items-center gap-2">
@@ -233,12 +280,7 @@ export default function Home() {
             >
               Se connecter
             </Link>
-            <Link
-              href="/sign-in"
-              className={cn(buttonVariants({ size: "sm" }), "rounded-full px-4")}
-            >
-              Commencer
-            </Link>
+            <HeaderCta />
           </div>
         </div>
       </header>
@@ -455,6 +497,107 @@ export default function Home() {
           </ol>
         </section>
 
+        {/* ---------- Pricing ---------- */}
+        <section className="bg-secondary/40 border-y" id="tarifs" aria-labelledby="tarifs-h">
+          <div className="mx-auto w-full max-w-6xl px-6 py-20">
+            <div className="mb-10 flex max-w-2xl flex-col gap-3">
+              <h2 id="tarifs-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                Des tarifs simples, sans surprise.
+              </h2>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Commence gratuitement, passe à l’offre supérieure quand tes vidéos décollent.
+                Paiement sécurisé par Stripe, sans engagement.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {ORDERED_TIERS.map((id) => {
+                const t = TIERS[id];
+                const popular = id === "pro";
+                return (
+                  <div
+                    key={id}
+                    className={cn(
+                      "bg-card relative flex flex-col gap-4 rounded-md border p-5",
+                      popular ? "border-primary shadow-lg" : "border-border",
+                    )}
+                  >
+                    {popular ? (
+                      <span className="bg-primary text-primary-foreground absolute -top-3 left-5 rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+                        Populaire
+                      </span>
+                    ) : null}
+                    <div className="flex flex-col gap-1">
+                      <h3 className="text-sm font-semibold">{t.label}</h3>
+                      <p className="flex items-baseline gap-1">
+                        <span className="text-3xl font-semibold tracking-tight">
+                          {t.priceEUR} €
+                        </span>
+                        <span className="text-muted-foreground text-xs">/ mois</span>
+                      </p>
+                    </div>
+                    <ul className="flex flex-1 flex-col gap-2">
+                      {t.highlights.map((h) => (
+                        <li key={h} className="text-muted-foreground flex gap-2 text-xs">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-primary mt-0.5 size-3 shrink-0"
+                            aria-hidden
+                          >
+                            <path d="m4.5 12.5 5 5 10-11" />
+                          </svg>
+                          {h}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href="/sign-in"
+                      className={cn(
+                        buttonVariants({ variant: popular ? "default" : "outline", size: "sm" }),
+                        "rounded-full",
+                      )}
+                    >
+                      {t.priceEUR === 0 ? "Commencer gratuitement" : `Choisir ${t.label}`}
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- FAQ ---------- */}
+        <section className="mx-auto w-full max-w-3xl px-6 py-20" id="faq" aria-labelledby="faq-h">
+          <h2 id="faq-h" className="mb-8 text-2xl font-semibold tracking-tight sm:text-3xl">
+            Questions fréquentes
+          </h2>
+          <div className="border-border divide-border bg-card divide-y rounded-lg border px-5">
+            {FAQ.map((f) => (
+              <details key={f.q} className="group py-1">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
+                  {f.q}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    className="text-muted-foreground size-4 shrink-0 transition-transform group-open:rotate-180"
+                    aria-hidden
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </summary>
+                <p className="text-muted-foreground pb-4 text-sm leading-relaxed">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
         {/* ---------- CTA band ---------- */}
         <section className="mx-auto w-full max-w-6xl px-6 pb-24">
           <div className="border-border bg-card relative overflow-hidden rounded-lg border px-8 py-14 text-center shadow-xl">
@@ -498,8 +641,11 @@ export default function Home() {
                 <a href="#exemples" className="hover:text-foreground text-muted-foreground">
                   Exemples
                 </a>
-                <a href="#fonctionnalites" className="hover:text-foreground text-muted-foreground">
-                  Fonctionnalités
+                <a href="#tarifs" className="hover:text-foreground text-muted-foreground">
+                  Tarifs
+                </a>
+                <a href="#faq" className="hover:text-foreground text-muted-foreground">
+                  FAQ
                 </a>
                 <Link href="/sign-in" className="hover:text-foreground text-muted-foreground">
                   Se connecter
@@ -514,6 +660,12 @@ export default function Home() {
                 </Link>
                 <Link href="/terms" className="hover:text-foreground text-muted-foreground">
                   Conditions
+                </Link>
+                <Link
+                  href="/mentions-legales"
+                  className="hover:text-foreground text-muted-foreground"
+                >
+                  Mentions légales
                 </Link>
               </div>
               <div className="flex flex-col gap-3">

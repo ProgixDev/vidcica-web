@@ -12,12 +12,21 @@ export const metadata = { title: "Accueil" };
 // Reads run per-request against the RLS-scoped session (no static cache).
 export const dynamic = "force-dynamic";
 
-/** First name for the greeting: OAuth full name → email prefix → nothing. */
-function firstName(meta: Record<string, unknown>, email: string | undefined): string | null {
+/** First name for the greeting — OAuth profile name only (an email prefix like
+ *  «chaine100informatique» reads badly, so plain «Bonjour 👋» beats it). */
+function firstName(meta: Record<string, unknown>): string | null {
   const full = typeof meta.full_name === "string" ? meta.full_name : undefined;
   const name = full ?? (typeof meta.name === "string" ? meta.name : undefined);
-  if (name) return name.split(" ")[0] ?? null;
-  return email?.split("@")[0] ?? null;
+  return name?.split(" ")[0] ?? null;
+}
+
+/** Videos created in the last 7 days (server-rendered per request). */
+function countThisWeek(videos: { createdAt: string }[]): number {
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  return videos.filter((v) => {
+    const t = new Date(v.createdAt).getTime();
+    return Number.isFinite(t) && t >= weekAgo;
+  }).length;
 }
 
 export default async function DashboardPage() {
@@ -28,9 +37,10 @@ export default async function DashboardPage() {
   if (!user) redirect("/sign-in?next=/dashboard");
 
   const [videos, entitlement] = await Promise.all([listMyVideos(), getMyEntitlement()]);
-  const name = firstName(user.user_metadata ?? {}, user.email);
+  const name = firstName(user.user_metadata ?? {});
   const ready = videos.filter((v) => isReady(v)).length;
   const rendering = videos.filter((v) => isRendering(v.status)).length;
+  const thisWeek = countThisWeek(videos);
 
   return (
     <>
@@ -49,11 +59,12 @@ export default async function DashboardPage() {
       </section>
 
       {/* Quick stats */}
-      <section aria-label="Statistiques" className="grid grid-cols-3 gap-4">
+      <section aria-label="Statistiques" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { value: videos.length, label: "vidéos au total" },
-          { value: ready, label: "prêtes à publier" },
-          { value: rendering, label: "en génération" },
+          { value: String(videos.length), label: "vidéos au total" },
+          { value: String(ready), label: "prêtes à publier" },
+          { value: String(rendering), label: "en génération" },
+          { value: `+${thisWeek}`, label: "créées cette semaine" },
         ].map((s) => (
           <div
             key={s.label}
