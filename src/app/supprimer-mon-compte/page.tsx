@@ -38,8 +38,8 @@ export default function DeleteAccountPage() {
           <h2 className="text-base font-semibold">Par e-mail</h2>
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
             Si vous ne pouvez pas accéder à l’application, écrivez à{" "}
-            <a href="mailto:hello@vidcica.com" className="text-primary hover:underline">
-              hello@vidcica.com
+            <a href="mailto:support@vidcica.com" className="text-primary hover:underline">
+              support@vidcica.com
             </a>{" "}
             depuis l’adresse e-mail de votre compte, avec pour objet « Suppression de compte ». Nous
             traitons votre demande dans un délai de 30 jours.
@@ -56,8 +56,8 @@ export default function DeleteAccountPage() {
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
             Vous pouvez aussi supprimer <strong>certaines données uniquement</strong> sans fermer
             votre compte : supprimez vos vidéos une par une dans l’application, ou écrivez à{" "}
-            <a href="mailto:hello@vidcica.com" className="text-primary hover:underline">
-              hello@vidcica.com
+            <a href="mailto:support@vidcica.com" className="text-primary hover:underline">
+              support@vidcica.com
             </a>{" "}
             pour demander la suppression de données précises.
           </p>
@@ -99,8 +99,8 @@ export default function DeleteAccountPage() {
           <h3 className="text-base font-semibold">By email</h3>
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
             If you cannot access the app, email{" "}
-            <a href="mailto:hello@vidcica.com" className="text-primary hover:underline">
-              hello@vidcica.com
+            <a href="mailto:support@vidcica.com" className="text-primary hover:underline">
+              support@vidcica.com
             </a>{" "}
             from your account’s email address with the subject “Account deletion”. We process
             requests within 30 days.
@@ -116,8 +116,8 @@ export default function DeleteAccountPage() {
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
             You can also delete <strong>only some data</strong> without closing your account: delete
             your videos one by one in the app, or email{" "}
-            <a href="mailto:hello@vidcica.com" className="text-primary hover:underline">
-              hello@vidcica.com
+            <a href="mailto:support@vidcica.com" className="text-primary hover:underline">
+              support@vidcica.com
             </a>{" "}
             to request deletion of specific data.
           </p>

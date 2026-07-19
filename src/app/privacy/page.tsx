@@ -79,8 +79,8 @@ export default function PrivacyPage() {
       footer={
         <>
           Vidcica · Demandes RGPD / privacy :{" "}
-          <a href="mailto:hello@vidcica.com" className="underline">
-            hello@vidcica.com
+          <a href="mailto:support@vidcica.com" className="underline">
+            support@vidcica.com
           </a>
         </>
       }

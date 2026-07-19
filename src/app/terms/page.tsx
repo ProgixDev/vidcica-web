@@ -79,8 +79,8 @@ export default function TermsPage() {
       footer={
         <>
           Vidcica · Questions juridiques / legal :{" "}
-          <a href="mailto:hello@vidcica.com" className="underline">
-            hello@vidcica.com
+          <a href="mailto:support@vidcica.com" className="underline">
+            support@vidcica.com
           </a>
         </>
       }

@@ -763,10 +763,10 @@ export default function Home() {
                   Contact
                 </span>
                 <a
-                  href="mailto:hello@vidcica.com"
+                  href="mailto:support@vidcica.com"
                   className="hover:text-foreground text-muted-foreground"
                 >
-                  hello@vidcica.com
+                  support@vidcica.com
                 </a>
               </div>
             </nav>

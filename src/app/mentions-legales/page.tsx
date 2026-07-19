@@ -17,8 +17,8 @@ const SECTIONS: { h: string; body: React.ReactNode }[] = [
         Directeur de la publication : [à compléter].
         <br />
         Contact :{" "}
-        <a href="mailto:hello@vidcica.com" className="text-primary hover:underline">
-          hello@vidcica.com
+        <a href="mailto:support@vidcica.com" className="text-primary hover:underline">
+          support@vidcica.com
         </a>
         .
       </>
@@ -58,8 +58,8 @@ const SECTIONS: { h: string; body: React.ReactNode }[] = [
           Politique de confidentialité
         </Link>
         . Pour exercer vos droits (accès, rectification, suppression), écrivez à{" "}
-        <a href="mailto:hello@vidcica.com" className="text-primary hover:underline">
-          hello@vidcica.com
+        <a href="mailto:support@vidcica.com" className="text-primary hover:underline">
+          support@vidcica.com
         </a>
         .
       </>
