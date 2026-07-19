@@ -6,8 +6,10 @@ import { useCreateStore } from "../provider";
 import { Composer } from "./composer";
 import { PlanReview } from "./plan-review";
 
+import type { Plan } from "@/lib/vidcica/tiers";
+
 /** Switches the create surface by phase and routes to the render view on success. */
-export function CreateFlow({ credits }: { credits: number }) {
+export function CreateFlow({ credits, plan }: { credits: number; plan: Plan }) {
   const router = useRouter();
   const phase = useCreateStore((s) => s.phase);
   const result = useCreateStore((s) => s.result);
@@ -23,7 +25,7 @@ export function CreateFlow({ credits }: { credits: number }) {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      {showReview ? <PlanReview /> : <Composer credits={credits} />}
+      {showReview ? <PlanReview /> : <Composer credits={credits} plan={plan} />}
     </div>
   );
 }

@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import type { Plan } from "@/lib/vidcica/tiers";
 import { useCreateStore } from "../provider";
 import { estimateCost } from "../cost";
-import { LENGTHS, MODELS, MUSIC_MOODS, RATIOS, VOICES } from "../options";
+import { LENGTHS, MUSIC_MOODS, RATIOS, VOICES } from "../options";
+import { ModelMenu } from "./model-menu";
 
 /**
  * The PromptComposer — same surface as the app's home composer: kind pills, a
@@ -13,7 +15,7 @@ import { LENGTHS, MODELS, MUSIC_MOODS, RATIOS, VOICES } from "../options";
  * pickers (modèle · durée · format · voix · musique) with a send button.
  * Submitting asks the AI for a plan (step 2 = PlanReview).
  */
-export function Composer({ credits }: { credits: number }) {
+export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
   const input = useCreateStore((s) => s.input);
   const phase = useCreateStore((s) => s.phase);
   const error = useCreateStore((s) => s.error);
@@ -112,12 +114,7 @@ export function Composer({ credits }: { credits: number }) {
 
         {/* Control row */}
         <div className="border-border/60 flex flex-wrap items-center gap-2 border-t px-3 py-3">
-          <PillSelect
-            label="Modèle de génération"
-            value={input.model}
-            onChange={(v) => setInput({ model: v })}
-            options={MODELS.map((m) => ({ value: m.id, label: m.label }))}
-          />
+          <ModelMenu value={input.model} plan={plan} onChange={(v) => setInput({ model: v })} />
           <PillSelect
             label="Durée"
             value={String(input.length)}

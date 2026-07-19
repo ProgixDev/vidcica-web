@@ -31,7 +31,7 @@ export default async function CreatePage({
         subtitle="Décris ton idée ou colle ton script — l’IA s’occupe du montage, de la voix et des sous-titres."
       />
       <CreateStoreProvider initial={{ ...(kind ? { kind } : {}), ...(prompt ? { prompt } : {}) }}>
-        <CreateFlow credits={entitlement.credits} />
+        <CreateFlow credits={entitlement.credits} plan={entitlement.plan} />
       </CreateStoreProvider>
     </>
   );

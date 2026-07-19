@@ -2,9 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { listMyVideos } from "@/lib/vidcica/queries";
+import { getMyEntitlement } from "@/lib/vidcica/billing-queries";
 import { isReady, isRendering } from "@/lib/vidcica/video";
 import { VideoList } from "@/features/videos";
-import { QuickComposer } from "@/features/create";
+import { CreateStoreProvider, CreateFlow } from "@/features/create";
 
 export const metadata = { title: "Accueil" };
 
@@ -26,14 +27,15 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/dashboard");
 
-  const videos = await listMyVideos();
+  const [videos, entitlement] = await Promise.all([listMyVideos(), getMyEntitlement()]);
   const name = firstName(user.user_metadata ?? {}, user.email);
   const ready = videos.filter((v) => isReady(v)).length;
   const rendering = videos.filter((v) => isRendering(v.status)).length;
 
   return (
     <>
-      {/* Hero — the app's home greeting + composer-first entry */}
+      {/* Hero — the app's home: greeting + the FULL PromptComposer in place
+          (submits to plan review right here, then routes to the video). */}
       <section className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -41,7 +43,9 @@ export default async function DashboardPage() {
           </h1>
           <p className="text-muted-foreground text-sm">Crée une vidéo en quelques secondes.</p>
         </div>
-        <QuickComposer />
+        <CreateStoreProvider>
+          <CreateFlow credits={entitlement.credits} plan={entitlement.plan} />
+        </CreateStoreProvider>
       </section>
 
       {/* Quick stats */}
