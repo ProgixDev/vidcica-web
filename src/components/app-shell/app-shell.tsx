@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AnimatePresence, m } from "@/components/motion";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { BrandLockup } from "@/components/brand";
@@ -152,30 +153,42 @@ export function AppShell({
       </aside>
 
       {/* Mobile drawer */}
-      {drawerOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
-          <button
-            type="button"
-            aria-label="Fermer le menu"
-            onClick={() => setDrawerOpen(false)}
-            className="absolute inset-0 bg-black/50"
-          />
-          <div className="bg-background relative flex h-full w-72 flex-col gap-5 px-4 py-5 shadow-2xl">
-            <div className="flex items-center justify-between px-1.5">
-              <BrandLockup />
-              <button
-                type="button"
-                aria-label="Fermer le menu"
-                onClick={() => setDrawerOpen(false)}
-                className="text-muted-foreground hover:text-foreground flex size-9 items-center justify-center rounded-full"
-              >
-                <ShellIcon name="close" className="size-5" />
-              </button>
-            </div>
-            {sidebarBody}
+      <AnimatePresence>
+        {drawerOpen ? (
+          <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
+            <m.button
+              type="button"
+              aria-label="Fermer le menu"
+              onClick={() => setDrawerOpen(false)}
+              className="absolute inset-0 bg-black/50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            />
+            <m.div
+              className="bg-background relative flex h-full w-72 flex-col gap-5 px-4 py-5 shadow-2xl"
+              initial={{ x: -320 }}
+              animate={{ x: 0 }}
+              exit={{ x: -320 }}
+              transition={{ type: "spring", stiffness: 380, damping: 38 }}
+            >
+              <div className="flex items-center justify-between px-1.5">
+                <BrandLockup />
+                <button
+                  type="button"
+                  aria-label="Fermer le menu"
+                  onClick={() => setDrawerOpen(false)}
+                  className="text-muted-foreground hover:text-foreground flex size-9 items-center justify-center rounded-full"
+                >
+                  <ShellIcon name="close" className="size-5" />
+                </button>
+              </div>
+              {sidebarBody}
+            </m.div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </AnimatePresence>
 
       <div className="flex min-w-0 flex-col">
         {/* Top bar */}

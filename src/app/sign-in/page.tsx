@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AuthPanel } from "@/features/auth";
 import { BrandLockup, LogoMark } from "@/components/brand";
 import { LandingVideo } from "@/components/landing-video";
+import { Reveal } from "@/components/reveal";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Connexion" };
@@ -53,7 +54,11 @@ export default async function SignInPage() {
 
       {/* Glass auth card */}
       <div className="relative z-10 flex flex-1 items-center justify-center px-6 py-10">
-        <div className="bg-background/90 border-border/60 flex w-full max-w-md flex-col items-center gap-6 rounded-lg border p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+        <Reveal
+          onMount
+          y={18}
+          className="bg-background/90 border-border/60 flex w-full max-w-md flex-col items-center gap-6 rounded-lg border p-6 shadow-2xl backdrop-blur-xl sm:p-8"
+        >
           <div className="flex flex-col items-center gap-3">
             <LogoMark className="size-16 object-contain" />
             <h1 className="text-xl font-semibold tracking-tight">Bienvenue sur Vidcica</h1>
@@ -84,7 +89,7 @@ export default async function SignInPage() {
             </Link>
             .
           </p>
-        </div>
+        </Reveal>
       </div>
     </main>
   );

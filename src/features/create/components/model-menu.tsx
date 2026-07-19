@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, m } from "@/components/motion";
 import { cn } from "@/lib/utils";
 import { planRank, tierDef, type Plan } from "@/lib/vidcica/tiers";
 import { MODELS } from "../options";
@@ -52,91 +53,97 @@ export function ModelMenu({
         </svg>
       </button>
 
-      {open ? (
-        <>
-          <button
-            type="button"
-            aria-label="Fermer le menu des modèles"
-            className="fixed inset-0 z-40 cursor-default"
-            onClick={() => setOpen(false)}
-          />
-          <div
-            role="menu"
-            aria-label="Modèle de génération"
-            className="border-border bg-popover absolute top-full left-0 z-50 mt-2 max-h-80 w-64 overflow-y-auto rounded-md border shadow-xl"
-          >
-            <p className="text-muted-foreground px-4 pt-3 pb-1 text-[10px] font-semibold tracking-widest uppercase">
-              Modèle de génération
-            </p>
-            <ul className="flex flex-col p-1.5">
-              {MODELS.map((m) => {
-                const locked = planRank(plan) < planRank(m.minTier);
-                const isSelected = m.id === value;
-                return (
-                  <li key={m.id}>
-                    <button
-                      type="button"
-                      role="menuitemradio"
-                      aria-checked={isSelected}
-                      onClick={() => {
-                        setOpen(false);
-                        if (locked) router.push("/billing");
-                        else onChange(m.id);
-                      }}
-                      className={cn(
-                        "hover:bg-accent flex w-full items-center gap-3 rounded-sm px-2.5 py-2 text-left transition-colors",
-                        locked && "opacity-55",
-                      )}
-                    >
-                      <ModelIcon id={m.id} className="size-7 shrink-0" />
-                      <span className="flex min-w-0 flex-1 flex-col">
-                        <span
-                          className={cn(
-                            "text-sm",
-                            isSelected ? "text-primary font-semibold" : "font-medium",
-                          )}
-                        >
-                          {m.label}
+      <AnimatePresence>
+        {open ? (
+          <>
+            <button
+              type="button"
+              aria-label="Fermer le menu des modèles"
+              className="fixed inset-0 z-40 cursor-default"
+              onClick={() => setOpen(false)}
+            />
+            <m.div
+              role="menu"
+              aria-label="Modèle de génération"
+              className="border-border bg-popover absolute top-full left-0 z-50 mt-2 max-h-80 w-64 overflow-y-auto rounded-md border shadow-xl"
+              initial={{ opacity: 0, y: -6, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4, scale: 0.98 }}
+              transition={{ duration: 0.16, ease: "easeOut" }}
+            >
+              <p className="text-muted-foreground px-4 pt-3 pb-1 text-[10px] font-semibold tracking-widest uppercase">
+                Modèle de génération
+              </p>
+              <ul className="flex flex-col p-1.5">
+                {MODELS.map((m) => {
+                  const locked = planRank(plan) < planRank(m.minTier);
+                  const isSelected = m.id === value;
+                  return (
+                    <li key={m.id}>
+                      <button
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={isSelected}
+                        onClick={() => {
+                          setOpen(false);
+                          if (locked) router.push("/billing");
+                          else onChange(m.id);
+                        }}
+                        className={cn(
+                          "hover:bg-accent flex w-full items-center gap-3 rounded-sm px-2.5 py-2 text-left transition-colors",
+                          locked && "opacity-55",
+                        )}
+                      >
+                        <ModelIcon id={m.id} className="size-7 shrink-0" />
+                        <span className="flex min-w-0 flex-1 flex-col">
+                          <span
+                            className={cn(
+                              "text-sm",
+                              isSelected ? "text-primary font-semibold" : "font-medium",
+                            )}
+                          >
+                            {m.label}
+                          </span>
+                          <span className="text-muted-foreground text-[11px]">{m.maxQuality}</span>
                         </span>
-                        <span className="text-muted-foreground text-[11px]">{m.maxQuality}</span>
-                      </span>
-                      {locked ? (
-                        <span className="text-muted-foreground flex items-center gap-1.5 text-[11px]">
-                          {tierDef(m.minTier).label}
+                        {locked ? (
+                          <span className="text-muted-foreground flex items-center gap-1.5 text-[11px]">
+                            {tierDef(m.minTier).label}
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.75"
+                              className="size-3.5"
+                              aria-hidden
+                            >
+                              <rect x="5" y="11" width="14" height="9" rx="2" />
+                              <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                            </svg>
+                          </span>
+                        ) : isSelected ? (
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            strokeWidth="1.75"
-                            className="size-3.5"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-primary size-4"
                             aria-hidden
                           >
-                            <rect x="5" y="11" width="14" height="9" rx="2" />
-                            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                            <path d="m4.5 12.5 5 5 10-11" />
                           </svg>
-                        </span>
-                      ) : isSelected ? (
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="text-primary size-4"
-                          aria-hidden
-                        >
-                          <path d="m4.5 12.5 5 5 10-11" />
-                        </svg>
-                      ) : null}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </>
-      ) : null}
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </m.div>
+          </>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

@@ -2,8 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { BrandLockup } from "@/components/brand";
+import { FaqAccordion } from "@/components/faq-accordion";
 import { HeaderCta } from "@/components/header-cta";
+import { LandingAmbience } from "@/components/landing-ambience";
 import { LandingVideo } from "@/components/landing-video";
+import { Reveal } from "@/components/reveal";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ORDERED_TIERS, TIERS } from "@/lib/vidcica/tiers";
 import { cn } from "@/lib/utils";
@@ -232,6 +235,16 @@ function GlassChip({ className, children }: { className?: string; children: Reac
   );
 }
 
+/** Small brand-tinted section label — adds structure + colour above headings. */
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-primary flex items-center gap-2 text-xs font-semibold tracking-widest uppercase">
+      <span aria-hidden className="bg-primary h-px w-6" />
+      {children}
+    </span>
+  );
+}
+
 export default function Home() {
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -244,7 +257,8 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="relative flex min-h-dvh flex-col overflow-x-clip">
+      <LandingAmbience />
       <script
         type="application/ld+json"
         // Static, app-controlled data — safe to inline.
@@ -295,44 +309,62 @@ export default function Home() {
           />
           <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-6 pt-14 pb-20 lg:grid-cols-[1fr_auto] lg:gap-20">
             <div className="flex max-w-2xl flex-col items-start gap-6">
-              <span className="bg-accent text-accent-foreground rounded-full px-3 py-1 text-xs font-medium">
-                Studio vidéo IA
-              </span>
-              <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-5xl">
-                Transformez un script en vidéo courte — publiée partout, automatiquement.
-              </h1>
-              <p className="text-muted-foreground max-w-xl text-base leading-relaxed text-pretty">
-                Vidcica génère des vidéos verticales à partir de vos idées — voix, sous-titres,
-                musique — puis les publie sur vos réseaux pendant que vous préparez la suivante.
-              </p>
-              <div className="flex flex-wrap items-center gap-4 pt-1">
-                <Link
-                  href="/sign-in"
-                  className={cn(buttonVariants({ size: "lg" }), "rounded-full px-7")}
-                >
-                  Créer ma première vidéo
-                </Link>
-                <a href="#exemples" className="text-muted-foreground hover:text-foreground text-sm">
-                  Voir des exemples →
-                </a>
-              </div>
-              <p className="text-muted-foreground/80 flex flex-wrap gap-x-2 gap-y-1 pt-4 text-xs">
-                <span className="text-foreground/70 font-medium">Publie sur</span>
-                {PLATFORMS.map((p, i) => (
-                  <span key={p}>
-                    {p}
-                    {i < PLATFORMS.length - 1 ? (
-                      <span aria-hidden className="ml-2 opacity-50">
-                        ·
-                      </span>
-                    ) : null}
-                  </span>
-                ))}
-              </p>
+              <Reveal onMount y={10}>
+                <span className="bg-accent text-accent-foreground inline-block rounded-full px-3 py-1 text-xs font-medium">
+                  Studio vidéo IA
+                </span>
+              </Reveal>
+              <Reveal onMount delay={0.08}>
+                <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-5xl">
+                  Transformez un script en vidéo courte — publiée partout, automatiquement.
+                </h1>
+              </Reveal>
+              <Reveal onMount delay={0.16}>
+                <p className="text-muted-foreground max-w-xl text-base leading-relaxed text-pretty">
+                  Vidcica génère des vidéos verticales à partir de vos idées — voix, sous-titres,
+                  musique — puis les publie sur vos réseaux pendant que vous préparez la suivante.
+                </p>
+              </Reveal>
+              <Reveal onMount delay={0.24}>
+                <div className="flex flex-wrap items-center gap-4 pt-1">
+                  <Link
+                    href="/sign-in"
+                    className={cn(buttonVariants({ size: "lg" }), "rounded-full px-7")}
+                  >
+                    Créer ma première vidéo
+                  </Link>
+                  <a
+                    href="#exemples"
+                    className="text-muted-foreground hover:text-foreground text-sm"
+                  >
+                    Voir des exemples →
+                  </a>
+                </div>
+              </Reveal>
+              <Reveal onMount delay={0.32}>
+                <p className="text-muted-foreground/80 flex flex-wrap gap-x-2 gap-y-1 pt-4 text-xs">
+                  <span className="text-foreground/70 font-medium">Publie sur</span>
+                  {PLATFORMS.map((p, i) => (
+                    <span key={p}>
+                      {p}
+                      {i < PLATFORMS.length - 1 ? (
+                        <span aria-hidden className="ml-2 opacity-50">
+                          ·
+                        </span>
+                      ) : null}
+                    </span>
+                  ))}
+                </p>
+              </Reveal>
             </div>
 
             {/* Phone mockup with a real generated-style clip */}
-            <div className="relative mx-auto w-[240px] shrink-0 sm:w-[264px]">
+            <Reveal
+              onMount
+              delay={0.2}
+              y={24}
+              className="relative mx-auto w-[240px] shrink-0 sm:w-[264px]"
+            >
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 -z-10 scale-110 rounded-full opacity-25 blur-2xl"
@@ -351,20 +383,24 @@ export default function Home() {
               <GlassChip className="absolute -right-12 bottom-20 hidden sm:inline-flex">
                 Sous-titres auto
               </GlassChip>
-            </div>
+            </Reveal>
           </div>
         </section>
 
         {/* ---------- Stats band ---------- */}
-        <section className="bg-secondary/50 border-y">
-          <dl className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-x-6 gap-y-8 px-6 py-10 sm:grid-cols-4">
-            {STATS.map((s) => (
-              <div key={s.value} className="flex flex-col gap-1">
-                <dt className="text-muted-foreground order-2 text-xs">{s.label}</dt>
-                <dd className="order-1 text-2xl font-semibold tracking-tight">{s.value}</dd>
-              </div>
-            ))}
-          </dl>
+        <section className="bg-secondary/50 relative border-y">
+          <Reveal y={10}>
+            <dl className="divide-border/70 mx-auto grid w-full max-w-6xl grid-cols-2 gap-y-8 px-6 py-10 sm:grid-cols-4 sm:divide-x">
+              {STATS.map((s) => (
+                <div key={s.value} className="flex flex-col gap-1 sm:px-6 sm:first:pl-0">
+                  <dt className="text-muted-foreground order-2 text-xs">{s.label}</dt>
+                  <dd className="text-primary order-1 text-2xl font-semibold tracking-tight sm:text-3xl">
+                    {s.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Reveal>
         </section>
 
         {/* ---------- Showcase ---------- */}
@@ -373,7 +409,8 @@ export default function Home() {
           id="exemples"
           aria-labelledby="exemples-h"
         >
-          <div className="mb-10 flex max-w-2xl flex-col gap-3">
+          <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
+            <Eyebrow>Exemples</Eyebrow>
             <h2 id="exemples-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
               Des vidéos prêtes à poster, pas des brouillons.
             </h2>
@@ -381,34 +418,42 @@ export default function Home() {
               Chaque rendu sort au format vertical 9:16 avec la voix, les sous-titres et la musique
               déjà en place — il ne reste qu’à publier.
             </p>
-          </div>
+          </Reveal>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {SHOWCASE.map((item) => (
-              <figure key={item.chip} className="group flex flex-col gap-3">
-                <div className="border-border bg-card relative overflow-hidden rounded-lg border shadow-lg transition-transform duration-300 group-hover:-translate-y-1 motion-reduce:transition-none">
-                  <LandingVideo
-                    src={item.clip.src}
-                    poster={item.clip.poster}
-                    className="aspect-9/16 w-full object-cover"
-                  />
-                  <GlassChip className="absolute bottom-3 left-3">{item.chip}</GlassChip>
-                </div>
-                <figcaption className="text-muted-foreground px-1 text-xs leading-relaxed">
-                  {item.caption}
-                </figcaption>
-              </figure>
+            {SHOWCASE.map((item, i) => (
+              <Reveal key={item.chip} delay={(i % 3) * 0.08}>
+                <figure className="group flex flex-col gap-3">
+                  <div className="border-border bg-card relative overflow-hidden rounded-lg border shadow-lg transition-transform duration-300 group-hover:-translate-y-1 motion-reduce:transition-none">
+                    <LandingVideo
+                      src={item.clip.src}
+                      poster={item.clip.poster}
+                      className="aspect-9/16 w-full object-cover"
+                    />
+                    <GlassChip className="absolute bottom-3 left-3">{item.chip}</GlassChip>
+                  </div>
+                  <figcaption className="text-muted-foreground px-1 text-xs leading-relaxed">
+                    {item.caption}
+                  </figcaption>
+                </figure>
+              </Reveal>
             ))}
           </div>
         </section>
 
         {/* ---------- Features ---------- */}
         <section
-          className="bg-secondary/40 border-y"
+          className="bg-secondary/40 relative overflow-hidden border-y"
           id="fonctionnalites"
           aria-labelledby="features-h"
         >
-          <div className="mx-auto w-full max-w-6xl px-6 py-20">
-            <div className="mb-10 flex max-w-2xl flex-col gap-3">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-32 right-0 h-96 w-[560px] rounded-full opacity-15 blur-3xl"
+            style={{ background: "radial-gradient(closest-side, var(--primary), transparent 70%)" }}
+          />
+          <div className="relative mx-auto w-full max-w-6xl px-6 py-20">
+            <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
+              <Eyebrow>Fonctionnalités</Eyebrow>
               <h2 id="features-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
                 Tout le studio, dans un seul outil.
               </h2>
@@ -416,18 +461,26 @@ export default function Home() {
                 De l’écriture du script à la campagne publicitaire, Vidcica couvre toute la chaîne
                 de la vidéo courte.
               </p>
-            </div>
+            </Reveal>
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {FEATURES.map((f) => (
-                <li
-                  key={f.title}
-                  className="bg-card flex flex-col gap-3 rounded-md border p-5 transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
-                >
-                  <span className="bg-accent text-accent-foreground flex size-9 items-center justify-center rounded-full">
-                    <FeatureIcon {...f.icon} />
-                  </span>
-                  <h3 className="font-medium">{f.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{f.body}</p>
+              {FEATURES.map((f, i) => (
+                <li key={f.title} className="min-w-0">
+                  <Reveal
+                    delay={(i % 3) * 0.08}
+                    className="group bg-card/80 hover:border-primary/30 flex h-full flex-col gap-3 rounded-lg border p-5 shadow-sm backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none"
+                  >
+                    <span
+                      className="text-primary ring-primary/15 flex size-10 items-center justify-center rounded-full ring-1 transition-transform ring-inset group-hover:scale-105 motion-reduce:transition-none"
+                      style={{
+                        background:
+                          "linear-gradient(140deg, color-mix(in oklab, var(--primary) 22%, transparent), color-mix(in oklab, var(--primary) 6%, transparent))",
+                      }}
+                    >
+                      <FeatureIcon {...f.icon} />
+                    </span>
+                    <h3 className="font-medium">{f.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{f.body}</p>
+                  </Reveal>
                 </li>
               ))}
             </ul>
@@ -436,7 +489,8 @@ export default function Home() {
 
         {/* ---------- Use cases ---------- */}
         <section className="mx-auto w-full max-w-6xl px-6 py-20" aria-labelledby="metiers-h">
-          <div className="mb-10 flex max-w-2xl flex-col gap-3">
+          <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
+            <Eyebrow>Métiers</Eyebrow>
             <h2 id="metiers-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
               Pensé pour votre métier.
             </h2>
@@ -444,26 +498,28 @@ export default function Home() {
               Peu importe votre activité : si vos clients sont sur les réseaux, Vidcica vous y rend
               visible chaque semaine.
             </p>
-          </div>
+          </Reveal>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {USE_CASES.map((u) => (
-              <li
-                key={u.title}
-                className="group border-border bg-card overflow-hidden rounded-md border transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
-              >
-                <div className="relative aspect-4/3 overflow-hidden">
-                  <Image
-                    src={u.img}
-                    alt={u.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5 p-4">
-                  <h3 className="text-sm font-medium">{u.title}</h3>
-                  <p className="text-muted-foreground text-xs leading-relaxed">{u.body}</p>
-                </div>
+            {USE_CASES.map((u, i) => (
+              <li key={u.title} className="min-w-0">
+                <Reveal
+                  delay={(i % 4) * 0.07}
+                  className="group border-border bg-card h-full overflow-hidden rounded-md border transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
+                >
+                  <div className="relative aspect-4/3 overflow-hidden">
+                    <Image
+                      src={u.img}
+                      alt={u.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5 p-4">
+                    <h3 className="text-sm font-medium">{u.title}</h3>
+                    <p className="text-muted-foreground text-xs leading-relaxed">{u.body}</p>
+                  </div>
+                </Reveal>
               </li>
             ))}
           </ul>
@@ -475,32 +531,57 @@ export default function Home() {
           id="comment"
           aria-labelledby="how-h"
         >
-          <h2 id="how-h" className="mb-10 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Comment ça marche
-          </h2>
+          <Reveal className="mb-10 flex flex-col gap-3">
+            <Eyebrow>En 3 étapes</Eyebrow>
+            <h2 id="how-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              Comment ça marche
+            </h2>
+          </Reveal>
           <ol className="grid gap-4 sm:grid-cols-3">
-            {STEPS.map((s) => (
-              <li
-                key={s.n}
-                className="bg-card flex flex-col gap-3 rounded-md border p-5 transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
-              >
-                <span
-                  className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-semibold"
-                  aria-hidden
+            {STEPS.map((s, i) => (
+              <li key={s.n} className="min-w-0">
+                <Reveal
+                  delay={(i % 3) * 0.08}
+                  className="group bg-card/80 hover:border-primary/30 relative flex h-full flex-col gap-3 overflow-hidden rounded-lg border p-5 shadow-sm backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none"
                 >
-                  {s.n}
-                </span>
-                <h3 className="font-medium">{s.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{s.body}</p>
+                  <span
+                    aria-hidden
+                    className="text-primary/10 pointer-events-none absolute -top-3 right-2 text-7xl font-bold"
+                  >
+                    {s.n}
+                  </span>
+                  <span
+                    className="text-primary-foreground flex size-9 items-center justify-center rounded-full text-sm font-semibold shadow-md ring-1 ring-white/20 ring-inset"
+                    style={{
+                      background:
+                        "linear-gradient(140deg, var(--primary), color-mix(in oklab, var(--primary) 70%, black))",
+                    }}
+                    aria-hidden
+                  >
+                    {s.n}
+                  </span>
+                  <h3 className="font-medium">{s.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{s.body}</p>
+                </Reveal>
               </li>
             ))}
           </ol>
         </section>
 
         {/* ---------- Pricing ---------- */}
-        <section className="bg-secondary/40 border-y" id="tarifs" aria-labelledby="tarifs-h">
-          <div className="mx-auto w-full max-w-6xl px-6 py-20">
-            <div className="mb-10 flex max-w-2xl flex-col gap-3">
+        <section
+          className="bg-secondary/40 relative overflow-hidden border-y"
+          id="tarifs"
+          aria-labelledby="tarifs-h"
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-0 left-1/2 h-80 w-[640px] -translate-x-1/2 rounded-full opacity-15 blur-3xl"
+            style={{ background: "radial-gradient(closest-side, var(--primary), transparent 70%)" }}
+          />
+          <div className="relative mx-auto w-full max-w-6xl px-6 py-20">
+            <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
+              <Eyebrow>Tarifs</Eyebrow>
               <h2 id="tarifs-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
                 Des tarifs simples, sans surprise.
               </h2>
@@ -508,21 +589,38 @@ export default function Home() {
                 Commence gratuitement, passe à l’offre supérieure quand tes vidéos décollent.
                 Paiement sécurisé par Stripe, sans engagement.
               </p>
-            </div>
+            </Reveal>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {ORDERED_TIERS.map((id) => {
+              {ORDERED_TIERS.map((id, i) => {
                 const t = TIERS[id];
                 const popular = id === "pro";
                 return (
-                  <div
+                  <Reveal
                     key={id}
+                    delay={(i % 4) * 0.07}
                     className={cn(
-                      "bg-card relative flex flex-col gap-4 rounded-md border p-5",
-                      popular ? "border-primary shadow-lg" : "border-border",
+                      "relative flex h-full flex-col gap-4 rounded-lg border p-5 transition-transform hover:-translate-y-1 motion-reduce:transition-none",
+                      popular
+                        ? "border-primary shadow-xl sm:-my-2 sm:py-7"
+                        : "border-border bg-card/80 shadow-sm backdrop-blur-sm",
                     )}
+                    style={
+                      popular
+                        ? {
+                            background:
+                              "linear-gradient(160deg, color-mix(in oklab, var(--primary) 14%, var(--card)), var(--card))",
+                          }
+                        : undefined
+                    }
                   >
                     {popular ? (
-                      <span className="bg-primary text-primary-foreground absolute -top-3 left-5 rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+                      <span
+                        className="text-primary-foreground absolute -top-3 left-5 rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase shadow-md"
+                        style={{
+                          background:
+                            "linear-gradient(140deg, var(--primary), color-mix(in oklab, var(--primary) 72%, black))",
+                        }}
+                      >
                         Populaire
                       </span>
                     ) : null}
@@ -563,7 +661,7 @@ export default function Home() {
                     >
                       {t.priceEUR === 0 ? "Commencer gratuitement" : `Choisir ${t.label}`}
                     </Link>
-                  </div>
+                  </Reveal>
                 );
               })}
             </div>
@@ -572,55 +670,47 @@ export default function Home() {
 
         {/* ---------- FAQ ---------- */}
         <section className="mx-auto w-full max-w-3xl px-6 py-20" id="faq" aria-labelledby="faq-h">
-          <h2 id="faq-h" className="mb-8 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Questions fréquentes
-          </h2>
-          <div className="border-border divide-border bg-card divide-y rounded-lg border px-5">
-            {FAQ.map((f) => (
-              <details key={f.q} className="group py-1">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
-                  {f.q}
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    className="text-muted-foreground size-4 shrink-0 transition-transform group-open:rotate-180"
-                    aria-hidden
-                  >
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
-                </summary>
-                <p className="text-muted-foreground pb-4 text-sm leading-relaxed">{f.a}</p>
-              </details>
-            ))}
-          </div>
+          <Reveal className="mb-8 flex flex-col gap-3">
+            <Eyebrow>FAQ</Eyebrow>
+            <h2 id="faq-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              Questions fréquentes
+            </h2>
+          </Reveal>
+          <Reveal delay={0.08}>
+            <FaqAccordion items={FAQ} />
+          </Reveal>
         </section>
 
-        {/* ---------- CTA band ---------- */}
+        {/* ---------- CTA band — bright, friendly creative-team clip (Pexels 7413698) ---------- */}
         <section className="mx-auto w-full max-w-6xl px-6 pb-24">
-          <div className="border-border bg-card relative overflow-hidden rounded-lg border px-8 py-14 text-center shadow-xl">
+          <Reveal className="border-border relative overflow-hidden rounded-lg border text-center shadow-xl">
+            <LandingVideo
+              src="/media/cta.mp4"
+              poster="/media/cta.jpg"
+              className="absolute inset-0 size-full object-cover"
+            />
+            {/* Scrim — the footage is bright, so keep the copy readable (AA). */}
             <div
               aria-hidden
-              className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[480px] -translate-x-1/2 rounded-full opacity-20 blur-3xl"
-              style={{ background: "radial-gradient(closest-side, var(--primary), transparent)" }}
+              className="absolute inset-0 bg-linear-to-b from-black/55 via-black/45 to-black/65"
             />
-            <h2 className="mx-auto max-w-xl text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-              Votre prochaine vidéo est à trois minutes.
-            </h2>
-            <p className="text-muted-foreground mx-auto mt-3 max-w-md text-sm leading-relaxed">
-              Décrivez l’idée — Vidcica écrit, monte, sous-titre et publie pour vous.
-            </p>
-            <div className="mt-7 flex justify-center">
-              <Link
-                href="/sign-in"
-                className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
-              >
-                Commencer gratuitement
-              </Link>
+            <div className="relative z-10 px-8 py-16 sm:py-20">
+              <h2 className="mx-auto max-w-xl text-2xl font-semibold tracking-tight text-balance text-white sm:text-3xl">
+                Votre prochaine vidéo est à trois minutes.
+              </h2>
+              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/80">
+                Décrivez l’idée — Vidcica écrit, monte, sous-titre et publie pour vous.
+              </p>
+              <div className="mt-7 flex justify-center">
+                <Link
+                  href="/sign-in"
+                  className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
+                >
+                  Commencer gratuitement
+                </Link>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </section>
       </main>
 
