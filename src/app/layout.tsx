@@ -40,6 +40,9 @@ export const metadata: Metadata = {
     description: site.description,
   },
   robots: { index: true, follow: true },
+  // Google Search Console ownership proof (required for the OAuth app / YouTube
+  // scope verification). Emits <meta name="google-site-verification" …>.
+  verification: { google: "j47WpSBEqnX5rs3T3knaupZDrQoeKR-xvitw4UF8-w0" },
 };
 
 export default function RootLayout({

@@ -77,6 +77,7 @@ export function PhoneOtpForm() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             aria-label="Numéro de téléphone"
+            className="bg-foreground/5 h-10"
           />
         </div>
         {state.error ? (
@@ -114,6 +115,7 @@ export function PhoneOtpForm() {
           value={code}
           onChange={(e) => setCode(e.target.value)}
           aria-label="Code à 6 chiffres"
+          className="bg-foreground/5 h-10"
         />
       </div>
       {state.error ? (

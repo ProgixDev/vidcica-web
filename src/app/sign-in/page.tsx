@@ -5,6 +5,7 @@ import { AuthPanel } from "@/features/auth";
 import { BrandLockup, LogoMark } from "@/components/brand";
 import { LandingVideo } from "@/components/landing-video";
 import { Reveal } from "@/components/reveal";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Connexion" };
@@ -44,12 +45,15 @@ export default async function SignInPage() {
         >
           <BrandLockup className="text-sm" />
         </Link>
-        <Link
-          href="/"
-          className="rounded-full border border-white/15 bg-black/30 px-3.5 py-1.5 text-xs font-medium text-white/85 backdrop-blur-md transition-colors hover:bg-black/45 hover:text-white"
-        >
-          ← Retour au site
-        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeToggle className="border border-white/15 bg-black/30 text-white backdrop-blur-md hover:bg-black/45 hover:text-white" />
+          <Link
+            href="/"
+            className="rounded-full border border-white/15 bg-black/30 px-3.5 py-1.5 text-xs font-medium text-white/85 backdrop-blur-md transition-colors hover:bg-black/45 hover:text-white"
+          >
+            ← Retour au site
+          </Link>
+        </div>
       </div>
 
       {/* Glass auth card */}
@@ -57,7 +61,7 @@ export default async function SignInPage() {
         <Reveal
           onMount
           y={18}
-          className="bg-background/90 border-border/60 flex w-full max-w-md flex-col items-center gap-6 rounded-lg border p-6 shadow-2xl backdrop-blur-xl sm:p-8"
+          className="bg-background/95 border-border/60 flex w-full max-w-md flex-col items-center gap-6 rounded-lg border p-6 shadow-2xl backdrop-blur-xl sm:p-8"
         >
           <div className="flex flex-col items-center gap-3">
             <LogoMark className="size-16 object-contain" />

@@ -68,6 +68,7 @@ export function SignInForm() {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="bg-foreground/5 h-10"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -79,6 +80,7 @@ export function SignInForm() {
           autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="bg-foreground/5 h-10"
         />
       </div>
       {error ? (

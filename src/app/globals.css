@@ -117,14 +117,19 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
-  /* Chrome/Safari paint autofilled inputs pale blue — repaint with our tokens
-     (inset box-shadow trick; the background-color transition delays the UA fill). */
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--color-foreground);
-    caret-color: var(--color-foreground);
-    box-shadow: 0 0 0 1000px var(--color-background) inset;
-    transition: background-color 9999s ease-in-out 0s;
-  }
+}
+
+/* Chrome/Safari paint autofilled inputs pale blue — repaint with our tokens.
+   UNLAYERED (not inside @layer base) on purpose: Tailwind's `shadow-xs` utility
+   lives in a later layer and would otherwise clobber this box-shadow regardless
+   of specificity. Unlayered rules win over any @layer, and `!important` guards
+   against the utility's own shadow too. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--color-foreground) !important;
+  caret-color: var(--color-foreground);
+  box-shadow: 0 0 0 1000px var(--color-background) inset !important;
+  transition: background-color 9999s ease-in-out 0s;
 }
