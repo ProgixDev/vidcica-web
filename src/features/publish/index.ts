@@ -1,2 +1,6 @@
 export { PublishStoreProvider } from "./provider";
-export { PublishFlow } from "./components/publish-flow";
+export {
+  PublishFlow,
+  type PublishablePlatform,
+  type PublishPreviewVideo,
+} from "./components/publish-flow";

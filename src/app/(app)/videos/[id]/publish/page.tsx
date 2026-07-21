@@ -4,8 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getMyVideo } from "@/lib/vidcica/queries";
 import { listMyNetworks } from "@/lib/vidcica/networks-queries";
 import { isReady } from "@/lib/vidcica/video";
-import { PLATFORMS } from "@/lib/vidcica/network";
-import { PublishStoreProvider, PublishFlow } from "@/features/publish";
+import { PLATFORMS, networkStatus } from "@/lib/vidcica/network";
+import { PublishStoreProvider, PublishFlow, type PublishablePlatform } from "@/features/publish";
 import { PageHeader } from "@/components/app-shell";
 
 export const metadata = { title: "Publier" };
@@ -25,15 +25,26 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
   if (!isReady(video)) redirect(`/videos/${id}`);
 
   const networks = await listMyNetworks();
-  const publishable = new Set(
-    networks.filter((n) => n.connected && n.publishesEnabled).map((n) => n.platform),
-  );
-  const available = PLATFORMS.filter((p) => publishable.has(p.id));
+  const byPlatform = new Map(networks.map((n) => [n.platform, n]));
+
+  // Every connectable platform is shown (X is dropped — provider null), each
+  // with its connection state, so an unconnected YouTube still appears (with a
+  // "Connecter" affordance) instead of vanishing from the picker.
+  const platforms: PublishablePlatform[] = PLATFORMS.filter((p) => p.provider !== null).map((p) => {
+    const net = byPlatform.get(p.id);
+    return {
+      id: p.id,
+      label: p.label,
+      status: networkStatus(p, net),
+      handle: net?.handle,
+    };
+  });
 
   return (
     <>
       <PageHeader
         title={`Publier « ${video.title} »`}
+        subtitle="Sélectionnez vos réseaux et prévisualisez le rendu de chaque post."
         actions={
           <Link
             href={`/videos/${id}`}
@@ -43,9 +54,21 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
           </Link>
         }
       />
-      <div className="w-full max-w-xl">
+      <div className="w-full max-w-4xl">
         <PublishStoreProvider videoId={video.id}>
-          <PublishFlow userId={user.id} available={available} />
+          <PublishFlow
+            userId={user.id}
+            platforms={platforms}
+            video={{
+              id: video.id,
+              title: video.title,
+              description: video.description,
+              hashtags: video.hashtags,
+              thumbnailUrl: video.thumbnailUrl,
+              durationSec: video.durationSec,
+              format: video.format,
+            }}
+          />
         </PublishStoreProvider>
       </div>
     </>

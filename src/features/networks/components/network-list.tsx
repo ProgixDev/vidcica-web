@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { PlatformIcon } from "@/components/platform-icon";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { startNetworkOAuth } from "@/lib/vidcica/oauth";
 import {
@@ -23,11 +25,14 @@ const STATUS_VARIANT = {
   unavailable: "muted",
 } as const;
 
-function NetworkRow({ platform, net }: { platform: PlatformMeta; net?: Network }) {
+const numberFmt = new Intl.NumberFormat("fr-FR");
+
+function NetworkCard({ platform, net }: { platform: PlatformMeta; net?: Network }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const status = networkStatus(platform, net);
+  const connected = status === "connected";
 
   // Abort an in-flight OAuth poll if the user navigates away (no leaked popup /
   // setState-after-unmount).
@@ -76,44 +81,59 @@ function NetworkRow({ platform, net }: { platform: PlatformMeta; net?: Network }
 
   return (
     <div
-      className="bg-card flex items-center justify-between gap-4 rounded-xl border p-4"
+      className="bg-card flex flex-col gap-3 rounded-2xl border p-4"
       data-testid={`network-${platform.id}`}
     >
-      <div className="flex min-w-0 flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{platform.label}</span>
-          <Badge variant={STATUS_VARIANT[status]} data-testid={`network-status-${platform.id}`}>
-            {STATUS_LABEL[status]}
-          </Badge>
+      <div className="flex items-center gap-3">
+        <PlatformIcon platform={platform.id} size={44} muted={!connected} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{platform.label}</span>
+            <Badge variant={STATUS_VARIANT[status]} data-testid={`network-status-${platform.id}`}>
+              {STATUS_LABEL[status]}
+            </Badge>
+          </div>
+          {connected && net?.handle ? (
+            <p className="text-muted-foreground truncate text-xs">
+              {net.handle}
+              {typeof net.followers === "number"
+                ? ` · ${numberFmt.format(net.followers)} abonnés`
+                : ""}
+            </p>
+          ) : (
+            <p className="text-muted-foreground text-xs">
+              {message ??
+                (status === "unavailable"
+                  ? "API payante — non proposé"
+                  : "Publiez vos vidéos en un clic.")}
+            </p>
+          )}
         </div>
-        {status === "connected" && net?.handle ? (
-          <span className="text-muted-foreground truncate text-xs">{net.handle}</span>
-        ) : null}
-        {message ? <span className="text-muted-foreground text-xs">{message}</span> : null}
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
-        {status === "connected" ? (
+      <div className="border-border/60 flex items-center justify-between gap-3 border-t pt-3">
+        {connected ? (
           <>
-            <label className="text-muted-foreground flex items-center gap-2 text-xs">
-              Publier
+            <label className="text-muted-foreground flex items-center gap-2 text-xs font-medium">
               <Switch
                 checked={net?.publishesEnabled ?? false}
                 onChange={toggle}
                 aria-label={`Publier sur ${platform.label}`}
               />
+              Publication auto
             </label>
             <Button variant="ghost" size="sm" onClick={disconnect} disabled={pending}>
               Déconnecter
             </Button>
           </>
         ) : status === "needs_reconnect" ? (
-          <Button size="sm" onClick={connect} disabled={pending}>
+          <Button size="sm" className="rounded-full" onClick={connect} disabled={pending}>
             {pending ? "…" : "Reconnecter"}
           </Button>
         ) : status === "disconnected" ? (
           <Button
             size="sm"
+            className="rounded-full"
             onClick={connect}
             disabled={pending}
             data-testid={`connect-${platform.id}`}
@@ -121,7 +141,14 @@ function NetworkRow({ platform, net }: { platform: PlatformMeta; net?: Network }
             {pending ? "Connexion…" : "Connecter"}
           </Button>
         ) : (
-          <span className="text-muted-foreground text-xs">Indisponible</span>
+          <span
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "sm" }),
+              "text-muted-foreground pointer-events-none",
+            )}
+          >
+            Bientôt disponible
+          </span>
         )}
       </div>
     </div>
@@ -138,9 +165,9 @@ function NetworkRow({ platform, net }: { platform: PlatformMeta; net?: Network }
 export function NetworkList({ initial }: { initial: Network[] }) {
   const byPlatform = new Map(initial.map((n) => [n.platform, n]));
   return (
-    <div className="flex flex-col gap-3" data-testid="network-list">
+    <div className="grid gap-3 sm:grid-cols-2" data-testid="network-list">
       {PLATFORMS.map((p) => (
-        <NetworkRow key={p.id} platform={p} net={byPlatform.get(p.id)} />
+        <NetworkCard key={p.id} platform={p} net={byPlatform.get(p.id)} />
       ))}
     </div>
   );
