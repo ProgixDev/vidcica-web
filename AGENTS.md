@@ -38,6 +38,7 @@ Right-size the process. Do not write a spec for a typo.
 
 These bind every change. A prompt that doesn't mention them does not waive them — surface the conflict instead of skipping the obligation (ADR-0005, Constitution Art. XI).
 
+- **Mirror the mobile app (feature parity).** This web app is the second front-end over the same backend as the mobile app (`c:\dev\ClipFlow`). Before building or porting ANY screen, inventory its mobile counterpart (`ClipFlow/app/**`, `ClipFlow/src/**`) and replicate its sections, rows, and features — adapted to web (real data + honest UI), never a thin stub. Web-appropriate deviations are allowed (e.g. features that are `__DEV__`-gated on mobile are live on web); note them, don't silently drop content. When in doubt, match the mobile screen's structure and depth.
 - **Skills & agents are the default tools.** Use the relevant skill for spec, plan, implement, verify, review, report, docs — don't hand-roll those procedures. Delegate noisy/parallel work to the agents in `.claude/agents/`.
 - **A feature has a PRD and a spec.** Product intent lives in the PRD (`/write-prd`, in the repo); the change is governed by a spec (`/create-spec`). No feature-track code without both.
 - **Evidence, not confidence.** `pnpm verify` green + acceptance criteria mapped to passing tests + inspected screenshots for UI. The harness, not the author, attests.
