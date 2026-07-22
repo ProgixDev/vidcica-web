@@ -34,12 +34,21 @@ export default async function VideosPage() {
             : t("videos.subtitleMany", { count: videos.length })
         }
         actions={
-          <Link href="/create" className={buttonVariants({ className: "rounded-full" })}>
-            {t("videos.create")}
-          </Link>
+          <>
+            <Link
+              href="/videos/trash"
+              className="text-muted-foreground hover:text-foreground text-sm"
+              data-testid="videos-trash-link"
+            >
+              {t("library.trash.title")}
+            </Link>
+            <Link href="/create" className={buttonVariants({ className: "rounded-full" })}>
+              {t("videos.create")}
+            </Link>
+          </>
         }
       />
-      <VideoList userId={user.id} initial={videos} />
+      <VideoList userId={user.id} initial={videos} manage />
     </>
   );
 }

@@ -14,6 +14,7 @@ import {
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
 import { ActivatePauseControls } from "./activate-pause-controls";
+import { CampaignManageControls } from "./campaign-manage";
 
 type NumericMetric = Exclude<keyof Campaign["metrics"], "updatedAt">;
 const METRICS: { key: NumericMetric; label: MessageKey; fmt: (n: number) => string }[] = [
@@ -83,6 +84,8 @@ export function CampaignDetail({ campaign }: { campaign: Campaign }) {
           {t("ads.lastError", { error: campaign.lastError })}
         </p>
       ) : null}
+
+      <CampaignManageControls campaign={campaign} />
     </div>
   );
 }

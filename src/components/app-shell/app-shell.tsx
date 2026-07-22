@@ -31,6 +31,7 @@ const NAV_MAIN: NavItem[] = [
   { href: "/networks", labelKey: "nav.networks", icon: "share" },
   { href: "/ads", labelKey: "nav.ads", icon: "megaphone" },
   { href: "/leads", labelKey: "nav.leads", icon: "users" },
+  { href: "/analytics", labelKey: "nav.analytics", icon: "chart" },
 ];
 
 const NAV_SECONDARY: NavItem[] = [

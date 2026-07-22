@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Geist_Mono } from "next/font/google";
 import { MotionProvider } from "@/components/motion";
-import { I18nProvider } from "@/lib/i18n/provider";
+import { I18nProvider, LocaleTransition } from "@/lib/i18n/provider";
 import { getLocale } from "@/lib/i18n/server";
 import { site } from "@/core/site";
 import "./globals.css";
@@ -77,7 +77,9 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <I18nProvider locale={locale}>
-          <MotionProvider>{children}</MotionProvider>
+          <MotionProvider>
+            <LocaleTransition>{children}</LocaleTransition>
+          </MotionProvider>
         </I18nProvider>
       </body>
     </html>

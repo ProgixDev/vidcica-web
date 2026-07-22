@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ import { submitTicket } from "../actions";
 
 export function ContactForm() {
   const t = useT();
+  const router = useRouter();
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
@@ -27,8 +29,11 @@ export function ContactForm() {
     setPending(true);
     const res = await submitTicket({ subject, message });
     setPending(false);
-    if (res.ok) setSent(true);
-    else setError(res.message);
+    if (res.ok) {
+      setSent(true);
+      // Re-fetch the server component so the new ticket shows in the history list.
+      router.refresh();
+    } else setError(res.message);
   }
 
   if (sent) {

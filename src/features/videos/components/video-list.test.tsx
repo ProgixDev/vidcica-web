@@ -1,5 +1,16 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+// The card menu uses the router + server actions; stub both so the list renders
+// in jsdom without a Next router context or the Supabase server client.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => undefined, push: () => undefined }),
+}));
+vi.mock("../actions", () => ({
+  duplicateVideo: async () => ({ ok: true, id: "copy" }),
+  deleteVideo: async () => ({ ok: true }),
+}));
+
 import { VideoList } from "./video-list";
 
 afterEach(cleanup);

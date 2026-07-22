@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import {
   STATUS_ORDER,
   type ContactKind,
   type Lead,
+  type LeadStatus,
 } from "@/lib/vidcica/lead";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
@@ -23,12 +25,16 @@ const CONTACT_LABEL: Record<ContactKind, MessageKey> = {
   whatsapp: "leads.contactWhatsapp",
 };
 
+/** Destructive transitions get a confirm before they're written through. */
+const DESTRUCTIVE: ReadonlySet<LeadStatus> = new Set<LeadStatus>(["converted", "rejected"]);
+
 function fmt(iso: string): string {
   return new Date(iso).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" });
 }
 
-/** Lead detail — contact + score, status pipeline, notes, contact log, timeline.
- *  All mutations are optimistic (store) + written through to the `leads` row. */
+/** Lead detail — contact deeplinks + score, status pipeline, source campaign,
+ *  notes, contact log, timeline. All mutations are optimistic (store) + written
+ *  through to the `leads` row. */
 export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
   const t = useT();
   const lead = useLeadsStore((s) => s.byId(id)) ?? fallback;
@@ -40,11 +46,30 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
   const score = SCORE_META[lead.scoreBucket];
   const timeline = [...lead.interactions].reverse();
 
+  // WhatsApp / tel need a clean digit string (+ kept for country code).
+  const phoneHref = `tel:${lead.phone.replace(/\s/g, "")}`;
+  const whatsappHref = `https://wa.me/${lead.phone.replace(/[^\d]/g, "")}`;
+  const emailHref = `mailto:${lead.email}`;
+
   function submitNote() {
     const body = note.trim();
     if (!body) return;
     addNote(lead.id, body);
     setNote("");
+  }
+
+  // Destructive statuses (converted/rejected) require a confirm so a stray click
+  // can't silently close out a lead. Others apply immediately.
+  function requestStatus(next: LeadStatus) {
+    if (next === lead.status) return;
+    if (DESTRUCTIVE.has(next)) {
+      const msg =
+        next === "converted"
+          ? t("leads.confirmConvert", { name: `${lead.firstName} ${lead.lastName}` })
+          : t("leads.confirmReject", { name: `${lead.firstName} ${lead.lastName}` });
+      if (!window.confirm(msg)) return;
+    }
+    setStatus(lead.id, next);
   }
 
   return (
@@ -63,12 +88,45 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
         <ContactRow
           label={t("leads.fieldEmail")}
           value={lead.email}
-          href={`mailto:${lead.email}`}
+          href={emailHref}
+          onOpen={() => logContact(lead.id, "email")}
+          testId="contact-link-email"
         />
-        <ContactRow label={t("leads.fieldPhone")} value={lead.phone} href={`tel:${lead.phone}`} />
+        <ContactRow
+          label={t("leads.fieldPhone")}
+          value={lead.phone}
+          href={phoneHref}
+          onOpen={() => logContact(lead.id, "call")}
+          testId="contact-link-phone"
+        />
+        <ContactRow
+          label={t("leads.contactWhatsapp")}
+          value={lead.phone}
+          href={whatsappHref}
+          external
+          onOpen={() => logContact(lead.id, "whatsapp")}
+          testId="contact-link-whatsapp"
+        />
         {lead.city ? <ContactRow label={t("leads.fieldCity")} value={lead.city} /> : null}
         <ContactRow label={t("leads.fieldCapturedAt")} value={fmt(lead.capturedAt)} />
       </Card>
+
+      {/* Source campaign — the ad that captured this lead. */}
+      {lead.campaignId ? (
+        <Card className="flex flex-col gap-2 p-4 text-sm" data-testid="lead-source">
+          <h2 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            {t("leads.sourceHeading")}
+          </h2>
+          <span className="font-medium">{lead.campaignName}</span>
+          <Link
+            href={`/ads/${lead.campaignId}`}
+            className="text-primary self-start text-sm font-medium hover:underline"
+            data-testid="lead-open-campaign"
+          >
+            {t("leads.openCampaign")} →
+          </Link>
+        </Card>
+      ) : null}
 
       <section className="flex flex-col gap-2" data-testid="status-pipeline">
         <h2 className="text-sm font-medium">{t("leads.statusHeading")}</h2>
@@ -79,7 +137,7 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
               <button
                 key={s}
                 type="button"
-                onClick={() => setStatus(lead.id, s)}
+                onClick={() => requestStatus(s)}
                 aria-pressed={active}
                 data-testid={`status-${s}`}
                 className={
@@ -164,12 +222,32 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
   );
 }
 
-function ContactRow({ label, value, href }: { label: string; value: string; href?: string }) {
+function ContactRow({
+  label,
+  value,
+  href,
+  external,
+  onOpen,
+  testId,
+}: {
+  label: string;
+  value: string;
+  href?: string;
+  external?: boolean;
+  onOpen?: () => void;
+  testId?: string;
+}) {
   return (
     <div className="flex justify-between gap-4">
       <span className="text-muted-foreground">{label}</span>
       {href ? (
-        <a href={href} className="font-medium underline-offset-2 hover:underline">
+        <a
+          href={href}
+          onClick={onOpen}
+          data-testid={testId}
+          {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          className="font-medium underline-offset-2 hover:underline"
+        >
           {value}
         </a>
       ) : (

@@ -1,5 +1,13 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+// Detail's delete action uses the router + a server action; stub both so the
+// component renders in jsdom without a Next router context or Supabase client.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => undefined, push: () => undefined }),
+}));
+vi.mock("../actions", () => ({ deleteVideo: async () => ({ ok: true }) }));
+
 import { VideoDetail } from "./video-detail";
 
 afterEach(cleanup);

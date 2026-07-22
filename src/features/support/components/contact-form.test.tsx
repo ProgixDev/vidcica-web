@@ -2,6 +2,8 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ContactForm } from "./contact-form";
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
+
 type TicketResult = { ok: true } | { ok: false; message: string };
 const submitTicket = vi.fn<() => Promise<TicketResult>>(async () => ({ ok: true }));
 vi.mock("../actions", () => ({

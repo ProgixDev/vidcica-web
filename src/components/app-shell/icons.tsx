@@ -11,6 +11,7 @@ export type IconName =
   | "card"
   | "lifebuoy"
   | "user"
+  | "chart"
   | "menu"
   | "close"
   | "sparkle";
@@ -66,6 +67,12 @@ const PATHS: Record<IconName, React.ReactNode> = {
     <>
       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
+    </>
+  ),
+  chart: (
+    <>
+      <path d="M3 3v18h18" />
+      <path d="M7 15l3-4 3 2 4-6" />
     </>
   ),
   menu: <path d="M4 6h16M4 12h16M4 18h16" />,
