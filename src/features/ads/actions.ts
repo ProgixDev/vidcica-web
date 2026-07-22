@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { entityId } from "@/lib/vidcica/id";
 import {
   boostDraftToRow,
   SUPPORTED_OBJECTIVES,
@@ -14,7 +15,7 @@ import {
 /** Boost draft validated at the trust boundary before it becomes a `campaigns` row. */
 const boostSchema = z.object({
   name: z.string().trim().min(1).max(120),
-  videoId: z.string().uuid(),
+  videoId: entityId,
   objective: z.enum(SUPPORTED_OBJECTIVES),
   countries: z.array(z.string().length(2)).min(1).max(25),
   ageMin: z.number().int().min(13).max(65),
@@ -53,7 +54,7 @@ export async function createDraftCampaign(input: BoostDraft): Promise<CreateDraf
   return { ok: true, id };
 }
 
-const idSchema = z.object({ id: z.string().uuid() });
+const idSchema = z.object({ id: entityId });
 
 /** Campaign fields carried over when cloning — creative + targeting + budget, never
  *  the Meta external ids or accrued metrics (a clone starts fresh as a `brouillon`). */

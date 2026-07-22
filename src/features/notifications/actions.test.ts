@@ -46,8 +46,9 @@ describe("markRead (AC-4)", () => {
     expect(calls.find((c) => c.method === "eq")?.args).toEqual(["id", uuid]);
   });
 
-  it("rejects a non-uuid id without touching the DB", async () => {
-    const out = await markRead("nope");
+  it("rejects a malformed id (bad chars) without touching the DB", async () => {
+    // Ids are TEXT (e.g. `vid_…`), so only genuinely malformed shapes are rejected.
+    const out = await markRead("' OR 1=1 --");
     expect(out.ok).toBe(false);
     expect(calls.find((c) => c.method === "update")).toBeUndefined();
   });

@@ -1,18 +1,8 @@
 "use server";
 
-import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { entityId as RowId } from "@/lib/vidcica/id";
 import type { Database } from "@/lib/supabase/database.types";
-
-// Network row ids are NOT plain UUIDs — the DB seeds one row per platform with
-// id `{userId}_{platformCode}` (e.g. `…f37a8_yt`), so a `.uuid()` check rejected
-// every id and silently failed every toggle/disconnect. RLS (`user_id =
-// auth.uid()`) is the real ownership guard; here we only bound the shape.
-const RowId = z
-  .string()
-  .min(1)
-  .max(128)
-  .regex(/^[a-z0-9_-]+$/i, "Identifiant invalide");
 
 type NetworkUpdate = Database["public"]["Tables"]["networks"]["Update"];
 type ActionResult = { ok: true } | { ok: false; message: string };

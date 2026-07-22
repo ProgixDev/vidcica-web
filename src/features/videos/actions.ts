@@ -1,17 +1,12 @@
 "use server";
 
-import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { entityId as VideoId } from "@/lib/vidcica/id";
 import type { Database } from "@/lib/supabase/database.types";
 
 type VideoInsert = Database["public"]["Tables"]["videos"]["Insert"];
 type ActionResult = { ok: true } | { ok: false; message: string };
 type DuplicateResult = { ok: true; id: string } | { ok: false; message: string };
-
-// `videos.id` is a UUID (crypto.randomUUID on create). RLS (`user_id =
-// auth.uid()`) is the real ownership guard; the parse only bounds the shape so a
-// malformed id fails fast instead of hitting the DB.
-const VideoId = z.string().uuid("Identifiant invalide");
 
 /**
  * Soft-delete the caller's own video (moves it to the trash — the mobile app's

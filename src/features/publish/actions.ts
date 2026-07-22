@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { entityId } from "@/lib/vidcica/id";
 import { enqueuePublish, type EnqueueOutcome } from "@/lib/vidcica/publishing";
 import type { PlatformId } from "@/lib/vidcica/network";
 
@@ -9,7 +10,7 @@ import type { PlatformId } from "@/lib/vidcica/network";
 const CONNECTABLE = ["youtube", "tiktok", "instagram", "facebook", "linkedin", "threads"] as const;
 
 const Input = z.object({
-  videoId: z.string().uuid(),
+  videoId: entityId,
   platforms: z.array(z.enum(CONNECTABLE)).min(1),
   scheduledFor: z.string().datetime().optional(),
   asShort: z.boolean().optional(),

@@ -1,9 +1,7 @@
 "use server";
 
-import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-
-const RowId = z.string().uuid();
+import { entityId as RowId } from "@/lib/vidcica/id";
 
 type ActionResult = { ok: true } | { ok: false; message: string };
 
