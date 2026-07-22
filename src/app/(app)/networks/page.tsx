@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { listMyNetworks } from "@/lib/vidcica/networks-queries";
 import { NetworkList } from "@/features/networks";
 import { PageHeader } from "@/components/app-shell";
+import { getT } from "@/lib/i18n/server";
 
 export const metadata = { title: "Réseaux sociaux" };
 export const dynamic = "force-dynamic";
@@ -14,15 +15,12 @@ export default async function NetworksPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/networks");
 
-  const networks = await listMyNetworks();
+  const [networks, t] = await Promise.all([listMyNetworks(), getT()]);
 
   return (
     <>
-      <PageHeader
-        title="Réseaux sociaux"
-        subtitle="Connecte tes comptes pour publier tes vidéos en un clic."
-      />
-      <div className="w-full max-w-3xl">
+      <PageHeader title={t("networks.title")} subtitle={t("networks.subtitle")} />
+      <div className="w-full max-w-5xl">
         <NetworkList initial={networks} />
       </div>
     </>

@@ -163,3 +163,18 @@ export const SCORE_META: Record<
   warm: { label: "Tiède", variant: "warning" },
   cold: { label: "Froid", variant: "muted" },
 };
+
+/** i18n keys (label via `t(...)`; badge variant stays in the *_META maps). */
+export const LEAD_STATUS_KEY: Record<LeadStatus, import("@/lib/i18n").MessageKey> = {
+  new: "lead.status.new",
+  contacted: "lead.status.contacted",
+  qualified: "lead.status.qualified",
+  converted: "lead.status.converted",
+  rejected: "lead.status.rejected",
+};
+
+export const LEAD_SCORE_KEY: Record<LeadScoreBucket, import("@/lib/i18n").MessageKey> = {
+  hot: "lead.score.hot",
+  warm: "lead.score.warm",
+  cold: "lead.score.cold",
+};

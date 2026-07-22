@@ -7,12 +7,17 @@ import { isReady } from "@/lib/vidcica/video";
 import { PLATFORMS, networkStatus } from "@/lib/vidcica/network";
 import { PublishStoreProvider, PublishFlow, type PublishablePlatform } from "@/features/publish";
 import { PageHeader } from "@/components/app-shell";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata = { title: "Publier" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t("publish.metaTitle") };
+}
 export const dynamic = "force-dynamic";
 
 export default async function PublishPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const t = await getT();
   const supabase = await createClient();
   const {
     data: { user },
@@ -43,14 +48,14 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
   return (
     <>
       <PageHeader
-        title={`Publier « ${video.title} »`}
-        subtitle="Sélectionnez vos réseaux et prévisualisez le rendu de chaque post."
+        title={t("publish.pageTitle", { title: video.title })}
+        subtitle={t("publish.pageSubtitle")}
         actions={
           <Link
             href={`/videos/${id}`}
             className="text-muted-foreground hover:text-foreground text-sm"
           >
-            ← Retour
+            ← {t("common.back")}
           </Link>
         }
       />

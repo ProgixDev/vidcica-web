@@ -7,6 +7,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlatformIcon } from "@/components/platform-icon";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 import type { NetworkStatus, PlatformId } from "@/lib/vidcica/network";
 import {
   usePublishJobsRealtime,
@@ -34,23 +36,29 @@ export type PublishPreviewVideo = {
   format: string;
 };
 
-const REASON_LABEL: Record<string, string> = {
-  auth_expired: "Reconnexion requise",
-  encoding: "Vidéo non prête",
-  rate_limited: "Limite atteinte",
-  rejected: "Refusé par la plateforme",
-  unknown: "Échec",
+const REASON_LABEL: Record<string, MessageKey> = {
+  auth_expired: "publish.reasonAuthExpired",
+  encoding: "publish.reasonEncoding",
+  rate_limited: "publish.reasonRateLimited",
+  rejected: "publish.reasonRejected",
+  unknown: "publish.reasonUnknown",
 };
 
-function statusView(v: PublishJobView | undefined): {
+function statusView(
+  v: PublishJobView | undefined,
+  t: ReturnType<typeof useT>,
+): {
   label: string;
   variant: "muted" | "brand" | "success" | "warning";
 } {
-  if (!v) return { label: "En attente", variant: "muted" };
-  if (v.status === "succeeded") return { label: "Publié", variant: "success" };
+  if (!v) return { label: t("publish.statusPending"), variant: "muted" };
+  if (v.status === "succeeded") return { label: t("publish.statusPublished"), variant: "success" };
   if (v.status === "failed")
-    return { label: REASON_LABEL[v.reason ?? "unknown"] ?? "Échec", variant: "warning" };
-  return { label: "Publication…", variant: "brand" };
+    return {
+      label: t(REASON_LABEL[v.reason ?? "unknown"] ?? "publish.reasonUnknown"),
+      variant: "warning",
+    };
+  return { label: t("publish.statusPublishing"), variant: "brand" };
 }
 
 /** Caption the backend will actually build (title + description). Hashtags are
@@ -83,6 +91,7 @@ export function PublishFlow({
   const canConfirm = usePublishStore((s) => s.canConfirm);
   const confirm = usePublishStore((s) => s.confirm);
 
+  const t = useT();
   const statuses = usePublishJobsRealtime(userId, videoId);
   const connectable = platforms.filter((p) => p.status === "connected");
   const caption = useMemo(() => buildCaption(video), [video]);
@@ -136,18 +145,16 @@ export function PublishFlow({
 
         <div className="flex flex-col items-center gap-1.5 text-center">
           <h2 className="text-lg font-semibold tracking-tight">
-            {mode === "schedule" ? "Publication programmée" : "Publication lancée"}
+            {mode === "schedule" ? t("publish.doneScheduledTitle") : t("publish.doneLaunchedTitle")}
           </h2>
           <p className="text-muted-foreground text-sm">
-            {mode === "schedule"
-              ? "Vos vidéos partiront à l’heure prévue."
-              : "Suivez l’avancement réseau par réseau ci-dessous."}
+            {mode === "schedule" ? t("publish.doneScheduledDesc") : t("publish.doneLaunchedDesc")}
           </p>
         </div>
 
         <ul className="flex w-full flex-col gap-2">
           {selected.map((p) => {
-            const s = statusView(statuses[p]);
+            const s = statusView(statuses[p], t);
             const meta = platforms.find((x) => x.id === p);
             return (
               <li key={p} className="bg-card flex items-center gap-3 rounded-xl border p-3 text-sm">
@@ -161,17 +168,17 @@ export function PublishFlow({
 
         {skipped.length > 0 ? (
           <p className="text-muted-foreground text-center text-xs">
-            Ignoré (déjà publié ou en cours) :{" "}
+            {t("publish.skippedLabel")}{" "}
             {skipped.map((s) => platforms.find((p) => p.id === s)?.label ?? s).join(", ")}
           </p>
         ) : null}
 
         <div className="flex w-full flex-col gap-2">
           <Link href={`/videos/${video.id}`} className={buttonVariants()}>
-            Voir la vidéo
+            {t("publish.viewVideo")}
           </Link>
           <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline" }))}>
-            Retour au tableau de bord
+            {t("publish.backToDashboard")}
           </Link>
         </div>
       </m.div>
@@ -187,8 +194,8 @@ export function PublishFlow({
         <section className="bg-card rounded-2xl border p-4 sm:p-5">
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-semibold">Réseaux</h2>
-              <p className="text-muted-foreground text-xs">Choisissez où diffuser cette vidéo.</p>
+              <h2 className="text-sm font-semibold">{t("publish.networksTitle")}</h2>
+              <p className="text-muted-foreground text-xs">{t("publish.networksSubtitle")}</p>
             </div>
             {connectable.length > 1 ? (
               <button
@@ -204,8 +211,8 @@ export function PublishFlow({
                 className="text-primary text-xs font-medium hover:underline"
               >
                 {connectable.every((p) => selected.includes(p.id))
-                  ? "Tout désélectionner"
-                  : "Tout sélectionner"}
+                  ? t("publish.deselectAll")
+                  : t("publish.selectAll")}
               </button>
             ) : null}
           </div>
@@ -226,20 +233,20 @@ export function PublishFlow({
         {/* YouTube format */}
         {youtubeSelected ? (
           <section className="bg-card rounded-2xl border p-4 sm:p-5">
-            <h2 className="text-sm font-semibold">Format YouTube</h2>
+            <h2 className="text-sm font-semibold">{t("publish.youtubeFormatTitle")}</h2>
             <p className="text-muted-foreground mb-3 text-xs">
-              Publier en Short vertical ou en vidéo classique.
+              {t("publish.youtubeFormatSubtitle")}
             </p>
             <div className="grid grid-cols-2 gap-2">
               <FormatOption
-                title="Short"
-                hint="Vertical, format court"
+                title={t("publish.formatShortTitle")}
+                hint={t("publish.formatShortHint")}
                 selected={asShort}
                 onClick={() => setShort(true)}
               />
               <FormatOption
-                title="Vidéo classique"
-                hint="Publication standard"
+                title={t("publish.formatVideoTitle")}
+                hint={t("publish.formatVideoHint")}
                 selected={!asShort}
                 onClick={() => setShort(false)}
               />
@@ -249,27 +256,25 @@ export function PublishFlow({
 
         {/* Timing */}
         <section className="bg-card rounded-2xl border p-4 sm:p-5">
-          <h2 className="text-sm font-semibold">Quand publier ?</h2>
-          <p className="text-muted-foreground mb-3 text-xs">
-            Diffusez maintenant ou programmez pour plus tard.
-          </p>
+          <h2 className="text-sm font-semibold">{t("publish.timingTitle")}</h2>
+          <p className="text-muted-foreground mb-3 text-xs">{t("publish.timingSubtitle")}</p>
           <div className="flex flex-col gap-2">
             <TimingOption
-              title="Maintenant"
-              hint="La vidéo part dès la confirmation."
+              title={t("publish.timingNowTitle")}
+              hint={t("publish.timingNowHint")}
               icon="send"
               selected={mode === "now"}
               onClick={() => setMode("now")}
             />
             <TimingOption
-              title="Programmer"
+              title={t("publish.timingScheduleTitle")}
               hint={
                 mode === "schedule" && scheduledAt
                   ? new Date(scheduledAt).toLocaleString("fr-FR", {
                       dateStyle: "medium",
                       timeStyle: "short",
                     })
-                  : "Choisissez la date et l’heure."
+                  : t("publish.timingScheduleHint")
               }
               icon="calendar"
               selected={mode === "schedule"}
@@ -278,7 +283,7 @@ export function PublishFlow({
             {mode === "schedule" ? (
               <input
                 type="datetime-local"
-                aria-label="Date de publication"
+                aria-label={t("publish.scheduleAriaLabel")}
                 className="border-input bg-background focus-visible:ring-ring mt-1 h-10 rounded-full border px-4 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 data-testid="publish-schedule"
                 onChange={(e) => {
@@ -304,12 +309,12 @@ export function PublishFlow({
           data-testid="publish-confirm"
         >
           {phase === "submitting"
-            ? "Envoi…"
+            ? t("publish.submitting")
             : selected.length === 0
-              ? "Sélectionnez un réseau"
+              ? t("publish.selectANetwork")
               : mode === "schedule"
-                ? "Programmer la publication"
-                : `Publier maintenant${selected.length > 1 ? ` (${selected.length})` : ""}`}
+                ? t("publish.schedulePublish")
+                : `${t("publish.publishNow")}${selected.length > 1 ? ` (${selected.length})` : ""}`}
         </Button>
       </div>
 
@@ -326,7 +331,7 @@ export function PublishFlow({
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-                Aperçu du post
+                {t("publish.previewLabel")}
               </p>
               <p className="truncate text-sm font-semibold">{video.title}</p>
               <p className="text-muted-foreground text-xs">
@@ -371,7 +376,7 @@ export function PublishFlow({
           />
 
           <p className="text-muted-foreground text-[11px] leading-relaxed">
-            La légende provient du titre, de la description et des hashtags de la vidéo.
+            {t("publish.captionNote")}
           </p>
         </div>
       </aside>
@@ -381,11 +386,11 @@ export function PublishFlow({
 
 // ---- sub-components ----
 
-const STATUS_HINT: Record<NetworkStatus, string> = {
-  connected: "",
-  needs_reconnect: "Reconnexion requise",
-  disconnected: "Non connecté",
-  unavailable: "Bientôt disponible",
+const STATUS_HINT: Record<NetworkStatus, MessageKey | null> = {
+  connected: null,
+  needs_reconnect: "publish.reasonAuthExpired",
+  disconnected: "publish.statusDisconnected",
+  unavailable: "publish.statusUnavailable",
 };
 
 function PlatformRow({
@@ -399,6 +404,7 @@ function PlatformRow({
   onToggle: () => void;
   onPreview: () => void;
 }) {
+  const t = useT();
   const connected = platform.status === "connected";
 
   if (connected) {
@@ -423,7 +429,7 @@ function PlatformRow({
             {platform.handle ? (
               <p className="text-muted-foreground truncate text-xs">{platform.handle}</p>
             ) : (
-              <p className="text-success text-xs font-medium">Connecté</p>
+              <p className="text-success text-xs font-medium">{t("publish.connected")}</p>
             )}
           </div>
           <span
@@ -463,17 +469,19 @@ function PlatformRow({
       <PlatformIcon platform={platform.id} size={36} muted />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">{platform.label}</p>
-        <p className="text-muted-foreground text-xs">{STATUS_HINT[platform.status]}</p>
+        <p className="text-muted-foreground text-xs">
+          {STATUS_HINT[platform.status] ? t(STATUS_HINT[platform.status]!) : ""}
+        </p>
       </div>
       {unavailable ? (
-        <span className="text-muted-foreground text-xs">Bientôt</span>
+        <span className="text-muted-foreground text-xs">{t("publish.soon")}</span>
       ) : (
         <Link
           href="/networks"
           className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full")}
           data-testid={`connect-${platform.id}`}
         >
-          {platform.status === "needs_reconnect" ? "Reconnecter" : "Connecter"}
+          {platform.status === "needs_reconnect" ? t("common.reconnect") : t("common.connect")}
         </Link>
       )}
     </li>

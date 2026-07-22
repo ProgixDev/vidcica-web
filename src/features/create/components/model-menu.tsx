@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, m } from "@/components/motion";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/provider";
 import { planRank, tierDef, type Plan } from "@/lib/vidcica/tiers";
 import { MODELS } from "../options";
 import { ModelIcon } from "./model-icons";
@@ -22,6 +23,7 @@ export function ModelMenu({
   plan: Plan;
   onChange: (id: string) => void;
 }) {
+  const t = useT();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const selected = MODELS.find((m) => m.id === value) ?? MODELS.at(0);
@@ -33,13 +35,13 @@ export function ModelMenu({
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Modèle de génération"
+        aria-label={t("create.modelMenuLabel")}
         data-testid="composer-model"
         onClick={() => setOpen((o) => !o)}
         className="border-border bg-background hover:bg-accent focus-visible:ring-ring flex items-center gap-2 rounded-full border py-1.5 pr-2.5 pl-2 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
       >
         <ModelIcon id={selected.id} className="size-4.5 shrink-0" />
-        {selected.label}
+        {t(selected.labelKey)}
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -58,13 +60,13 @@ export function ModelMenu({
           <>
             <button
               type="button"
-              aria-label="Fermer le menu des modèles"
+              aria-label={t("create.modelMenuClose")}
               className="fixed inset-0 z-40 cursor-default"
               onClick={() => setOpen(false)}
             />
             <m.div
               role="menu"
-              aria-label="Modèle de génération"
+              aria-label={t("create.modelMenuLabel")}
               className="border-border bg-popover absolute top-full left-0 z-50 mt-2 max-h-80 w-64 overflow-y-auto rounded-md border shadow-xl"
               initial={{ opacity: 0, y: -6, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -72,7 +74,7 @@ export function ModelMenu({
               transition={{ duration: 0.16, ease: "easeOut" }}
             >
               <p className="text-muted-foreground px-4 pt-3 pb-1 text-[10px] font-semibold tracking-widest uppercase">
-                Modèle de génération
+                {t("create.modelMenuLabel")}
               </p>
               <ul className="flex flex-col p-1.5">
                 {MODELS.map((m) => {
@@ -102,13 +104,13 @@ export function ModelMenu({
                               isSelected ? "text-primary font-semibold" : "font-medium",
                             )}
                           >
-                            {m.label}
+                            {t(m.labelKey)}
                           </span>
                           <span className="text-muted-foreground text-[11px]">{m.maxQuality}</span>
                         </span>
                         {locked ? (
                           <span className="text-muted-foreground flex items-center gap-1.5 text-[11px]">
-                            {tierDef(m.minTier).label}
+                            {t(tierDef(m.minTier).labelKey)}
                             <svg
                               viewBox="0 0 24 24"
                               fill="none"

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { safeRedirectPath } from "@/lib/redirect";
+import { useT } from "@/lib/i18n/provider";
 
 /** Official Google “G” — 4-colour mark per Google's brand spec (as on mobile). */
 function GoogleG({ size = 18 }: { size?: number }) {
@@ -36,6 +37,7 @@ function GoogleG({ size = 18 }: { size?: number }) {
  * code for the session cookies.
  */
 export function GoogleButton() {
+  const t = useT();
   const next = safeRedirectPath(useSearchParams().get("next"), "/dashboard");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export function GoogleButton() {
         className="focus-visible:ring-ring flex h-10 w-full items-center justify-center gap-2.5 rounded-full border border-black/10 bg-white text-sm font-semibold text-[#1A130C] shadow-xs transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60"
       >
         <GoogleG />
-        {pending ? "Redirection vers Google…" : "Continuer avec Google"}
+        {pending ? t("auth.googleRedirecting") : t("auth.googleContinue")}
       </button>
       {error ? (
         <p role="alert" className="text-destructive text-center text-sm">

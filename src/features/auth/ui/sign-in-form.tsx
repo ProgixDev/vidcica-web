@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { safeRedirectPath } from "@/lib/redirect";
+import { useT } from "@/lib/i18n/provider";
 import { CredentialsSchema } from "../schema";
 
 /**
@@ -16,6 +17,7 @@ import { CredentialsSchema } from "../schema";
  * fresh and guards protected routes.
  */
 export function SignInForm() {
+  const t = useT();
   const router = useRouter();
   const next = safeRedirectPath(useSearchParams().get("next"), "/dashboard");
   const [email, setEmail] = useState("");
@@ -28,7 +30,7 @@ export function SignInForm() {
     event.preventDefault();
     const parsed = CredentialsSchema.safeParse({ email, password });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Email et mot de passe requis.");
+      setError(parsed.error.issues[0]?.message ?? t("auth.errCredentialsRequired"));
       return;
     }
     setError(null);
@@ -51,20 +53,18 @@ export function SignInForm() {
     <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-4">
       <div className="flex flex-col gap-1 text-center">
         <h2 className="text-lg font-semibold tracking-tight">
-          {mode === "sign-in" ? "Connexion" : "Créer un compte"}
+          {mode === "sign-in" ? t("auth.signInTitle") : t("auth.signUpTitle")}
         </h2>
         <p className="text-muted-foreground text-xs">
-          {mode === "sign-in"
-            ? "Connecte-toi pour reprendre où tu t’étais arrêté."
-            : "Quelques secondes suffisent pour créer tes premières vidéos."}
+          {mode === "sign-in" ? t("auth.signInSubtitle") : t("auth.signUpSubtitle")}
         </p>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="auth-email">Adresse e-mail</Label>
+        <Label htmlFor="auth-email">{t("auth.emailLabel")}</Label>
         <Input
           id="auth-email"
           type="email"
-          placeholder="toi@exemple.com"
+          placeholder={t("auth.emailPlaceholder")}
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -72,11 +72,11 @@ export function SignInForm() {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="auth-password">Mot de passe</Label>
+        <Label htmlFor="auth-password">{t("auth.passwordLabel")}</Label>
         <Input
           id="auth-password"
           type="password"
-          placeholder="Minimum 8 caractères"
+          placeholder={t("auth.passwordPlaceholder")}
           autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -91,11 +91,11 @@ export function SignInForm() {
       <Button type="submit" disabled={pending} className="rounded-full">
         {mode === "sign-in"
           ? pending
-            ? "Connexion…"
-            : "Se connecter"
+            ? t("auth.signingIn")
+            : t("auth.signInAction")
           : pending
-            ? "Création…"
-            : "Créer mon compte"}
+            ? t("auth.signingUp")
+            : t("auth.signUpAction")}
       </Button>
       <Button
         type="button"
@@ -103,9 +103,7 @@ export function SignInForm() {
         className="rounded-full"
         onClick={() => setMode(mode === "sign-in" ? "sign-up" : "sign-in")}
       >
-        {mode === "sign-in"
-          ? "Pas encore de compte ? Créer un compte"
-          : "Déjà un compte ? Se connecter"}
+        {mode === "sign-in" ? t("auth.switchToSignUp") : t("auth.switchToSignIn")}
       </Button>
     </form>
   );

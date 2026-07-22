@@ -7,11 +7,13 @@ import { RenderProgress, VideoDetail } from "@/features/videos";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/app-shell";
+import { getT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function VideoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const t = await getT();
 
   const supabase = await createClient();
   const {
@@ -27,10 +29,10 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
   return (
     <>
       <PageHeader
-        title="Votre vidéo"
+        title={t("videos.detailTitle")}
         actions={
           <Link href="/videos" className="text-muted-foreground hover:text-foreground text-sm">
-            ← Bibliothèque
+            ← {t("videos.title")}
           </Link>
         }
       />
@@ -41,9 +43,9 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
           <RenderProgress videoId={video.id} jobId={job.jobId} initialStatus={job.status} />
         ) : (
           <div className="flex flex-col gap-3">
-            <p className="text-muted-foreground text-sm">Ce brouillon n’a pas encore été généré.</p>
+            <p className="text-muted-foreground text-sm">{t("videos.draftNotGenerated")}</p>
             <Link href="/create" className={cn(buttonVariants(), "self-start")}>
-              Créer une vidéo
+              {t("videos.create")}
             </Link>
           </div>
         )}

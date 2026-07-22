@@ -10,30 +10,39 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  OBJECTIVE_LABEL,
+  CAMPAIGN_OBJECTIVE_KEY,
   SUPPORTED_OBJECTIVES,
   type BoostDraft,
+  type CampaignGender,
   type SupportedObjective,
 } from "@/lib/vidcica/campaign";
+import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 import { BOOST_STEPS, isDraftReady } from "../store";
 import { useBoostStore } from "../provider";
 
 export type VideoOption = { id: string; title: string };
 
-const COUNTRIES: [string, string][] = [
-  ["FR", "France"],
-  ["BE", "Belgique"],
-  ["CH", "Suisse"],
-  ["LU", "Luxembourg"],
-  ["CA", "Canada"],
+const COUNTRIES: [string, MessageKey][] = [
+  ["FR", "ads.country.FR"],
+  ["BE", "ads.country.BE"],
+  ["CH", "ads.country.CH"],
+  ["LU", "ads.country.LU"],
+  ["CA", "ads.country.CA"],
 ];
 
-const STEP_TITLE: Record<(typeof BOOST_STEPS)[number], string> = {
-  video: "Vidéo à booster",
-  objective: "Objectif",
-  audience: "Audience",
-  budget: "Budget",
-  review: "Vérification",
+const GENDER_KEY: Record<CampaignGender, MessageKey> = {
+  tous: "ads.gender.tous",
+  hommes: "ads.gender.hommes",
+  femmes: "ads.gender.femmes",
+};
+
+const STEP_TITLE: Record<(typeof BOOST_STEPS)[number], MessageKey> = {
+  video: "ads.step.video",
+  objective: "ads.step.objective",
+  audience: "ads.step.audience",
+  budget: "ads.step.budget",
+  review: "ads.step.review",
 };
 
 export function BoostWizard({ videos }: { videos: VideoOption[] }) {
@@ -60,14 +69,15 @@ export function BoostWizard({ videos }: { videos: VideoOption[] }) {
 }
 
 function NoVideos() {
+  const t = useT();
   return (
     <EmptyState
       className="py-16"
-      title="Aucune vidéo prête à booster"
-      description="Créez et générez une vidéo, puis revenez la transformer en publicité."
+      title={t("ads.noVideos.title")}
+      description={t("ads.noVideos.description")}
       action={
         <Link href="/create" className={buttonVariants()}>
-          Créer une vidéo
+          {t("ads.createVideo")}
         </Link>
       }
     />
@@ -75,20 +85,17 @@ function NoVideos() {
 }
 
 function BoostDone() {
+  const t = useT();
   const launched = useBoostStore((s) => s.launched);
   const campaignId = useBoostStore((s) => s.campaignId);
   return (
     <EmptyState
       className="py-16"
-      title={launched ? "Campagne créée (en révision)" : "Brouillon enregistré"}
-      description={
-        launched
-          ? "Votre campagne a été créée en pause chez Meta. Activez-la pour lancer la diffusion (dépense réelle)."
-          : "Votre brouillon est enregistré. Vous pourrez le lancer une fois la publicité disponible sur votre compte."
-      }
+      title={launched ? t("ads.done.launchedTitle") : t("ads.done.draftTitle")}
+      description={launched ? t("ads.done.launchedDescription") : t("ads.done.draftDescription")}
       action={
         <Link href={campaignId ? `/ads/${campaignId}` : "/ads"} className={buttonVariants()}>
-          {launched ? "Voir la campagne" : "Voir mes campagnes"}
+          {launched ? t("ads.done.viewCampaign") : t("ads.done.viewCampaigns")}
         </Link>
       }
     />
@@ -96,6 +103,7 @@ function BoostDone() {
 }
 
 function BoostForm({ videos }: { videos: VideoOption[] }) {
+  const t = useT();
   const phase = useBoostStore((s) => s.phase);
   const step = useBoostStore((s) => s.step);
   const setStep = useBoostStore((s) => s.setStep);
@@ -122,18 +130,17 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
           className="border-warning/40 bg-warning/10 text-foreground rounded-lg border p-3 text-xs"
           data-testid="boost-draft-banner"
         >
-          La publicité n’est pas encore active sur votre compte. Vous pouvez préparer et enregistrer
-          un brouillon — vous le lancerez une fois votre compte publicitaire Facebook connecté.
+          {t("ads.draftBanner")}
         </div>
       ) : null}
 
       <ol
         className="text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 text-xs"
-        aria-label="Étapes"
+        aria-label={t("ads.stepsAria")}
       >
         {BOOST_STEPS.map((s, i) => (
           <li key={s} className={i === step ? "text-foreground font-medium" : undefined}>
-            {i + 1}. {STEP_TITLE[s]}
+            {i + 1}. {t(STEP_TITLE[s])}
           </li>
         ))}
       </ol>
@@ -153,7 +160,7 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
             <>
               {" "}
               <Link href={`/ads/${campaignId}`} className="underline">
-                Voir le brouillon
+                {t("ads.viewDraft")}
               </Link>
             </>
           ) : null}
@@ -162,7 +169,7 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
 
       <div className="flex items-center justify-between gap-3">
         <Button variant="ghost" onClick={() => setStep(step - 1)} disabled={step === 0 || creating}>
-          Précédent
+          {t("common.previous")}
         </Button>
         {isLast ? (
           draftOnly ? (
@@ -171,7 +178,7 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
               disabled={!isDraftReady(draft) || creating}
               data-testid="boost-save-draft"
             >
-              {creating ? "Enregistrement…" : "Enregistrer le brouillon"}
+              {creating ? t("ads.saving") : t("ads.saveDraft")}
             </Button>
           ) : (
             <Button
@@ -179,12 +186,12 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
               disabled={!isDraftReady(draft) || creating}
               data-testid="boost-submit"
             >
-              {creating ? "Création…" : "Créer la campagne"}
+              {creating ? t("ads.creating") : t("ads.createCampaign")}
             </Button>
           )
         ) : (
           <Button onClick={next} disabled={!stepValid(key, draft)} data-testid="boost-next">
-            Suivant
+            {t("common.next")}
           </Button>
         )}
       </div>
@@ -211,10 +218,11 @@ type StepProps = {
 };
 
 function VideoStep({ videos, draft, setDraft }: StepProps & { videos: VideoOption[] }) {
+  const t = useT();
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="bw-video">Vidéo</Label>
+        <Label htmlFor="bw-video">{t("ads.field.video")}</Label>
         <Select
           id="bw-video"
           data-testid="bw-video"
@@ -223,11 +231,11 @@ function VideoStep({ videos, draft, setDraft }: StepProps & { videos: VideoOptio
             const v = videos.find((x) => x.id === e.target.value);
             setDraft({
               videoId: e.target.value,
-              name: draft.name || (v ? `Boost — ${v.title}` : draft.name),
+              name: draft.name || (v ? t("ads.boostName", { title: v.title }) : draft.name),
             });
           }}
         >
-          <option value="">Choisir une vidéo…</option>
+          <option value="">{t("ads.chooseVideo")}</option>
           {videos.map((v) => (
             <option key={v.id} value={v.id}>
               {v.title}
@@ -236,13 +244,13 @@ function VideoStep({ videos, draft, setDraft }: StepProps & { videos: VideoOptio
         </Select>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="bw-name">Nom de la campagne</Label>
+        <Label htmlFor="bw-name">{t("ads.field.name")}</Label>
         <Input
           id="bw-name"
           data-testid="bw-name"
           value={draft.name}
           onChange={(e) => setDraft({ name: e.target.value })}
-          placeholder="Ma campagne"
+          placeholder={t("ads.namePlaceholder")}
         />
       </div>
     </div>
@@ -250,9 +258,10 @@ function VideoStep({ videos, draft, setDraft }: StepProps & { videos: VideoOptio
 }
 
 function ObjectiveStep({ draft, setDraft }: StepProps) {
+  const t = useT();
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-1 text-sm font-medium">Que voulez-vous obtenir ?</legend>
+      <legend className="mb-1 text-sm font-medium">{t("ads.objectiveLegend")}</legend>
       {SUPPORTED_OBJECTIVES.map((o) => (
         <label key={o} className="flex items-center gap-2 text-sm">
           <input
@@ -263,7 +272,7 @@ function ObjectiveStep({ draft, setDraft }: StepProps) {
             onChange={() => setDraft({ objective: o as SupportedObjective })}
             data-testid={`bw-objective-${o}`}
           />
-          {OBJECTIVE_LABEL[o]}
+          {t(CAMPAIGN_OBJECTIVE_KEY[o])}
         </label>
       ))}
     </fieldset>
@@ -271,6 +280,7 @@ function ObjectiveStep({ draft, setDraft }: StepProps) {
 }
 
 function AudienceStep({ draft, setDraft }: StepProps) {
+  const t = useT();
   function toggleCountry(code: string, on: boolean) {
     const set = new Set(draft.countries);
     if (on) set.add(code);
@@ -280,9 +290,9 @@ function AudienceStep({ draft, setDraft }: StepProps) {
   return (
     <div className="flex flex-col gap-4">
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-medium">Pays</legend>
+        <legend className="mb-1 text-sm font-medium">{t("ads.field.countries")}</legend>
         <div className="flex flex-wrap gap-3">
-          {COUNTRIES.map(([code, name]) => (
+          {COUNTRIES.map(([code, nameKey]) => (
             <label key={code} className="flex items-center gap-1.5 text-sm">
               <input
                 type="checkbox"
@@ -290,14 +300,14 @@ function AudienceStep({ draft, setDraft }: StepProps) {
                 onChange={(e) => toggleCountry(code, e.target.checked)}
                 data-testid={`bw-country-${code}`}
               />
-              {name}
+              {t(nameKey)}
             </label>
           ))}
         </div>
       </fieldset>
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="bw-agemin">Âge min.</Label>
+          <Label htmlFor="bw-agemin">{t("ads.field.ageMin")}</Label>
           <Input
             id="bw-agemin"
             type="number"
@@ -308,7 +318,7 @@ function AudienceStep({ draft, setDraft }: StepProps) {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="bw-agemax">Âge max.</Label>
+          <Label htmlFor="bw-agemax">{t("ads.field.ageMax")}</Label>
           <Input
             id="bw-agemax"
             type="number"
@@ -320,15 +330,15 @@ function AudienceStep({ draft, setDraft }: StepProps) {
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="bw-gender">Genre</Label>
+        <Label htmlFor="bw-gender">{t("ads.field.gender")}</Label>
         <Select
           id="bw-gender"
           value={draft.gender}
           onChange={(e) => setDraft({ gender: e.target.value as StepProps["draft"]["gender"] })}
         >
-          <option value="tous">Tous</option>
-          <option value="hommes">Hommes</option>
-          <option value="femmes">Femmes</option>
+          <option value="tous">{t("ads.gender.tous")}</option>
+          <option value="hommes">{t("ads.gender.hommes")}</option>
+          <option value="femmes">{t("ads.gender.femmes")}</option>
         </Select>
       </div>
     </div>
@@ -336,10 +346,11 @@ function AudienceStep({ draft, setDraft }: StepProps) {
 }
 
 function BudgetStep({ draft, setDraft }: StepProps) {
+  const t = useT();
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="bw-budgetmode">Type de budget</Label>
+        <Label htmlFor="bw-budgetmode">{t("ads.field.budgetMode")}</Label>
         <Select
           id="bw-budgetmode"
           value={draft.budgetMode}
@@ -347,13 +358,13 @@ function BudgetStep({ draft, setDraft }: StepProps) {
             setDraft({ budgetMode: e.target.value as StepProps["draft"]["budgetMode"] })
           }
         >
-          <option value="quotidien">Quotidien</option>
-          <option value="total">Total (durée limitée)</option>
+          <option value="quotidien">{t("ads.budgetMode.daily")}</option>
+          <option value="total">{t("ads.budgetMode.total")}</option>
         </Select>
       </div>
       {draft.budgetMode === "total" ? (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="bw-budget-total">Budget total (€)</Label>
+          <Label htmlFor="bw-budget-total">{t("ads.field.budgetTotal")}</Label>
           <Input
             id="bw-budget-total"
             data-testid="bw-budget-total"
@@ -365,7 +376,7 @@ function BudgetStep({ draft, setDraft }: StepProps) {
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="bw-budget-daily">Budget quotidien (€)</Label>
+          <Label htmlFor="bw-budget-daily">{t("ads.field.budgetDaily")}</Label>
           <Input
             id="bw-budget-daily"
             data-testid="bw-budget-daily"
@@ -381,17 +392,20 @@ function BudgetStep({ draft, setDraft }: StepProps) {
 }
 
 function ReviewStep({ draft, videos }: { draft: StepProps["draft"]; videos: VideoOption[] }) {
+  const t = useT();
   const video = videos.find((v) => v.id === draft.videoId);
   const rows: [string, string][] = [
-    ["Vidéo", video?.title ?? "—"],
-    ["Nom", draft.name],
-    ["Objectif", OBJECTIVE_LABEL[draft.objective]],
-    ["Pays", draft.countries.join(", ")],
-    ["Âge", `${draft.ageMin}–${draft.ageMax}`],
-    ["Genre", draft.gender],
+    [t("ads.review.video"), video?.title ?? "—"],
+    [t("ads.review.name"), draft.name],
+    [t("ads.review.objective"), t(CAMPAIGN_OBJECTIVE_KEY[draft.objective])],
+    [t("ads.review.countries"), draft.countries.join(", ")],
+    [t("ads.review.age"), `${draft.ageMin}–${draft.ageMax}`],
+    [t("ads.review.gender"), t(GENDER_KEY[draft.gender])],
     [
-      "Budget",
-      draft.budgetMode === "total" ? `${draft.budgetTotal} € total` : `${draft.budgetDaily} €/jour`,
+      t("ads.review.budget"),
+      draft.budgetMode === "total"
+        ? t("ads.budgetTotalValue", { amount: draft.budgetTotal })
+        : t("ads.budgetDailyValue", { amount: draft.budgetDaily }),
     ],
   ];
   return (
@@ -402,9 +416,7 @@ function ReviewStep({ draft, videos }: { draft: StepProps["draft"]; videos: Vide
           <dd className="text-right font-medium">{v}</dd>
         </div>
       ))}
-      <p className="text-muted-foreground mt-2 text-xs">
-        La campagne est créée en pause. Aucune dépense tant que vous ne l’activez pas.
-      </p>
+      <p className="text-muted-foreground mt-2 text-xs">{t("ads.review.note")}</p>
     </dl>
   );
 }

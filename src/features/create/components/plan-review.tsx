@@ -3,31 +3,35 @@
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 import type { EnqueueGenerationFailReason } from "@/lib/vidcica/generation";
 import { useCreateStore } from "../provider";
 
 /** Blocked reason → plain-language message + the right recovery (AC-11). */
 function BlockedNotice({ reason }: { reason: EnqueueGenerationFailReason }) {
-  const billing = { label: "Voir les offres", href: "/billing" };
-  const map: Record<EnqueueGenerationFailReason, { msg: string; action?: typeof billing }> = {
-    insufficient_credits: { msg: "Crédits insuffisants pour lancer ce rendu.", action: billing },
-    model_locked: { msg: "Ce modèle n’est pas inclus dans votre offre.", action: billing },
-    daily_cap: { msg: "Limite quotidienne atteinte. Réessayez demain." },
-    not_live: { msg: "La génération est momentanément indisponible. Réessayez plus tard." },
-    disabled: { msg: "La génération est désactivée pour le moment." },
-    in_progress: { msg: "Un rendu est déjà en cours pour cette vidéo." },
-    no_plan: { msg: "Le plan est invalide. Revenez en arrière et régénérez-le." },
-    image_not_supported: { msg: "Ce modèle ne prend pas en charge l’image de départ." },
-    unauthenticated: { msg: "Votre session a expiré. Reconnectez-vous." },
-    error: { msg: "Une erreur est survenue. Réessayez." },
-  };
-  const { msg, action } = map[reason];
+  const t = useT();
+  const billing = { labelKey: "create.viewPlans" as MessageKey, href: "/billing" };
+  const map: Record<EnqueueGenerationFailReason, { msgKey: MessageKey; action?: typeof billing }> =
+    {
+      insufficient_credits: { msgKey: "create.blockInsufficientCredits", action: billing },
+      model_locked: { msgKey: "create.blockModelLocked", action: billing },
+      daily_cap: { msgKey: "create.blockDailyCap" },
+      not_live: { msgKey: "create.blockNotLive" },
+      disabled: { msgKey: "create.blockDisabled" },
+      in_progress: { msgKey: "create.blockInProgress" },
+      no_plan: { msgKey: "create.blockNoPlan" },
+      image_not_supported: { msgKey: "create.blockImageNotSupported" },
+      unauthenticated: { msgKey: "create.blockUnauthenticated" },
+      error: { msgKey: "create.blockError" },
+    };
+  const { msgKey, action } = map[reason];
   return (
     <div role="alert" className="border-destructive/40 flex flex-col gap-3 rounded-lg border p-4">
-      <p className="text-sm">{msg}</p>
+      <p className="text-sm">{t(msgKey)}</p>
       {action ? (
         <Link href={action.href} className={buttonVariants({ variant: "default" })}>
-          {action.label}
+          {t(action.labelKey)}
         </Link>
       ) : null}
     </div>
@@ -35,6 +39,7 @@ function BlockedNotice({ reason }: { reason: EnqueueGenerationFailReason }) {
 }
 
 export function PlanReview() {
+  const t = useT();
   const plan = useCreateStore((s) => s.plan);
   const phase = useCreateStore((s) => s.phase);
   const blockedReason = useCreateStore((s) => s.blockedReason);
@@ -79,10 +84,10 @@ export function PlanReview() {
           disabled={enqueuing}
           data-testid="enqueue-btn"
         >
-          {enqueuing ? "Lancement…" : "Lancer la génération"}
+          {enqueuing ? t("create.enqueuing") : t("create.enqueue")}
         </Button>
         <Button variant="ghost" onClick={backToEdit} disabled={enqueuing}>
-          Modifier
+          {t("common.edit")}
         </Button>
       </div>
     </div>

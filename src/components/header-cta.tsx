@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { useT } from "@/lib/i18n/provider";
 
 /**
  * Landing header CTA — «Commencer» for visitors, «Ouvrir l’app» when a session
@@ -12,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
  * the session check swaps the label after hydration.
  */
 export function HeaderCta() {
+  const t = useT();
   const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
@@ -27,11 +29,11 @@ export function HeaderCta() {
       className={cn(buttonVariants({ size: "sm" }), "rounded-full px-4")}
       data-testid="header-cta-app"
     >
-      Ouvrir l’app
+      {t("landing.headerCta.openApp")}
     </Link>
   ) : (
     <Link href="/sign-in" className={cn(buttonVariants({ size: "sm" }), "rounded-full px-4")}>
-      Commencer
+      {t("landing.headerCta.start")}
     </Link>
   );
 }

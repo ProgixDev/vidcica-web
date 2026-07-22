@@ -1,17 +1,19 @@
 import type { GenerationJobStatus } from "@/lib/vidcica/video";
+import type { MessageKey } from "@/lib/i18n";
 
-/** Ordered render stages shown to the user (queued → assembling → ready). */
+/** Ordered render stages shown to the user (queued → assembling → ready).
+ *  `labelKey` is resolved with `t()` at the render site. */
 export const RENDER_STAGES = [
-  { status: "queued", label: "En file d’attente" },
-  { status: "footage", label: "Génération des images" },
-  { status: "voiceover", label: "Voix off" },
-  { status: "assembling", label: "Assemblage" },
-] as const;
+  { status: "queued", labelKey: "videos.stage.queued" },
+  { status: "footage", labelKey: "videos.stage.footage" },
+  { status: "voiceover", labelKey: "videos.stage.voiceover" },
+  { status: "assembling", labelKey: "videos.stage.assembling" },
+] as const satisfies ReadonlyArray<{ status: string; labelKey: MessageKey }>;
 
 export type StageView = {
   index: number; // -1 when failed/cancelled
   pct: number; // 0–100
-  label: string;
+  labelKey: MessageKey;
   done: boolean; // reached "prêt"
   failed: boolean;
 };
@@ -20,16 +22,22 @@ export type StageView = {
  *  spinner (AC-12), and surfaces failure + refund messaging (AC-13). */
 export function stageView(status: GenerationJobStatus): StageView {
   if (status === "failed" || status === "cancelled") {
-    return { index: -1, pct: 0, label: "Échec du rendu", done: false, failed: true };
+    return { index: -1, pct: 0, labelKey: "videos.stage.failed", done: false, failed: true };
   }
   if (status === "succeeded") {
-    return { index: RENDER_STAGES.length, pct: 100, label: "Prêt", done: true, failed: false };
+    return {
+      index: RENDER_STAGES.length,
+      pct: 100,
+      labelKey: "videos.stage.ready",
+      done: true,
+      failed: false,
+    };
   }
   const index = RENDER_STAGES.findIndex((s) => s.status === status);
   const i = index === -1 ? 0 : index;
   // Fill to the middle of the current stage so the bar always shows advancement.
   const pct = Math.round(((i + 0.5) / RENDER_STAGES.length) * 100);
-  return { index: i, pct, label: RENDER_STAGES[i]!.label, done: false, failed: false };
+  return { index: i, pct, labelKey: RENDER_STAGES[i]!.labelKey, done: false, failed: false };
 }
 
 /** A status is terminal when polling can stop. */

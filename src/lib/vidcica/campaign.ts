@@ -185,6 +185,22 @@ export const OBJECTIVE_LABEL: Record<SupportedObjective, string> = {
   engagement: "Engagement",
 };
 
+/** i18n keys (label via `t(...)`; badge variant stays in STATUS_META). */
+export const CAMPAIGN_STATUS_KEY: Record<CampaignStatus, import("@/lib/i18n").MessageKey> = {
+  brouillon: "campaign.status.brouillon",
+  in_review: "campaign.status.in_review",
+  active: "campaign.status.active",
+  en_pause: "campaign.status.en_pause",
+  terminee: "campaign.status.terminee",
+  rejected: "campaign.status.rejected",
+};
+
+export const CAMPAIGN_OBJECTIVE_KEY: Record<SupportedObjective, import("@/lib/i18n").MessageKey> = {
+  notoriete: "campaign.objective.notoriete",
+  trafic: "campaign.objective.trafic",
+  engagement: "campaign.objective.engagement",
+};
+
 /** FR label for a campaign objective (legacy values fall back to their raw key). */
 export function objectiveLabel(objective: CampaignObjective): string {
   return OBJECTIVE_LABEL[objective as SupportedObjective] ?? objective;
@@ -195,4 +211,14 @@ export function budgetLabel(
   c: Pick<Campaign, "budgetMode" | "budgetTotal" | "budgetDaily">,
 ): string {
   return c.budgetMode === "total" ? `${c.budgetTotal} € au total` : `${c.budgetDaily ?? 0} €/jour`;
+}
+
+/** Localized budget summary — pass the caller's `t()`. */
+export function budgetText(
+  t: import("@/lib/i18n").TFunction,
+  c: Pick<Campaign, "budgetMode" | "budgetTotal" | "budgetDaily">,
+): string {
+  return c.budgetMode === "total"
+    ? t("ads.budgetTotalValue", { amount: c.budgetTotal })
+    : t("ads.budgetDailyValue", { amount: c.budgetDaily ?? 0 });
 }

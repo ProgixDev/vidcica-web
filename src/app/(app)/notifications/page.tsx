@@ -1,10 +1,14 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getT } from "@/lib/i18n/server";
 import { listMyNotifications } from "@/lib/vidcica/notifications-queries";
 import { NotificationCenter } from "@/features/notifications";
 import { PageHeader } from "@/components/app-shell";
 
-export const metadata = { title: "Notifications" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t("notifications.metaTitle") };
+}
 export const dynamic = "force-dynamic";
 
 export default async function NotificationsPage() {
@@ -15,10 +19,11 @@ export default async function NotificationsPage() {
   if (!user) redirect("/sign-in?next=/notifications");
 
   const notifications = await listMyNotifications();
+  const t = await getT();
 
   return (
     <>
-      <PageHeader title="Notifications" />
+      <PageHeader title={t("notifications.title")} />
       <div className="w-full max-w-3xl">
         <NotificationCenter userId={user.id} initial={notifications} />
       </div>

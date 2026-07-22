@@ -37,7 +37,8 @@ describe("create store (AC-8..AC-11)", () => {
     await s.getState().requestPlan();
     expect(s.getState().phase).toBe("error");
     expect(s.getState().plan).toBeNull();
-    expect(s.getState().error).toMatch(/indisponible/i);
+    // App-authored error now travels as an i18n key (resolved with t() in the UI).
+    expect(s.getState().errorKey).toBe("create.errPlanUnavailable");
   });
 
   it("AC-10: enqueue success → done with jobId + charged", async () => {

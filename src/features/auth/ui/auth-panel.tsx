@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/provider";
 import { SignInForm } from "./sign-in-form";
 import { PhoneOtpForm } from "./phone-otp-form";
 import { GoogleButton } from "./google-button";
@@ -15,6 +16,7 @@ type Method = "email" | "phone";
  * account works everywhere.
  */
 export function AuthPanel() {
+  const t = useT();
   const [method, setMethod] = useState<Method>("email");
   const oauthFailed = useSearchParams().get("error") === "oauth";
 
@@ -22,7 +24,7 @@ export function AuthPanel() {
     <div className="flex w-full max-w-sm flex-col gap-5">
       <div
         role="tablist"
-        aria-label="Méthode de connexion"
+        aria-label={t("auth.methodTablistAria")}
         className="bg-muted grid grid-cols-2 gap-1 rounded-full p-1"
       >
         {(["email", "phone"] as const).map((m) => (
@@ -40,7 +42,7 @@ export function AuthPanel() {
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            {m === "email" ? "E-mail" : "Téléphone"}
+            {m === "email" ? t("auth.methodEmail") : t("auth.methodPhone")}
           </button>
         ))}
       </div>
@@ -50,14 +52,14 @@ export function AuthPanel() {
       <div className="flex items-center gap-3" aria-hidden>
         <span className="bg-border h-px flex-1" />
         <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
-          ou
+          {t("auth.orDivider")}
         </span>
         <span className="bg-border h-px flex-1" />
       </div>
       <GoogleButton />
       {oauthFailed ? (
         <p role="alert" className="text-destructive text-center text-sm">
-          La connexion Google n’a pas abouti. Réessaie ou utilise l’e-mail.
+          {t("auth.googleOauthFailed")}
         </p>
       ) : null}
     </div>

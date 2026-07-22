@@ -6,9 +6,14 @@ import { BrandLockup, LogoMark } from "@/components/brand";
 import { LandingVideo } from "@/components/landing-video";
 import { Reveal } from "@/components/reveal";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
 import { createClient } from "@/lib/supabase/server";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata = { title: "Connexion" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t("auth.metaTitle") };
+}
 
 /**
  * Auth screen mirroring the mobile app's landing (logo mark, «Bienvenue sur
@@ -16,6 +21,7 @@ export const metadata = { title: "Connexion" };
  * app's welcome carousel, with the form on a frosted-glass card.
  */
 export default async function SignInPage() {
+  const t = await getT();
   // Already signed in (e.g. coming back after a Google OAuth round-trip) —
   // go straight to the app instead of showing the form again.
   const supabase = await createClient();
@@ -40,18 +46,19 @@ export default async function SignInPage() {
       <div className="relative z-10 flex w-full items-center justify-between px-6 py-4">
         <Link
           href="/"
-          aria-label="Retour à l’accueil Vidcica"
+          aria-label={t("auth.backHomeAria")}
           className="rounded-full border border-white/15 bg-black/30 px-3.5 py-1.5 text-white backdrop-blur-md transition-colors hover:bg-black/45"
         >
           <BrandLockup className="text-sm" />
         </Link>
         <div className="flex items-center gap-2">
+          <LanguageToggle className="border border-white/15 bg-black/30 text-white backdrop-blur-md hover:bg-black/45 hover:text-white" />
           <ThemeToggle className="border border-white/15 bg-black/30 text-white backdrop-blur-md hover:bg-black/45 hover:text-white" />
           <Link
             href="/"
             className="rounded-full border border-white/15 bg-black/30 px-3.5 py-1.5 text-xs font-medium text-white/85 backdrop-blur-md transition-colors hover:bg-black/45 hover:text-white"
           >
-            ← Retour au site
+            ← {t("auth.backToSite")}
           </Link>
         </div>
       </div>
@@ -65,16 +72,16 @@ export default async function SignInPage() {
         >
           <div className="flex flex-col items-center gap-3">
             <LogoMark className="size-16 object-contain" />
-            <h1 className="text-xl font-semibold tracking-tight">Bienvenue sur Vidcica</h1>
+            <h1 className="text-xl font-semibold tracking-tight">{t("auth.welcomeTitle")}</h1>
             <p
               className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[10px] font-bold tracking-widest uppercase"
-              aria-label="IA avancée, multi-réseaux, analytics"
+              aria-label={t("auth.valueChipsAria")}
             >
-              <span>IA avancée</span>
+              <span>{t("auth.chipAdvancedAi")}</span>
               <span aria-hidden className="bg-primary size-1 rounded-full" />
-              <span>Multi-réseaux</span>
+              <span>{t("auth.chipMultiNetwork")}</span>
               <span aria-hidden className="bg-primary size-1 rounded-full" />
-              <span>Analytics</span>
+              <span>{t("auth.chipAnalytics")}</span>
             </p>
           </div>
 
@@ -83,13 +90,13 @@ export default async function SignInPage() {
           </Suspense>
 
           <p className="text-muted-foreground text-center text-[11px] leading-relaxed">
-            En continuant, vous acceptez les{" "}
+            {t("auth.legalPrefix")}{" "}
             <Link href="/terms" className="hover:text-foreground underline underline-offset-2">
-              Conditions d’utilisation
+              {t("auth.legalTerms")}
             </Link>{" "}
-            et la{" "}
+            {t("auth.legalAnd")}{" "}
             <Link href="/privacy" className="hover:text-foreground underline underline-offset-2">
-              Politique de confidentialité
+              {t("auth.legalPrivacy")}
             </Link>
             .
           </p>

@@ -31,7 +31,11 @@ export type CreateState = {
   phase: CreatePhase;
   input: ComposerInput;
   plan: VideoPlan | null;
+  /** A backend-authored error message (already localized upstream), or null. */
   error: string | null;
+  /** i18n key for an app-authored error — resolved with `t()` at the call site.
+   *  Takes precedence over `error` when set. */
+  errorKey: import("@/lib/i18n").MessageKey | null;
   blockedReason: EnqueueGenerationFailReason | null;
   result: { videoId: string; jobId: string; charged: number } | null;
   setInput: (patch: Partial<ComposerInput>) => void;
@@ -49,34 +53,37 @@ export function createCreateStore(deps: CreateDeps, initial?: Partial<ComposerIn
     input: { ...DEFAULT_COMPOSER_INPUT, ...initial },
     plan: null,
     error: null,
+    errorKey: null,
     blockedReason: null,
     result: null,
 
     setInput: (patch) => set((s) => ({ input: { ...s.input, ...patch } })),
 
     requestPlan: async () => {
-      set({ phase: "planning", error: null });
+      set({ phase: "planning", error: null, errorKey: null });
       const outcome = await deps.plan(get().input);
       if (outcome.ok) {
         set({ phase: "review", plan: outcome.plan });
         return;
       }
       // not_configured / unauthenticated / error → an actionable message, no enqueue.
-      set({
-        phase: "error",
-        error:
-          outcome.reason === "not_configured"
-            ? "La génération de plan est momentanément indisponible. Réessayez plus tard."
-            : (outcome.message ?? "Une erreur est survenue. Réessayez."),
-      });
+      if (outcome.reason === "not_configured") {
+        set({ phase: "error", error: null, errorKey: "create.errPlanUnavailable" });
+      } else {
+        set({
+          phase: "error",
+          error: outcome.message ?? null,
+          errorKey: outcome.message ? null : "create.errGeneric",
+        });
+      }
     },
 
-    backToEdit: () => set({ phase: "idle", error: null, blockedReason: null }),
+    backToEdit: () => set({ phase: "idle", error: null, errorKey: null, blockedReason: null }),
 
     confirmEnqueue: async () => {
       const { plan, input } = get();
       if (!plan) return;
-      set({ phase: "enqueuing", error: null, blockedReason: null });
+      set({ phase: "enqueuing", error: null, errorKey: null, blockedReason: null });
       const res = await deps.enqueue(input, plan);
       if (res.ok) {
         set({
@@ -88,7 +95,11 @@ export function createCreateStore(deps: CreateDeps, initial?: Partial<ComposerIn
       // Blocked reasons stay on the review screen with a specific recovery;
       // a hard error uses the error phase. No placeholder render is ever shown.
       if (res.reason === "error" || res.reason === "unauthenticated") {
-        set({ phase: "error", error: res.message ?? "Une erreur est survenue. Réessayez." });
+        set({
+          phase: "error",
+          error: res.message ?? null,
+          errorKey: res.message ? null : "create.errGeneric",
+        });
       } else {
         set({ phase: "blocked", blockedReason: res.reason });
       }
@@ -99,6 +110,7 @@ export function createCreateStore(deps: CreateDeps, initial?: Partial<ComposerIn
         phase: "idle",
         plan: null,
         error: null,
+        errorKey: null,
         blockedReason: null,
         result: null,
       }),

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getT } from "@/lib/i18n/server";
 
 /** One language block of a legal document (verbatim content lives in the page). */
 export type LegalDoc = {
@@ -12,19 +13,20 @@ export type LegalDoc = {
 /** Frame for the public legal pages — brand, language nav, container, footer.
  *  Public + indexable (not behind the auth middleware); uses role tokens so the
  *  pages render correctly in light and dark. */
-export function LegalShell({
+export async function LegalShell({
   children,
   footer,
 }: {
   children: React.ReactNode;
   footer: React.ReactNode;
 }) {
+  const t = await getT();
   return (
     <main className="mx-auto min-h-dvh w-full max-w-[720px] px-5 py-10 pb-20">
       <Link href="/" className="text-primary text-lg font-bold tracking-tight">
         Vidcica
       </Link>
-      <nav className="mt-2 mb-8 flex gap-4 text-sm" aria-label="Langue">
+      <nav className="mt-2 mb-8 flex gap-4 text-sm" aria-label={t("chrome.languageNavLabel")}>
         <a href="#fr" className="text-primary font-semibold hover:underline">
           Français
         </a>

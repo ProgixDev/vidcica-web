@@ -6,9 +6,25 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useCampaignsRealtime } from "@/lib/vidcica/use-campaigns-realtime";
-import { budgetLabel, objectiveLabel, STATUS_META, type Campaign } from "@/lib/vidcica/campaign";
+import {
+  budgetText,
+  objectiveLabel,
+  CAMPAIGN_OBJECTIVE_KEY,
+  CAMPAIGN_STATUS_KEY,
+  STATUS_META,
+  type Campaign,
+  type SupportedObjective,
+} from "@/lib/vidcica/campaign";
+import { useT } from "@/lib/i18n/provider";
+import type { TFunction } from "@/lib/i18n";
+
+function objectiveText(t: TFunction, objective: Campaign["objective"]): string {
+  const key = CAMPAIGN_OBJECTIVE_KEY[objective as SupportedObjective];
+  return key ? t(key) : objectiveLabel(objective);
+}
 
 function CampaignCard({ c }: { c: Campaign }) {
+  const t = useT();
   const meta = STATUS_META[c.status];
   return (
     <Link href={`/ads/${c.id}`} data-testid={`campaign-${c.id}`} className="block">
@@ -17,17 +33,20 @@ function CampaignCard({ c }: { c: Campaign }) {
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="truncate font-medium">{c.name}</span>
             <span className="text-muted-foreground text-xs">
-              {objectiveLabel(c.objective)} · {budgetLabel(c)}
+              {objectiveText(t, c.objective)} · {budgetText(t, c)}
             </span>
           </div>
           <Badge variant={meta.variant} data-testid={`campaign-status-${c.id}`}>
-            {meta.label}
+            {t(CAMPAIGN_STATUS_KEY[c.status])}
           </Badge>
         </div>
         <div className="text-muted-foreground grid grid-cols-3 gap-2 text-xs">
-          <Metric label="Impressions" value={c.metrics.impressions.toLocaleString("fr-FR")} />
-          <Metric label="Clics" value={c.metrics.clicks.toLocaleString("fr-FR")} />
-          <Metric label="Dépensé" value={`${c.metrics.budgetSpent.toFixed(2)} €`} />
+          <Metric
+            label={t("ads.metric.impressions")}
+            value={c.metrics.impressions.toLocaleString("fr-FR")}
+          />
+          <Metric label={t("ads.metric.clicks")} value={c.metrics.clicks.toLocaleString("fr-FR")} />
+          <Metric label={t("ads.metric.spent")} value={`${c.metrics.budgetSpent.toFixed(2)} €`} />
         </div>
       </Card>
     </Link>
@@ -49,6 +68,7 @@ function Metric({ label, value }: { label: string; value: string }) {
  * routes to the boost flow.
  */
 export function CampaignList({ userId, initial }: { userId: string; initial: Campaign[] }) {
+  const t = useT();
   const campaigns = useCampaignsRealtime(userId, initial);
 
   if (campaigns.length === 0) {
@@ -56,11 +76,11 @@ export function CampaignList({ userId, initial }: { userId: string; initial: Cam
       <div data-testid="ads-empty">
         <EmptyState
           className="py-16"
-          title="Aucune campagne pour le moment"
-          description="Transformez une de vos vidéos en publicité Facebook et Instagram en quelques étapes."
+          title={t("ads.empty.title")}
+          description={t("ads.empty.description")}
           action={
             <Link href="/ads/new" className={buttonVariants()}>
-              Booster une vidéo
+              {t("ads.boostVideo")}
             </Link>
           }
         />

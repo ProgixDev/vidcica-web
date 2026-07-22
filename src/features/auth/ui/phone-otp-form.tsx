@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { safeRedirectPath } from "@/lib/redirect";
+import { useT } from "@/lib/i18n/provider";
 import { OtpSchema, PhoneSchema } from "../schema";
 import { initialOtpState, otpReducer } from "../otp-flow";
 
@@ -15,6 +16,7 @@ import { initialOtpState, otpReducer } from "../otp-flow";
  * signInWithOtp / verifyOtp over SMS). Two steps: request a code, then verify.
  */
 export function PhoneOtpForm() {
+  const t = useT();
   const router = useRouter();
   const next = safeRedirectPath(useSearchParams().get("next"), "/dashboard");
   const [state, dispatch] = useReducer(otpReducer, initialOtpState);
@@ -27,7 +29,7 @@ export function PhoneOtpForm() {
     if (!parsed.success) {
       dispatch({
         type: "requestErr",
-        message: parsed.error.issues[0]?.message ?? "Numéro invalide",
+        message: parsed.error.issues[0]?.message ?? t("auth.errInvalidPhone"),
       });
       return;
     }
@@ -45,7 +47,10 @@ export function PhoneOtpForm() {
     event.preventDefault();
     const parsed = OtpSchema.safeParse({ code });
     if (!parsed.success) {
-      dispatch({ type: "verifyErr", message: parsed.error.issues[0]?.message ?? "Code invalide" });
+      dispatch({
+        type: "verifyErr",
+        message: parsed.error.issues[0]?.message ?? t("auth.errInvalidCode"),
+      });
       return;
     }
     dispatch({ type: "verifyStart" });
@@ -67,7 +72,7 @@ export function PhoneOtpForm() {
     return (
       <form onSubmit={requestCode} className="flex w-full max-w-sm flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="otp-phone">Numéro de téléphone</Label>
+          <Label htmlFor="otp-phone">{t("auth.phoneLabel")}</Label>
           <Input
             id="otp-phone"
             type="tel"
@@ -76,7 +81,7 @@ export function PhoneOtpForm() {
             autoComplete="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            aria-label="Numéro de téléphone"
+            aria-label={t("auth.phoneLabel")}
             className="bg-foreground/5 h-10"
           />
         </div>
@@ -86,7 +91,7 @@ export function PhoneOtpForm() {
           </p>
         ) : null}
         <Button type="submit" disabled={state.pending}>
-          {state.pending ? "Envoi…" : "Recevoir un code"}
+          {state.pending ? t("auth.sendingCode") : t("auth.requestCode")}
         </Button>
       </form>
     );
@@ -95,17 +100,17 @@ export function PhoneOtpForm() {
   return (
     <form onSubmit={verifyCode} className="flex w-full max-w-sm flex-col gap-4">
       <p className="text-muted-foreground text-sm">
-        Code envoyé au {state.phone}.{" "}
+        {t("auth.codeSentTo", { phone: state.phone })}{" "}
         <button
           type="button"
           className="text-foreground underline underline-offset-2"
           onClick={() => dispatch({ type: "editPhone" })}
         >
-          Modifier
+          {t("auth.editPhone")}
         </button>
       </p>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="otp-code">Code à 6 chiffres</Label>
+        <Label htmlFor="otp-code">{t("auth.codeLabel")}</Label>
         <Input
           id="otp-code"
           inputMode="numeric"
@@ -114,7 +119,7 @@ export function PhoneOtpForm() {
           autoComplete="one-time-code"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          aria-label="Code à 6 chiffres"
+          aria-label={t("auth.codeLabel")}
           className="bg-foreground/5 h-10"
         />
       </div>
@@ -124,7 +129,7 @@ export function PhoneOtpForm() {
         </p>
       ) : null}
       <Button type="submit" disabled={state.pending}>
-        {state.pending ? "Vérification…" : "Se connecter"}
+        {state.pending ? t("auth.verifying") : t("auth.signInAction")}
       </Button>
     </form>
   );

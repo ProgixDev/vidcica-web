@@ -22,6 +22,19 @@ export const PLATFORM_COLORS: Record<PlatformId, string> = {
   x: "#000000",
 };
 
+/** UI accent per platform — for glows / hover borders / dots. Same as the brand
+ *  colour, except the black-branded marks get a visible substitute (a pure-black
+ *  glow/border is invisible on dark surfaces). */
+export const PLATFORM_ACCENT: Record<PlatformId, string> = {
+  youtube: "#FF0033",
+  instagram: "#E1306C",
+  facebook: "#1877F2",
+  linkedin: "#0A66C2",
+  tiktok: "#FE2C55", // TikTok's vivid pink — its black core isn't a usable accent
+  threads: "#8A8A8F", // monochrome brand → neutral slate
+  x: "#8A8A8F",
+};
+
 /** Inner glyph for each platform — white-on-brand, drawn in a 24×24 viewBox. */
 const GLYPHS: Record<PlatformId, () => React.ReactNode> = {
   youtube: () => (

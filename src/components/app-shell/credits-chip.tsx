@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useT } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 import { useCreditsRealtime } from "@/lib/vidcica/use-credits-realtime";
 
@@ -23,6 +24,7 @@ export function CreditsChip({
   variant?: "chip" | "card";
   className?: string;
 }) {
+  const t = useT();
   const credits = useCreditsRealtime(userId, initial);
   const low = monthlyCredits > 0 && credits / monthlyCredits < 0.2;
 
@@ -43,7 +45,7 @@ export function CreditsChip({
           aria-hidden
           className={cn("size-1.5 rounded-full", low ? "bg-destructive" : "bg-primary")}
         />
-        {credits} crédits
+        {t("chrome.creditsCount", { count: credits })}
       </Link>
     );
   }
@@ -60,7 +62,7 @@ export function CreditsChip({
     >
       <div className="flex items-baseline justify-between">
         <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
-          Crédits
+          {t("chrome.creditsLabel")}
         </span>
         <span className={cn("text-sm font-semibold", low && "text-destructive")}>
           {credits}
@@ -74,7 +76,7 @@ export function CreditsChip({
         />
       </div>
       <span className="text-muted-foreground text-[11px]">
-        {low ? "Solde faible — recharger" : "Gérer mon offre →"}
+        {low ? t("chrome.lowBalance") : t("chrome.manageOffer")}
       </span>
     </Link>
   );

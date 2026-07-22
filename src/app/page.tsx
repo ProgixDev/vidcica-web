@@ -6,9 +6,12 @@ import { FaqAccordion } from "@/components/faq-accordion";
 import { HeaderCta } from "@/components/header-cta";
 import { LandingAmbience } from "@/components/landing-ambience";
 import { LandingVideo } from "@/components/landing-video";
+import { LanguageToggle } from "@/components/language-toggle";
 import { Reveal } from "@/components/reveal";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ORDERED_TIERS, TIERS } from "@/lib/vidcica/tiers";
+import { getT } from "@/lib/i18n/server";
+import type { MessageKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -34,84 +37,84 @@ const HERO_CLIP = clip("hero");
 
 const PLATFORMS = ["Instagram", "TikTok", "YouTube Shorts", "Facebook", "LinkedIn", "Threads"];
 
-const SHOWCASE: { clip: ReturnType<typeof clip>; chip: string; caption: string }[] = [
+const SHOWCASE: { clip: ReturnType<typeof clip>; chip: MessageKey; caption: MessageKey }[] = [
   {
     clip: clip("clip-restaurant"),
-    chip: "Voix off IA",
-    caption: "Une voix naturelle, générée à partir de votre script.",
+    chip: "landing.showcase.1.chip",
+    caption: "landing.showcase.1.caption",
   },
   {
     clip: clip("clip-boutique"),
-    chip: "Sous-titres animés",
-    caption: "Incrustés automatiquement, lisibles sans le son.",
+    chip: "landing.showcase.2.chip",
+    caption: "landing.showcase.2.caption",
   },
   {
     clip: clip("clip-sport"),
-    chip: "Musique intégrée",
-    caption: "Une ambiance choisie dans le catalogue, mixée sous la voix.",
+    chip: "landing.showcase.3.chip",
+    caption: "landing.showcase.3.caption",
   },
   {
     clip: bucketClip("welcome-1"),
-    chip: "Script par IA",
-    caption: "Partez d’une phrase : le script est écrit pour vous.",
+    chip: "landing.showcase.4.chip",
+    caption: "landing.showcase.4.caption",
   },
   {
     clip: bucketClip("welcome-2"),
-    chip: "Séquences incluses",
-    caption: "Une banque de séquences libres de droits, choisies par l’IA.",
+    chip: "landing.showcase.5.chip",
+    caption: "landing.showcase.5.caption",
   },
   {
     clip: bucketClip("welcome-3"),
-    chip: "Prête à publier",
-    caption: "Exportée en 9:16, publiée sur vos réseaux en un clic.",
+    chip: "landing.showcase.6.chip",
+    caption: "landing.showcase.6.caption",
   },
 ];
 
-const USE_CASES: { img: string; title: string; body: string }[] = [
+const USE_CASES: { img: string; title: MessageKey; body: MessageKey }[] = [
   {
     img: "/media/use-restaurant.jpg",
-    title: "Restaurants & food",
-    body: "Menus du jour, coulisses, plats signatures — des vidéos qui donnent faim.",
+    title: "landing.useCase.restaurant.title",
+    body: "landing.useCase.restaurant.body",
   },
   {
     img: "/media/use-immo.jpg",
-    title: "Immobilier",
-    body: "Chaque bien devient une visite vidéo publiée sur tous vos réseaux.",
+    title: "landing.useCase.immo.title",
+    body: "landing.useCase.immo.body",
   },
   {
     img: "/media/use-coach.jpg",
-    title: "Coachs & sport",
-    body: "Conseils, séances, transformations — un rendez-vous vidéo régulier.",
+    title: "landing.useCase.coach.title",
+    body: "landing.useCase.coach.body",
   },
   {
     img: "/media/use-ecom.jpg",
-    title: "E-commerce",
-    body: "Présentez vos produits en vidéo courte et boostez les meilleures en campagne.",
+    title: "landing.useCase.ecom.title",
+    body: "landing.useCase.ecom.body",
   },
 ];
 
-const STATS: { value: string; label: string }[] = [
-  { value: "≈ 3 min", label: "de l’idée à la vidéo finale" },
-  { value: "6 réseaux", label: "publiés en un seul clic" },
-  { value: "9:16", label: "format vertical natif" },
-  { value: "FR · EN", label: "voix et sous-titres" },
+const STATS: { value: MessageKey; label: MessageKey }[] = [
+  { value: "landing.stat.1.value", label: "landing.stat.1.label" },
+  { value: "landing.stat.2.value", label: "landing.stat.2.label" },
+  { value: "landing.stat.3.value", label: "landing.stat.3.label" },
+  { value: "landing.stat.4.value", label: "landing.stat.4.label" },
 ];
 
-const STEPS: { n: string; title: string; body: string }[] = [
+const STEPS: { n: string; title: MessageKey; body: MessageKey }[] = [
   {
     n: "1",
-    title: "Décrivez votre idée",
-    body: "Un script complet ou une simple phrase suffit. Choisissez le ton, le format et la voix.",
+    title: "landing.step.1.title",
+    body: "landing.step.1.body",
   },
   {
     n: "2",
-    title: "L’IA monte la vidéo",
-    body: "Séquences, voix off, sous-titres et musique — assemblés au format vertical, prêts à poster.",
+    title: "landing.step.2.title",
+    body: "landing.step.2.body",
   },
   {
     n: "3",
-    title: "Publiez et amplifiez",
-    body: "Diffusez sur tous vos réseaux, puis boostez la vidéo en campagne Meta et suivez vos prospects.",
+    title: "landing.step.3.title",
+    body: "landing.step.3.body",
   },
 ];
 
@@ -136,32 +139,32 @@ function FeatureIcon({ path, circles }: { path?: string; circles?: [number, numb
 }
 
 const FEATURES: {
-  title: string;
-  body: string;
+  title: MessageKey;
+  body: MessageKey;
   icon: { path?: string; circles?: [number, number, number][] };
 }[] = [
   {
-    title: "Script écrit par IA",
-    body: "Partez d’une idée : l’IA propose un script accrocheur, que vous ajustez librement.",
+    title: "landing.feature.script.title",
+    body: "landing.feature.script.body",
     icon: { path: "M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" },
   },
   {
-    title: "Voix off naturelle",
-    body: "Des voix réalistes en français et en anglais, générées pour chaque vidéo.",
+    title: "landing.feature.voice.title",
+    body: "landing.feature.voice.body",
     icon: {
       path: "M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3ZM19 10v1a7 7 0 0 1-14 0v-1M12 18v4",
     },
   },
   {
-    title: "Sous-titres animés",
-    body: "Incrustés image par image, stylés et lisibles — même sans le son.",
+    title: "landing.feature.subtitles.title",
+    body: "landing.feature.subtitles.body",
     icon: {
       path: "M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1ZM7 15h4m2 0h4M7 11h2m2 0h6",
     },
   },
   {
-    title: "Musique d’ambiance",
-    body: "Un catalogue de titres libres de droits, mixés sous la voix automatiquement.",
+    title: "landing.feature.music.title",
+    body: "landing.feature.music.body",
     icon: {
       path: "M9 18V5l12-2v13",
       circles: [
@@ -171,8 +174,8 @@ const FEATURES: {
     },
   },
   {
-    title: "Publication multi-réseaux",
-    body: "Instagram, TikTok, YouTube Shorts, Facebook, LinkedIn, Threads — en un clic.",
+    title: "landing.feature.publish.title",
+    body: "landing.feature.publish.body",
     icon: {
       path: "m8.6 13.4 6.8 3.9M15.4 6.7l-6.8 3.9",
       circles: [
@@ -183,8 +186,8 @@ const FEATURES: {
     },
   },
   {
-    title: "Campagnes et prospects",
-    body: "Boostez une vidéo en campagne Meta et suivez les prospects qu’elle génère.",
+    title: "landing.feature.campaigns.title",
+    body: "landing.feature.campaigns.body",
     icon: {
       circles: [
         [12, 12, 9],
@@ -195,31 +198,13 @@ const FEATURES: {
   },
 ];
 
-const FAQ: { q: string; a: string }[] = [
-  {
-    q: "Comment fonctionnent les crédits ?",
-    a: "Chaque rendu consomme des crédits selon le modèle et la durée choisis — le coût exact s’affiche avant de lancer la génération, et rien n’est débité tant que tu n’as pas validé le plan proposé par l’IA. Tes crédits se rechargent chaque mois avec ton offre.",
-  },
-  {
-    q: "À qui appartiennent les vidéos générées ?",
-    a: "À toi. Tu peux les publier, les télécharger et les utiliser commercialement pour ton activité, sans mention obligatoire de Vidcica.",
-  },
-  {
-    q: "Les musiques et les séquences sont-elles libres de droits ?",
-    a: "Oui. Le catalogue musical est composé de titres libres de droits sélectionnés pour l’usage sur les réseaux sociaux, et les séquences proviennent de banques licenciées ou de modèles d’IA générative.",
-  },
-  {
-    q: "Sur quels réseaux puis-je publier ?",
-    a: "Instagram, TikTok, YouTube Shorts, Facebook, LinkedIn et Threads. Tu connectes tes comptes une fois, puis chaque vidéo se publie en un clic.",
-  },
-  {
-    q: "La voix off existe-t-elle en plusieurs langues ?",
-    a: "Oui — français et anglais aujourd’hui, avec des voix naturelles générées par IA. D’autres langues arriveront ensuite.",
-  },
-  {
-    q: "Puis-je changer d’offre ou résilier à tout moment ?",
-    a: "Oui. L’abonnement se gère depuis la page Facturation (paiement sécurisé par Stripe) : changement d’offre immédiat, résiliation effective à la fin de la période en cours, sans engagement.",
-  },
+const FAQ: { q: MessageKey; a: MessageKey }[] = [
+  { q: "landing.faq.credits.q", a: "landing.faq.credits.a" },
+  { q: "landing.faq.ownership.q", a: "landing.faq.ownership.a" },
+  { q: "landing.faq.royaltyFree.q", a: "landing.faq.royaltyFree.a" },
+  { q: "landing.faq.networks.q", a: "landing.faq.networks.a" },
+  { q: "landing.faq.voiceLangs.q", a: "landing.faq.voiceLangs.a" },
+  { q: "landing.faq.billing.q", a: "landing.faq.billing.a" },
 ];
 
 function GlassChip({ className, children }: { className?: string; children: React.ReactNode }) {
@@ -245,11 +230,13 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const t = await getT();
+  const faqItems = FAQ.map((f) => ({ q: t(f.q), a: t(f.a) }));
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: FAQ.map((f) => ({
+    mainEntity: faqItems.map((f) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -266,24 +253,25 @@ export default function Home() {
       />
       <header className="border-border/60 bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
-          <Link href="/" aria-label="Vidcica — accueil">
+          <Link href="/" aria-label={t("landing.nav.homeAria")}>
             <BrandLockup />
           </Link>
           <nav className="text-muted-foreground hidden items-center gap-6 text-sm md:flex">
             <a href="#exemples" className="hover:text-foreground transition-colors">
-              Exemples
+              {t("landing.nav.examples")}
             </a>
             <a href="#fonctionnalites" className="hover:text-foreground transition-colors">
-              Fonctionnalités
+              {t("landing.nav.features")}
             </a>
             <a href="#tarifs" className="hover:text-foreground transition-colors">
-              Tarifs
+              {t("landing.nav.pricing")}
             </a>
             <a href="#faq" className="hover:text-foreground transition-colors">
               FAQ
             </a>
           </nav>
           <div className="flex items-center gap-2">
+            <LanguageToggle />
             <ThemeToggle />
             <Link
               href="/sign-in"
@@ -292,7 +280,7 @@ export default function Home() {
                 "hidden rounded-full sm:inline-flex",
               )}
             >
-              Se connecter
+              {t("landing.nav.signIn")}
             </Link>
             <HeaderCta />
           </div>
@@ -311,18 +299,17 @@ export default function Home() {
             <div className="flex max-w-2xl flex-col items-start gap-6">
               <Reveal onMount y={10}>
                 <span className="bg-accent text-accent-foreground inline-block rounded-full px-3 py-1 text-xs font-medium">
-                  Studio vidéo IA
+                  {t("landing.hero.badge")}
                 </span>
               </Reveal>
               <Reveal onMount delay={0.08}>
                 <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-5xl">
-                  Transformez un script en vidéo courte — publiée partout, automatiquement.
+                  {t("landing.hero.title")}
                 </h1>
               </Reveal>
               <Reveal onMount delay={0.16}>
                 <p className="text-muted-foreground max-w-xl text-base leading-relaxed text-pretty">
-                  Vidcica génère des vidéos verticales à partir de vos idées — voix, sous-titres,
-                  musique — puis les publie sur vos réseaux pendant que vous préparez la suivante.
+                  {t("landing.hero.subtitle")}
                 </p>
               </Reveal>
               <Reveal onMount delay={0.24}>
@@ -331,19 +318,21 @@ export default function Home() {
                     href="/sign-in"
                     className={cn(buttonVariants({ size: "lg" }), "rounded-full px-7")}
                   >
-                    Créer ma première vidéo
+                    {t("landing.hero.cta")}
                   </Link>
                   <a
                     href="#exemples"
                     className="text-muted-foreground hover:text-foreground text-sm"
                   >
-                    Voir des exemples →
+                    {t("landing.hero.seeExamples")}
                   </a>
                 </div>
               </Reveal>
               <Reveal onMount delay={0.32}>
                 <p className="text-muted-foreground/80 flex flex-wrap gap-x-2 gap-y-1 pt-4 text-xs">
-                  <span className="text-foreground/70 font-medium">Publie sur</span>
+                  <span className="text-foreground/70 font-medium">
+                    {t("landing.hero.publishOn")}
+                  </span>
                   {PLATFORMS.map((p, i) => (
                     <span key={p}>
                       {p}
@@ -378,10 +367,10 @@ export default function Home() {
                 />
               </div>
               <GlassChip className="absolute top-12 -left-16 hidden sm:inline-flex">
-                Voix off générée
+                {t("landing.hero.chipVoice")}
               </GlassChip>
               <GlassChip className="absolute -right-12 bottom-20 hidden sm:inline-flex">
-                Sous-titres auto
+                {t("landing.hero.chipSubtitles")}
               </GlassChip>
             </Reveal>
           </div>
@@ -393,9 +382,9 @@ export default function Home() {
             <dl className="divide-border/70 mx-auto grid w-full max-w-6xl grid-cols-2 gap-y-8 px-6 py-10 sm:grid-cols-4 sm:divide-x">
               {STATS.map((s) => (
                 <div key={s.value} className="flex flex-col gap-1 sm:px-6 sm:first:pl-0">
-                  <dt className="text-muted-foreground order-2 text-xs">{s.label}</dt>
+                  <dt className="text-muted-foreground order-2 text-xs">{t(s.label)}</dt>
                   <dd className="text-primary order-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-                    {s.value}
+                    {t(s.value)}
                   </dd>
                 </div>
               ))}
@@ -410,13 +399,12 @@ export default function Home() {
           aria-labelledby="exemples-h"
         >
           <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
-            <Eyebrow>Exemples</Eyebrow>
+            <Eyebrow>{t("landing.nav.examples")}</Eyebrow>
             <h2 id="exemples-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Des vidéos prêtes à poster, pas des brouillons.
+              {t("landing.showcase.title")}
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Chaque rendu sort au format vertical 9:16 avec la voix, les sous-titres et la musique
-              déjà en place — il ne reste qu’à publier.
+              {t("landing.showcase.subtitle")}
             </p>
           </Reveal>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -429,10 +417,10 @@ export default function Home() {
                       poster={item.clip.poster}
                       className="aspect-9/16 w-full object-cover"
                     />
-                    <GlassChip className="absolute bottom-3 left-3">{item.chip}</GlassChip>
+                    <GlassChip className="absolute bottom-3 left-3">{t(item.chip)}</GlassChip>
                   </div>
                   <figcaption className="text-muted-foreground px-1 text-xs leading-relaxed">
-                    {item.caption}
+                    {t(item.caption)}
                   </figcaption>
                 </figure>
               </Reveal>
@@ -453,13 +441,12 @@ export default function Home() {
           />
           <div className="relative mx-auto w-full max-w-6xl px-6 py-20">
             <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
-              <Eyebrow>Fonctionnalités</Eyebrow>
+              <Eyebrow>{t("landing.nav.features")}</Eyebrow>
               <h2 id="features-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                Tout le studio, dans un seul outil.
+                {t("landing.features.title")}
               </h2>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                De l’écriture du script à la campagne publicitaire, Vidcica couvre toute la chaîne
-                de la vidéo courte.
+                {t("landing.features.subtitle")}
               </p>
             </Reveal>
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -478,8 +465,8 @@ export default function Home() {
                     >
                       <FeatureIcon {...f.icon} />
                     </span>
-                    <h3 className="font-medium">{f.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{f.body}</p>
+                    <h3 className="font-medium">{t(f.title)}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{t(f.body)}</p>
                   </Reveal>
                 </li>
               ))}
@@ -490,13 +477,12 @@ export default function Home() {
         {/* ---------- Use cases ---------- */}
         <section className="mx-auto w-full max-w-6xl px-6 py-20" aria-labelledby="metiers-h">
           <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
-            <Eyebrow>Métiers</Eyebrow>
+            <Eyebrow>{t("landing.useCases.eyebrow")}</Eyebrow>
             <h2 id="metiers-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Pensé pour votre métier.
+              {t("landing.useCases.title")}
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Peu importe votre activité : si vos clients sont sur les réseaux, Vidcica vous y rend
-              visible chaque semaine.
+              {t("landing.useCases.subtitle")}
             </p>
           </Reveal>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -509,15 +495,15 @@ export default function Home() {
                   <div className="relative aspect-4/3 overflow-hidden">
                     <Image
                       src={u.img}
-                      alt={u.title}
+                      alt={t(u.title)}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5 p-4">
-                    <h3 className="text-sm font-medium">{u.title}</h3>
-                    <p className="text-muted-foreground text-xs leading-relaxed">{u.body}</p>
+                    <h3 className="text-sm font-medium">{t(u.title)}</h3>
+                    <p className="text-muted-foreground text-xs leading-relaxed">{t(u.body)}</p>
                   </div>
                 </Reveal>
               </li>
@@ -532,9 +518,9 @@ export default function Home() {
           aria-labelledby="how-h"
         >
           <Reveal className="mb-10 flex flex-col gap-3">
-            <Eyebrow>En 3 étapes</Eyebrow>
+            <Eyebrow>{t("landing.how.eyebrow")}</Eyebrow>
             <h2 id="how-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Comment ça marche
+              {t("landing.how.title")}
             </h2>
           </Reveal>
           <ol className="grid gap-4 sm:grid-cols-3">
@@ -560,8 +546,8 @@ export default function Home() {
                   >
                     {s.n}
                   </span>
-                  <h3 className="font-medium">{s.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{s.body}</p>
+                  <h3 className="font-medium">{t(s.title)}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{t(s.body)}</p>
                 </Reveal>
               </li>
             ))}
@@ -581,18 +567,17 @@ export default function Home() {
           />
           <div className="relative mx-auto w-full max-w-6xl px-6 py-20">
             <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
-              <Eyebrow>Tarifs</Eyebrow>
+              <Eyebrow>{t("landing.nav.pricing")}</Eyebrow>
               <h2 id="tarifs-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                Des tarifs simples, sans surprise.
+                {t("landing.pricing.title")}
               </h2>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Commence gratuitement, passe à l’offre supérieure quand tes vidéos décollent.
-                Paiement sécurisé par Stripe, sans engagement.
+                {t("landing.pricing.subtitle")}
               </p>
             </Reveal>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {ORDERED_TIERS.map((id, i) => {
-                const t = TIERS[id];
+                const tier = TIERS[id];
                 const popular = id === "pro";
                 return (
                   <Reveal
@@ -621,20 +606,22 @@ export default function Home() {
                             "linear-gradient(140deg, var(--primary), color-mix(in oklab, var(--primary) 72%, black))",
                         }}
                       >
-                        Populaire
+                        {t("landing.pricing.popular")}
                       </span>
                     ) : null}
                     <div className="flex flex-col gap-1">
-                      <h3 className="text-sm font-semibold">{t.label}</h3>
+                      <h3 className="text-sm font-semibold">{t(tier.labelKey)}</h3>
                       <p className="flex items-baseline gap-1">
                         <span className="text-3xl font-semibold tracking-tight">
-                          {t.priceEUR} €
+                          {tier.priceEUR} €
                         </span>
-                        <span className="text-muted-foreground text-xs">/ mois</span>
+                        <span className="text-muted-foreground text-xs">
+                          {t("landing.pricing.perMonth")}
+                        </span>
                       </p>
                     </div>
                     <ul className="flex flex-1 flex-col gap-2">
-                      {t.highlights.map((h) => (
+                      {tier.highlightKeys.map((h) => (
                         <li key={h} className="text-muted-foreground flex gap-2 text-xs">
                           <svg
                             viewBox="0 0 24 24"
@@ -648,7 +635,7 @@ export default function Home() {
                           >
                             <path d="m4.5 12.5 5 5 10-11" />
                           </svg>
-                          {h}
+                          {t(h)}
                         </li>
                       ))}
                     </ul>
@@ -659,7 +646,9 @@ export default function Home() {
                         "rounded-full",
                       )}
                     >
-                      {t.priceEUR === 0 ? "Commencer gratuitement" : `Choisir ${t.label}`}
+                      {tier.priceEUR === 0
+                        ? t("landing.pricing.startFree")
+                        : t("landing.pricing.choose", { plan: t(tier.labelKey) })}
                     </Link>
                   </Reveal>
                 );
@@ -673,11 +662,11 @@ export default function Home() {
           <Reveal className="mb-8 flex flex-col gap-3">
             <Eyebrow>FAQ</Eyebrow>
             <h2 id="faq-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Questions fréquentes
+              {t("landing.faq.title")}
             </h2>
           </Reveal>
           <Reveal delay={0.08}>
-            <FaqAccordion items={FAQ} />
+            <FaqAccordion items={faqItems} />
           </Reveal>
         </section>
 
@@ -696,17 +685,17 @@ export default function Home() {
             />
             <div className="relative z-10 px-8 py-16 sm:py-20">
               <h2 className="mx-auto max-w-xl text-2xl font-semibold tracking-tight text-balance text-white sm:text-3xl">
-                Votre prochaine vidéo est à trois minutes.
+                {t("landing.ctaBand.title")}
               </h2>
               <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/80">
-                Décrivez l’idée — Vidcica écrit, monte, sous-titre et publie pour vous.
+                {t("landing.ctaBand.subtitle")}
               </p>
               <div className="mt-7 flex justify-center">
                 <Link
                   href="/sign-in"
                   className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
                 >
-                  Commencer gratuitement
+                  {t("landing.pricing.startFree")}
                 </Link>
               </div>
             </div>
@@ -720,47 +709,50 @@ export default function Home() {
             <div className="flex max-w-xs flex-col gap-3">
               <BrandLockup />
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Des vidéos courtes générées par IA, publiées automatiquement sur tous vos réseaux.
+                {t("landing.footer.tagline")}
               </p>
             </div>
-            <nav className="flex flex-wrap gap-x-16 gap-y-8 text-sm" aria-label="Pied de page">
+            <nav
+              className="flex flex-wrap gap-x-16 gap-y-8 text-sm"
+              aria-label={t("landing.footer.aria")}
+            >
               <div className="flex flex-col gap-3">
                 <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                  Produit
+                  {t("landing.footer.product")}
                 </span>
                 <a href="#exemples" className="hover:text-foreground text-muted-foreground">
-                  Exemples
+                  {t("landing.nav.examples")}
                 </a>
                 <a href="#tarifs" className="hover:text-foreground text-muted-foreground">
-                  Tarifs
+                  {t("landing.nav.pricing")}
                 </a>
                 <a href="#faq" className="hover:text-foreground text-muted-foreground">
                   FAQ
                 </a>
                 <Link href="/sign-in" className="hover:text-foreground text-muted-foreground">
-                  Se connecter
+                  {t("landing.nav.signIn")}
                 </Link>
               </div>
               <div className="flex flex-col gap-3">
                 <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                  Légal
+                  {t("landing.footer.legal")}
                 </span>
                 <Link href="/privacy" className="hover:text-foreground text-muted-foreground">
-                  Confidentialité
+                  {t("landing.footer.privacy")}
                 </Link>
                 <Link href="/terms" className="hover:text-foreground text-muted-foreground">
-                  Conditions
+                  {t("landing.footer.terms")}
                 </Link>
                 <Link
                   href="/mentions-legales"
                   className="hover:text-foreground text-muted-foreground"
                 >
-                  Mentions légales
+                  {t("landing.footer.legalNotice")}
                 </Link>
               </div>
               <div className="flex flex-col gap-3">
                 <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                  Contact
+                  {t("landing.footer.contact")}
                 </span>
                 <a
                   href="mailto:support@vidcica.com"
@@ -771,7 +763,7 @@ export default function Home() {
               </div>
             </nav>
           </div>
-          <p className="text-muted-foreground/70 text-xs">© 2026 Vidcica. Tous droits réservés.</p>
+          <p className="text-muted-foreground/70 text-xs">{t("landing.footer.copyright")}</p>
         </div>
       </footer>
     </div>

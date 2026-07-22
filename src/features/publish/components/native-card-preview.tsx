@@ -11,6 +11,9 @@
  * Brand hex is intentional (external brand colours, not theme tokens; the web
  * repo has no check:colors gate).
  */
+"use client";
+
+import { useT } from "@/lib/i18n/provider";
 import type { PlatformId } from "@/lib/vidcica/network";
 
 export type NativeCardPreviewProps = {
@@ -146,6 +149,7 @@ function TikTokCard({
   hashtags,
   thumbnailUrl,
 }: Omit<NativeCardPreviewProps, "platform">) {
+  const t = useT();
   return (
     <div
       style={{
@@ -198,7 +202,7 @@ function TikTokCard({
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
           <Glyph d={SHARE} size={22} />
-          <span style={{ fontSize: 10, fontWeight: 600 }}>Partager</span>
+          <span style={{ fontSize: 10, fontWeight: 600 }}>{t("publish.share")}</span>
         </div>
       </div>
       <div
@@ -231,7 +235,9 @@ function TikTokCard({
         )}
         <span style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
           <Glyph d={MUSIC} size={11} fill="#fff" />
-          <span style={{ fontSize: 10 }}>Original sound · {handle}</span>
+          <span style={{ fontSize: 10 }}>
+            {t("publish.originalSound")} · {handle}
+          </span>
         </span>
       </div>
     </div>
@@ -312,6 +318,7 @@ function YouTubeVideoCard({
   hashtags,
   thumbnailUrl,
 }: Omit<NativeCardPreviewProps, "platform">) {
+  const t = useT();
   return (
     <div
       style={{
@@ -358,7 +365,7 @@ function YouTubeVideoCard({
             {caption || "—"}
           </p>
           <p style={{ color: "#606060", fontSize: 11, margin: "2px 0 0" }}>
-            {handle} · à l’instant
+            {handle} · {t("publish.justNow")}
           </p>
           {hashtags.length > 0 && (
             <p style={{ color: "#3EA6FF", fontSize: 11, margin: "2px 0 0" }}>{tagLine(hashtags)}</p>
@@ -378,6 +385,7 @@ function LinkedInCard({
   hashtags,
   thumbnailUrl,
 }: Omit<NativeCardPreviewProps, "platform">) {
+  const t = useT();
   return (
     <div
       style={{
@@ -392,7 +400,7 @@ function LinkedInCard({
         <div style={{ flex: 1 }}>
           <p style={{ color: "#000", fontSize: 13, fontWeight: 700, margin: 0 }}>{handle}</p>
           <p style={{ color: "#666", fontSize: 11, margin: 0 }}>
-            Créateur de contenu · à l’instant
+            {t("publish.contentCreator")} · {t("publish.justNow")}
           </p>
         </div>
         <span style={{ color: "#666" }}>
@@ -428,10 +436,10 @@ function LinkedInCard({
           color: "#666",
         }}
       >
-        <ActionLabel d={THUMB} label="J’aime" />
-        <ActionLabel d={COMMENT} label="Commenter" />
-        <ActionLabel d={REPEAT} label="Republier" />
-        <ActionLabel d={SEND} label="Envoyer" />
+        <ActionLabel d={THUMB} label={t("publish.like")} />
+        <ActionLabel d={COMMENT} label={t("publish.comment")} />
+        <ActionLabel d={REPEAT} label={t("publish.repost")} />
+        <ActionLabel d={SEND} label={t("publish.send")} />
       </div>
     </div>
   );
@@ -443,6 +451,7 @@ function FacebookCard({
   hashtags,
   thumbnailUrl,
 }: Omit<NativeCardPreviewProps, "platform">) {
+  const t = useT();
   return (
     <div
       style={{
@@ -456,7 +465,7 @@ function FacebookCard({
         <Avatar color="#1877F2" size={40} />
         <div style={{ flex: 1 }}>
           <p style={{ color: "#050505", fontSize: 13, fontWeight: 700, margin: 0 }}>{handle}</p>
-          <p style={{ color: "#65676B", fontSize: 11, margin: 0 }}>à l’instant · 🌍</p>
+          <p style={{ color: "#65676B", fontSize: 11, margin: 0 }}>{t("publish.justNow")} · 🌍</p>
         </div>
       </div>
       <div style={{ padding: "0 12px 8px" }}>
@@ -488,9 +497,9 @@ function FacebookCard({
           color: "#65676B",
         }}
       >
-        <ActionLabel d={THUMB} label="J’aime" />
-        <ActionLabel d={COMMENT} label="Commenter" />
-        <ActionLabel d={SHARE} label="Partager" />
+        <ActionLabel d={THUMB} label={t("publish.like")} />
+        <ActionLabel d={COMMENT} label={t("publish.comment")} />
+        <ActionLabel d={SHARE} label={t("publish.share")} />
       </div>
     </div>
   );
@@ -502,13 +511,16 @@ function ThreadsCard({
   hashtags,
   thumbnailUrl,
 }: Omit<NativeCardPreviewProps, "platform">) {
+  const t = useT();
   return (
     <div style={{ background: "#000", borderRadius: 16, overflow: "hidden", padding: 12 }}>
       <div style={{ display: "flex", gap: 10 }}>
         <Avatar color="#fff" size={36} />
         <div style={{ flex: 1, color: "#fff" }}>
           <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>{handle}</p>
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, margin: 0 }}>à l’instant</p>
+          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, margin: 0 }}>
+            {t("publish.justNow")}
+          </p>
           <p
             style={{
               fontSize: 13,

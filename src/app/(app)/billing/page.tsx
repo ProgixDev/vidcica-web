@@ -3,11 +3,16 @@ import { createClient } from "@/lib/supabase/server";
 import { getMyEntitlement } from "@/lib/vidcica/billing-queries";
 import { Paywall } from "@/features/billing";
 import { PageHeader } from "@/components/app-shell";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata = { title: "Abonnement" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t("billing.metaTitle") };
+}
 export const dynamic = "force-dynamic";
 
 export default async function BillingPage() {
+  const t = await getT();
   const supabase = await createClient();
   const {
     data: { user },
@@ -18,10 +23,7 @@ export default async function BillingPage() {
 
   return (
     <>
-      <PageHeader
-        title="Abonnement"
-        subtitle="Ton offre, tes crédits du mois et les formules disponibles."
-      />
+      <PageHeader title={t("billing.title")} subtitle={t("billing.subtitle")} />
       <Paywall userId={user.id} entitlement={entitlement} />
     </>
   );

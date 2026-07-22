@@ -4,12 +4,14 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/provider";
 import { useSupportStore } from "../provider";
 
 const isContactChip = (s: string) => /formulaire|contact/i.test(s);
 
 /** Lia chat: message thread + suggestion chips + typing indicator + input. */
 export function SupportChat({ onHandoff }: { onHandoff: () => void }) {
+  const t = useT();
   const messages = useSupportStore((s) => s.messages);
   const typing = useSupportStore((s) => s.typing);
   const send = useSupportStore((s) => s.send);
@@ -35,7 +37,7 @@ export function SupportChat({ onHandoff }: { onHandoff: () => void }) {
         data-testid="chat-thread"
         role="log"
         aria-live="polite"
-        aria-label="Conversation avec Lia"
+        aria-label={t("support.chatLogLabel")}
       >
         {messages.map((m) => (
           <div
@@ -72,7 +74,7 @@ export function SupportChat({ onHandoff }: { onHandoff: () => void }) {
         ))}
         {typing ? (
           <div className="text-muted-foreground text-xs" role="status" data-testid="typing">
-            Lia écrit…
+            {t("support.typing")}
           </div>
         ) : null}
       </div>
@@ -81,12 +83,12 @@ export function SupportChat({ onHandoff }: { onHandoff: () => void }) {
         <Input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Écrivez votre question…"
-          aria-label="Votre message"
+          placeholder={t("support.inputPlaceholder")}
+          aria-label={t("support.inputAriaLabel")}
           data-testid="chat-input"
         />
         <Button type="submit" disabled={typing || text.trim().length === 0} data-testid="chat-send">
-          Envoyer
+          {t("support.send")}
         </Button>
       </form>
     </div>

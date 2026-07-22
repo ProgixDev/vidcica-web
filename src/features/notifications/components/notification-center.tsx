@@ -5,8 +5,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/provider";
 import {
-  CATEGORY_LABEL,
+  NOTIFICATION_CATEGORY_KEY,
   TYPE_VARIANT,
   notificationHref,
   relativeTime,
@@ -23,6 +24,7 @@ const DOT = {
 } as const;
 
 function Row({ n, onOpen }: { n: AppNotification; onOpen: (n: AppNotification) => void }) {
+  const t = useT();
   const href = notificationHref(n);
   const inner = (
     <div
@@ -40,11 +42,11 @@ function Row({ n, onOpen }: { n: AppNotification; onOpen: (n: AppNotification) =
           <span className={cn("truncate text-sm", n.read ? "font-medium" : "font-semibold")}>
             {n.title}
           </span>
-          {!n.read ? <span className="sr-only">non lu</span> : null}
+          {!n.read ? <span className="sr-only">{t("notifications.srUnread")}</span> : null}
         </div>
         <span className="text-muted-foreground text-xs">{n.body}</span>
         <span className="text-muted-foreground mt-1 text-[11px]">
-          {CATEGORY_LABEL[n.category]} · {relativeTime(n.createdAt)}
+          {t(NOTIFICATION_CATEGORY_KEY[n.category])} · {relativeTime(n.createdAt)}
         </span>
       </div>
     </div>
@@ -80,6 +82,7 @@ export function NotificationCenter({
   userId: string;
   initial: AppNotification[];
 }) {
+  const t = useT();
   const items = useNotificationsRealtime(userId, initial);
   // Optimistic read overlay: flip immediately, roll back if the write fails.
   // Realtime/next-load reconciles the authoritative state.
@@ -127,11 +130,11 @@ export function NotificationCenter({
           <span data-testid="unread-count" className="font-semibold">
             {unread}
           </span>{" "}
-          <span className="text-muted-foreground">non lues</span>
+          <span className="text-muted-foreground">{t("notifications.unread")}</span>
         </p>
         {unread > 0 ? (
           <Button variant="ghost" size="sm" onClick={readAll} data-testid="mark-all-read">
-            Tout marquer comme lu
+            {t("notifications.markAllRead")}
           </Button>
         ) : null}
       </div>
@@ -145,8 +148,8 @@ export function NotificationCenter({
       {effective.length === 0 ? (
         <EmptyState
           className="py-16"
-          title="Aucune notification"
-          description="Vous serez prévenu ici quand une vidéo est prête, une publication réussit ou un paiement passe."
+          title={t("notifications.emptyTitle")}
+          description={t("notifications.emptyDescription")}
         />
       ) : (
         <div className="flex flex-col gap-2" data-testid="notification-list">

@@ -8,6 +8,9 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { BrandLockup } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 import { CreditsChip } from "./credits-chip";
 import { ShellIcon, type IconName } from "./icons";
 
@@ -20,23 +23,24 @@ import { ShellIcon, type IconName } from "./icons";
  * Feature widgets (notification bell…) are injected as slots by the layout —
  * the shared tier never imports from features (module boundaries).
  */
-type NavItem = { href: string; label: string; icon: IconName };
+type NavItem = { href: string; labelKey: MessageKey; icon: IconName };
 
 const NAV_MAIN: NavItem[] = [
-  { href: "/dashboard", label: "Accueil", icon: "home" },
-  { href: "/videos", label: "Vidéos", icon: "film" },
-  { href: "/networks", label: "Réseaux", icon: "share" },
-  { href: "/ads", label: "Publicités", icon: "megaphone" },
-  { href: "/leads", label: "Prospects", icon: "users" },
+  { href: "/dashboard", labelKey: "nav.home", icon: "home" },
+  { href: "/videos", labelKey: "nav.videos", icon: "film" },
+  { href: "/networks", labelKey: "nav.networks", icon: "share" },
+  { href: "/ads", labelKey: "nav.ads", icon: "megaphone" },
+  { href: "/leads", labelKey: "nav.leads", icon: "users" },
 ];
 
 const NAV_SECONDARY: NavItem[] = [
-  { href: "/billing", label: "Facturation", icon: "card" },
-  { href: "/support", label: "Aide", icon: "lifebuoy" },
-  { href: "/account", label: "Profil", icon: "user" },
+  { href: "/billing", labelKey: "nav.billing", icon: "card" },
+  { href: "/support", labelKey: "nav.support", icon: "lifebuoy" },
+  { href: "/account", labelKey: "nav.account", icon: "user" },
 ];
 
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+  const t = useT();
   return (
     <Link
       href={item.href}
@@ -50,15 +54,16 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       )}
     >
       <ShellIcon name={item.icon} className="size-4.5 shrink-0" />
-      {item.label}
+      {t(item.labelKey)}
     </Link>
   );
 }
 
 function NavSections({ pathname }: { pathname: string }) {
+  const t = useT();
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   return (
-    <nav className="flex flex-1 flex-col gap-6" aria-label="Navigation principale">
+    <nav className="flex flex-1 flex-col gap-6" aria-label={t("shell.mainNav")}>
       <div className="flex flex-col gap-1">
         {NAV_MAIN.map((item) => (
           <NavLink key={item.href} item={item} active={isActive(item.href)} />
@@ -66,7 +71,7 @@ function NavSections({ pathname }: { pathname: string }) {
       </div>
       <div className="flex flex-col gap-1">
         <span className="text-muted-foreground px-3.5 pb-1 text-[10px] font-semibold tracking-widest uppercase">
-          Compte
+          {t("nav.sectionAccount")}
         </span>
         {NAV_SECONDARY.map((item) => (
           <NavLink key={item.href} item={item} active={isActive(item.href)} />
@@ -94,6 +99,7 @@ export function AppShell({
   bell?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const t = useT();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -109,7 +115,7 @@ export function AppShell({
 
   const sidebarBody = (
     <>
-      <Link href="/dashboard" aria-label="Vidcica — accueil" className="px-1.5">
+      <Link href="/dashboard" aria-label={t("shell.home")} className="px-1.5">
         <BrandLockup />
       </Link>
       <Link
@@ -118,7 +124,7 @@ export function AppShell({
         className={cn(buttonVariants(), "rounded-full font-semibold")}
       >
         <ShellIcon name="sparkle" className="size-4" />
-        Créer une vidéo
+        {t("shell.createCta")}
       </Link>
       <NavSections pathname={pathname} />
       <CreditsChip
@@ -139,7 +145,9 @@ export function AppShell({
         </span>
         <span className="flex min-w-0 flex-col">
           <span className="truncate text-sm font-medium">{email}</span>
-          <span className="text-muted-foreground text-xs">Offre {planLabel}</span>
+          <span className="text-muted-foreground text-xs">
+            {t("shell.planLabel", { plan: planLabel })}
+          </span>
         </span>
       </Link>
     </>
@@ -158,7 +166,7 @@ export function AppShell({
           <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
             <m.button
               type="button"
-              aria-label="Fermer le menu"
+              aria-label={t("shell.closeMenu")}
               onClick={() => setDrawerOpen(false)}
               className="absolute inset-0 bg-black/50"
               initial={{ opacity: 0 }}
@@ -177,7 +185,7 @@ export function AppShell({
                 <BrandLockup />
                 <button
                   type="button"
-                  aria-label="Fermer le menu"
+                  aria-label={t("shell.closeMenu")}
                   onClick={() => setDrawerOpen(false)}
                   className="text-muted-foreground hover:text-foreground flex size-9 items-center justify-center rounded-full"
                 >
@@ -197,13 +205,13 @@ export function AppShell({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                aria-label="Ouvrir le menu"
+                aria-label={t("shell.openMenu")}
                 onClick={() => setDrawerOpen(true)}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent flex size-9 items-center justify-center rounded-full transition-colors lg:hidden"
               >
                 <ShellIcon name="menu" className="size-5" />
               </button>
-              <Link href="/dashboard" aria-label="Vidcica — accueil" className="lg:hidden">
+              <Link href="/dashboard" aria-label={t("shell.home")} className="lg:hidden">
                 <BrandLockup />
               </Link>
             </div>
@@ -214,6 +222,7 @@ export function AppShell({
                 monthlyCredits={monthlyCredits}
                 className="lg:hidden"
               />
+              <LanguageToggle />
               <ThemeToggle />
               {bell}
             </div>

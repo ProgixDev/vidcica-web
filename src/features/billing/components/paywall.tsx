@@ -12,10 +12,12 @@ import { createClient } from "@/lib/supabase/client";
 import { openBillingPortal, startCheckout } from "@/lib/vidcica/billing";
 import { ORDERED_TIERS, TIERS, isUpgrade, type Entitlement, type Plan } from "@/lib/vidcica/tiers";
 import { useCreditsRealtime } from "@/lib/vidcica/use-credits-realtime";
+import { useT } from "@/lib/i18n/provider";
 
 const POPUP = "width=520,height=760";
 
 export function Paywall({ userId, entitlement }: { userId: string; entitlement: Entitlement }) {
+  const t = useT();
   const router = useRouter();
   const current = entitlement.plan;
   const credits = useCreditsRealtime(userId, entitlement.credits);
@@ -36,9 +38,8 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
     if (controller.signal.aborted) return;
     setPendingPlan(null);
     if (out.ok) router.refresh();
-    else if (out.reason === "not_configured")
-      setMessage("Le paiement est momentanément indisponible. Réessayez plus tard.");
-    else if (out.reason !== "cancelled") setMessage("Le paiement a échoué. Réessayez.");
+    else if (out.reason === "not_configured") setMessage(t("billing.checkoutUnavailable"));
+    else if (out.reason !== "cancelled") setMessage(t("billing.checkoutFailed"));
   }
 
   async function manage() {
@@ -52,10 +53,9 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
     if (controller.signal.aborted) return;
     setPendingPlan(null);
     if (!out.ok) {
-      if (out.reason === "no_customer") setMessage("Aucun abonnement à gérer pour le moment.");
-      else if (out.reason === "not_configured")
-        setMessage("La gestion est momentanément indisponible.");
-      else setMessage("Impossible d’ouvrir la gestion. Réessayez.");
+      if (out.reason === "no_customer") setMessage(t("billing.portalNoCustomer"));
+      else if (out.reason === "not_configured") setMessage(t("billing.portalUnavailable"));
+      else setMessage(t("billing.portalFailed"));
     }
   }
 
@@ -63,21 +63,21 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
     <div className="flex flex-col gap-6" data-testid="paywall">
       <div className="bg-card flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
         <div className="flex flex-col">
-          <span className="text-muted-foreground text-xs">Offre actuelle</span>
+          <span className="text-muted-foreground text-xs">{t("billing.currentPlan")}</span>
           <span className="text-lg font-semibold" data-testid="current-plan">
-            {TIERS[current].label}
+            {t(TIERS[current].labelKey)}
           </span>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex flex-col text-right">
-            <span className="text-muted-foreground text-xs">Crédits ce mois</span>
+            <span className="text-muted-foreground text-xs">{t("billing.creditsThisMonth")}</span>
             <span className="font-semibold" data-testid="credits-balance">
               {credits}
             </span>
           </div>
           {current !== "free" ? (
             <Button variant="outline" size="sm" onClick={manage} disabled={pendingPlan !== null}>
-              {pendingPlan === "portal" ? "Ouverture…" : "Gérer mon abonnement"}
+              {pendingPlan === "portal" ? t("billing.opening") : t("billing.managePlan")}
             </Button>
           ) : null}
         </div>
@@ -104,21 +104,23 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="font-semibold">{tier.label}</span>
-                {isCurrent ? <Badge variant="brand">Actuel</Badge> : null}
+                <span className="font-semibold">{t(tier.labelKey)}</span>
+                {isCurrent ? <Badge variant="brand">{t("billing.currentBadge")}</Badge> : null}
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-semibold tracking-tight">{tier.priceEUR} €</span>
-                <span className="text-muted-foreground text-xs">/ mois</span>
+                <span className="text-muted-foreground text-xs">{t("billing.perMonth")}</span>
               </div>
               <ul className="text-muted-foreground flex flex-col gap-1 text-xs">
-                {tier.highlights.map((h) => (
-                  <li key={h}>· {h}</li>
+                {tier.highlightKeys.map((k) => (
+                  <li key={k}>· {t(k)}</li>
                 ))}
               </ul>
               <div className="mt-auto pt-2">
                 {isCurrent ? (
-                  <p className="text-muted-foreground text-center text-xs">Votre offre</p>
+                  <p className="text-muted-foreground text-center text-xs">
+                    {t("billing.yourPlan")}
+                  </p>
                 ) : upgradable ? (
                   <Button
                     className="w-full"
@@ -127,11 +129,13 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
                     disabled={pendingPlan !== null}
                     data-testid={`subscribe-${id}`}
                   >
-                    {pendingPlan === id ? "Redirection…" : `Passer à ${tier.label}`}
+                    {pendingPlan === id
+                      ? t("billing.redirecting")
+                      : t("billing.upgradeTo", { plan: t(tier.labelKey) })}
                   </Button>
                 ) : (
                   <p className="text-muted-foreground text-center text-xs">
-                    {tier.priceEUR === 0 ? "Offre de base" : "Inclus dans votre offre"}
+                    {tier.priceEUR === 0 ? t("billing.basePlan") : t("billing.includedInPlan")}
                   </p>
                 )}
               </div>

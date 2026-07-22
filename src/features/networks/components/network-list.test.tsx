@@ -29,9 +29,8 @@ describe("<NetworkList /> (AC-1, AC-4 states)", () => {
     expect(screen.getByText("@youtube")).toBeInTheDocument();
     // Disconnected LinkedIn offers connect
     expect(screen.getByTestId("connect-linkedin")).toBeInTheDocument();
-    // X is unavailable (dropped) — no connect
-    expect(screen.getByTestId("network-status-x")).toHaveTextContent("Bientôt disponible");
-    expect(screen.queryByTestId("connect-x")).not.toBeInTheDocument();
+    // X is dropped entirely (paid API) — not rendered at all
+    expect(screen.queryByTestId("network-x")).not.toBeInTheDocument();
   });
 
   it("shows reconnect for a needs-reconnect account", () => {

@@ -5,11 +5,16 @@ import { createClient } from "@/lib/supabase/server";
 import { listMyCampaigns } from "@/lib/vidcica/ads-queries";
 import { CampaignList } from "@/features/ads";
 import { PageHeader } from "@/components/app-shell";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata = { title: "Publicités" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t("ads.title") };
+}
 export const dynamic = "force-dynamic";
 
 export default async function AdsPage() {
+  const t = await getT();
   const supabase = await createClient();
   const {
     data: { user },
@@ -21,14 +26,14 @@ export default async function AdsPage() {
   return (
     <>
       <PageHeader
-        title="Publicités"
-        subtitle="Transformez vos vidéos en campagnes Facebook et Instagram et suivez leurs performances."
+        title={t("ads.title")}
+        subtitle={t("ads.subtitle")}
         actions={
           <Link
             href="/ads/new"
             className={buttonVariants({ size: "sm", className: "rounded-full" })}
           >
-            Booster une vidéo
+            {t("ads.boostVideo")}
           </Link>
         }
       />

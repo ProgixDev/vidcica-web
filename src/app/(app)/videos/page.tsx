@@ -5,12 +5,17 @@ import { listMyVideos } from "@/lib/vidcica/queries";
 import { VideoList } from "@/features/videos";
 import { PageHeader } from "@/components/app-shell";
 import { buttonVariants } from "@/components/ui/button";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata = { title: "Bibliothèque" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t("videos.metaTitle") };
+}
 export const dynamic = "force-dynamic";
 
 /** Full video library — the web counterpart of the app's «Vidéos» tab. */
 export default async function VideosPage() {
+  const t = await getT();
   const supabase = await createClient();
   const {
     data: { user },
@@ -22,11 +27,15 @@ export default async function VideosPage() {
   return (
     <>
       <PageHeader
-        title="Bibliothèque"
-        subtitle={`${videos.length} vidéo${videos.length === 1 ? "" : "s"}`}
+        title={t("videos.title")}
+        subtitle={
+          videos.length === 1
+            ? t("videos.subtitleOne", { count: videos.length })
+            : t("videos.subtitleMany", { count: videos.length })
+        }
         actions={
           <Link href="/create" className={buttonVariants({ className: "rounded-full" })}>
-            Créer une vidéo
+            {t("videos.create")}
           </Link>
         }
       />

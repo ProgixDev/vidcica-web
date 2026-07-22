@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Outfit, Geist_Mono } from "next/font/google";
 import { MotionProvider } from "@/components/motion";
+import { I18nProvider } from "@/lib/i18n/provider";
+import { getLocale } from "@/lib/i18n/server";
 import { site } from "@/core/site";
 import "./globals.css";
 
@@ -45,11 +47,12 @@ export const metadata: Metadata = {
   verification: { google: "j47WpSBEqnX5rs3T3knaupZDrQoeKR-xvitw4UF8-w0" },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -63,7 +66,7 @@ export default function RootLayout({
   const themeScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
 
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
@@ -73,7 +76,9 @@ export default function RootLayout({
           // JSON-LD is static, app-controlled data — safe to inline.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <MotionProvider>{children}</MotionProvider>
+        <I18nProvider locale={locale}>
+          <MotionProvider>{children}</MotionProvider>
+        </I18nProvider>
       </body>
     </html>
   );

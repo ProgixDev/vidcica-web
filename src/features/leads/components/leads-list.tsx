@@ -5,7 +5,14 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { SCORE_META, STATUS_META, type Lead } from "@/lib/vidcica/lead";
+import {
+  LEAD_SCORE_KEY,
+  LEAD_STATUS_KEY,
+  SCORE_META,
+  STATUS_META,
+  type Lead,
+} from "@/lib/vidcica/lead";
+import { useT } from "@/lib/i18n/provider";
 import { useLeadsStore } from "../provider";
 import { ExportButton } from "./export-button";
 
@@ -18,6 +25,7 @@ function LeadCard({
   selected: boolean;
   onToggle: (on: boolean) => void;
 }) {
+  const t = useT();
   const status = STATUS_META[lead.status];
   const score = SCORE_META[lead.scoreBucket];
   return (
@@ -26,7 +34,7 @@ function LeadCard({
         type="checkbox"
         checked={selected}
         onChange={(e) => onToggle(e.target.checked)}
-        aria-label={`Sélectionner ${lead.firstName} ${lead.lastName}`}
+        aria-label={t("leads.selectLead", { name: `${lead.firstName} ${lead.lastName}` })}
         data-testid={`lead-select-${lead.id}`}
       />
       <Link
@@ -40,8 +48,8 @@ function LeadCard({
           <span className="text-muted-foreground truncate text-xs">{lead.campaignName}</span>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <Badge variant={score.variant}>{score.label}</Badge>
-          <Badge variant={status.variant}>{status.label}</Badge>
+          <Badge variant={score.variant}>{t(LEAD_SCORE_KEY[lead.scoreBucket])}</Badge>
+          <Badge variant={status.variant}>{t(LEAD_STATUS_KEY[lead.status])}</Badge>
         </div>
       </Link>
     </Card>
@@ -51,6 +59,7 @@ function LeadCard({
 /** The leads CRM list — realtime-seeded, selectable, exportable. Honest empty
  *  state (leads are captured automatically once lead campaigns run). */
 export function LeadsList() {
+  const t = useT();
   const items = useLeadsStore((s) => s.items);
   const newCount = useLeadsStore((s) => s.newCount());
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -69,8 +78,8 @@ export function LeadsList() {
       <div data-testid="leads-empty">
         <EmptyState
           className="py-16"
-          title="Aucun prospect pour le moment"
-          description="Les prospects issus de vos campagnes à formulaire apparaîtront ici automatiquement, dès leur première soumission."
+          title={t("leads.emptyTitle")}
+          description={t("leads.emptyDescription")}
         />
       </div>
     );
@@ -82,10 +91,14 @@ export function LeadsList() {
     <div className="flex flex-col gap-4" data-testid="leads-list">
       <div className="flex items-center justify-between gap-3">
         <span className="text-muted-foreground text-sm">
-          {items.length} prospect{items.length > 1 ? "s" : ""}
+          {items.length > 1
+            ? t("leads.countPlural", { count: items.length })
+            : t("leads.countSingular", { count: items.length })}
           {newCount > 0 ? (
             <Badge variant="brand" className="ml-2" data-testid="leads-new-badge">
-              {newCount} nouveau{newCount > 1 ? "x" : ""}
+              {newCount > 1
+                ? t("leads.newCountPlural", { count: newCount })
+                : t("leads.newCountSingular", { count: newCount })}
             </Badge>
           ) : null}
         </span>

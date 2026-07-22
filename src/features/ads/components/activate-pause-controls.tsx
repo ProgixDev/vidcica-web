@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { adsErrorMessage, setCampaignStatus, type StatusOutcome } from "@/lib/vidcica/ads";
 import { isLaunched, type Campaign } from "@/lib/vidcica/campaign";
+import { useT } from "@/lib/i18n/provider";
 
 /** DI'd for tests; defaults to the real edge client. */
 export type SetStatusFn = (id: string, action: "activate" | "pause") => Promise<StatusOutcome>;
@@ -24,6 +25,7 @@ export function ActivatePauseControls({
   campaign: Pick<Campaign, "id" | "status" | "externalCampaignId">;
   onSetStatus?: SetStatusFn;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -45,8 +47,7 @@ export function ActivatePauseControls({
   if (!isLaunched(campaign)) {
     return (
       <p className="text-muted-foreground text-xs" data-testid="campaign-draft-note">
-        Ce brouillon n’a pas encore été créé chez Meta. La publicité doit être disponible sur votre
-        compte (compte publicitaire + Page Facebook) pour le lancer.
+        {t("ads.activate.draftNote")}
       </p>
     );
   }
@@ -66,11 +67,11 @@ export function ActivatePauseControls({
           disabled={pending}
           data-testid="pause-btn"
         >
-          {pending ? "…" : "Mettre en pause"}
+          {pending ? "…" : t("ads.activate.pause")}
         </Button>
       ) : canActivate && !confirming ? (
         <Button onClick={() => setConfirming(true)} disabled={pending} data-testid="activate-btn">
-          Activer la campagne
+          {t("ads.activate.activate")}
         </Button>
       ) : canActivate && confirming ? (
         <div
@@ -78,8 +79,8 @@ export function ActivatePauseControls({
           data-testid="activate-confirm"
         >
           <p className="text-sm">
-            L’activation lance la diffusion et engage une <strong>dépense réelle</strong> selon
-            votre budget. Confirmer ?
+            {t("ads.activate.confirmBefore")} <strong>{t("ads.activate.confirmBold")}</strong>{" "}
+            {t("ads.activate.confirmAfter")}
           </p>
           <div className="flex gap-2">
             <Button
@@ -87,10 +88,10 @@ export function ActivatePauseControls({
               disabled={pending}
               data-testid="activate-confirm-btn"
             >
-              {pending ? "Activation…" : "Confirmer l’activation"}
+              {pending ? t("ads.activate.activating") : t("ads.activate.confirmActivate")}
             </Button>
             <Button variant="ghost" onClick={() => setConfirming(false)} disabled={pending}>
-              Annuler
+              {t("common.cancel")}
             </Button>
           </div>
         </div>

@@ -55,8 +55,18 @@ describe("network actions (AC-5)", () => {
     expect(update?.args[0]).toEqual({ publishes_enabled: false });
   });
 
-  it("rejects a non-uuid rowId without touching the DB", async () => {
-    const out = await disconnectNetwork("not-a-uuid");
+  it("accepts the seeded `{userId}_{platform}` id format (regression)", async () => {
+    // Real rows are keyed `…f37a8_yt`, not plain UUIDs — the old `.uuid()`
+    // check rejected every one and silently broke toggle/disconnect.
+    const id = `${uuid}_yt`;
+    const out = await setNetworkPublish(id, true);
+    expect(out).toEqual({ ok: true });
+    const eq = calls.find((c) => c.method === "eq");
+    expect(eq?.args).toEqual(["id", id]);
+  });
+
+  it("rejects a malformed rowId (bad chars) without touching the DB", async () => {
+    const out = await disconnectNetwork("' OR 1=1 --");
     expect(out.ok).toBe(false);
     expect(calls.find((c) => c.method === "update")).toBeUndefined();
   });

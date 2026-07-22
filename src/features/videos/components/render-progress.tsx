@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { fetchGenerationJob } from "@/lib/vidcica/generation";
 import type { GenerationJobStatus } from "@/lib/vidcica/video";
 import { RENDER_STAGES, isTerminal, stageView } from "../progress";
+import { useT } from "@/lib/i18n/provider";
 
 /**
  * Live render progress. Polls the generation job every few seconds (RLS
@@ -24,6 +25,7 @@ export function RenderProgress({
   jobId: string;
   initialStatus: GenerationJobStatus;
 }) {
+  const t = useT();
   const router = useRouter();
   const [status, setStatus] = useState<GenerationJobStatus>(initialStatus);
 
@@ -52,13 +54,10 @@ export function RenderProgress({
   if (view.failed) {
     return (
       <div role="alert" className="border-destructive/40 flex flex-col gap-3 rounded-xl border p-5">
-        <h2 className="text-base font-semibold">Le rendu a échoué</h2>
-        <p className="text-muted-foreground text-sm">
-          Un problème est survenu pendant la génération. Vos crédits ont été recrédités — vous
-          pouvez relancer une création.
-        </p>
+        <h2 className="text-base font-semibold">{t("videos.renderFailedTitle")}</h2>
+        <p className="text-muted-foreground text-sm">{t("videos.renderFailedBody")}</p>
         <Button onClick={() => router.push("/create")} className="self-start">
-          Nouvelle vidéo
+          {t("videos.newVideo")}
         </Button>
       </div>
     );
@@ -68,10 +67,10 @@ export function RenderProgress({
     <div className="flex flex-col gap-5" data-testid="render-progress">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium">{view.label}</p>
+          <p className="text-sm font-medium">{t(view.labelKey)}</p>
           <p className="text-muted-foreground text-xs">{view.pct}%</p>
         </div>
-        <Progress value={view.pct} label={view.label} />
+        <Progress value={view.pct} label={t(view.labelKey)} />
       </div>
       <ol className="flex flex-col gap-2">
         {RENDER_STAGES.map((stage, i) => {
@@ -87,7 +86,7 @@ export function RenderProgress({
                 )}
               />
               <span className={cn(state === "pending" && "text-muted-foreground")}>
-                {stage.label}
+                {t(stage.labelKey)}
               </span>
             </li>
           );

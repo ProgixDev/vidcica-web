@@ -6,8 +6,12 @@ import { getMyEntitlement } from "@/lib/vidcica/billing-queries";
 import { isReady, isRendering } from "@/lib/vidcica/video";
 import { VideoList } from "@/features/videos";
 import { CreateStoreProvider, CreateFlow } from "@/features/create";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata = { title: "Accueil" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t("dashboard.metaTitle") };
+}
 
 // Reads run per-request against the RLS-scoped session (no static cache).
 export const dynamic = "force-dynamic";
@@ -30,6 +34,7 @@ function countThisWeek(videos: { createdAt: string }[]): number {
 }
 
 export default async function DashboardPage() {
+  const t = await getT();
   const supabase = await createClient();
   const {
     data: { user },
@@ -49,9 +54,9 @@ export default async function DashboardPage() {
       <section className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Bonjour{name ? ` ${name}` : ""} 👋
+            {name ? t("dashboard.greeting", { name }) : t("dashboard.greetingNoName")}
           </h1>
-          <p className="text-muted-foreground text-sm">Crée une vidéo en quelques secondes.</p>
+          <p className="text-muted-foreground text-sm">{t("dashboard.subtitle")}</p>
         </div>
         <CreateStoreProvider>
           <CreateFlow credits={entitlement.credits} plan={entitlement.plan} />
@@ -59,12 +64,15 @@ export default async function DashboardPage() {
       </section>
 
       {/* Quick stats */}
-      <section aria-label="Statistiques" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <section
+        aria-label={t("dashboard.statsLabel")}
+        className="grid grid-cols-2 gap-4 sm:grid-cols-4"
+      >
         {[
-          { value: String(videos.length), label: "vidéos au total" },
-          { value: String(ready), label: "prêtes à publier" },
-          { value: String(rendering), label: "en génération" },
-          { value: `+${thisWeek}`, label: "créées cette semaine" },
+          { value: String(videos.length), label: t("dashboard.statTotal") },
+          { value: String(ready), label: t("dashboard.statReady") },
+          { value: String(rendering), label: t("dashboard.statRendering") },
+          { value: `+${thisWeek}`, label: t("dashboard.statThisWeek") },
         ].map((s) => (
           <div
             key={s.label}
@@ -80,10 +88,10 @@ export default async function DashboardPage() {
       <section className="flex flex-col gap-4" aria-labelledby="recent-h">
         <div className="flex items-center justify-between">
           <h2 id="recent-h" className="text-base font-semibold tracking-tight">
-            Tes vidéos récentes
+            {t("dashboard.recentTitle")}
           </h2>
           <Link href="/videos" className="text-muted-foreground hover:text-foreground text-sm">
-            Voir tout →
+            {t("common.seeAll")} →
           </Link>
         </div>
         <VideoList userId={user.id} initial={videos.slice(0, 8)} />

@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useT } from "@/lib/i18n/provider";
 import { submitTicket } from "../actions";
 
 export function ContactForm() {
+  const t = useT();
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
@@ -19,7 +21,7 @@ export function ContactForm() {
     e.preventDefault();
     setError(null);
     if (subject.trim().length < 3 || message.trim().length < 10) {
-      setError("Renseignez un sujet (3+) et un message (10+ caractères).");
+      setError(t("support.contactValidation"));
       return;
     }
     setPending(true);
@@ -33,8 +35,8 @@ export function ContactForm() {
     return (
       <EmptyState
         className="py-16"
-        title="Message envoyé"
-        description="Notre équipe vous répondra par e-mail. Merci !"
+        title={t("support.sentTitle")}
+        description={t("support.sentDescription")}
         action={
           <Button
             variant="outline"
@@ -44,7 +46,7 @@ export function ContactForm() {
               setMessage("");
             }}
           >
-            Envoyer un autre message
+            {t("support.sendAnother")}
           </Button>
         }
       />
@@ -54,22 +56,22 @@ export function ContactForm() {
   return (
     <form onSubmit={submit} className="flex flex-col gap-4" data-testid="contact-form">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="ct-subject">Sujet</Label>
+        <Label htmlFor="ct-subject">{t("support.subjectLabel")}</Label>
         <Input
           id="ct-subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          placeholder="Résumé de votre demande"
+          placeholder={t("support.subjectPlaceholder")}
           data-testid="contact-subject"
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="ct-message">Message</Label>
+        <Label htmlFor="ct-message">{t("support.messageLabel")}</Label>
         <Textarea
           id="ct-message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Décrivez votre problème…"
+          placeholder={t("support.messagePlaceholder")}
           className="min-h-32"
           data-testid="contact-message"
         />
@@ -80,7 +82,7 @@ export function ContactForm() {
         </p>
       ) : null}
       <Button type="submit" disabled={pending} data-testid="contact-submit" className="self-start">
-        {pending ? "Envoi…" : "Envoyer au support"}
+        {pending ? t("common.sending") : t("support.submit")}
       </Button>
     </form>
   );

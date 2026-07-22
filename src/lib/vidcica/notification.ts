@@ -84,6 +84,18 @@ export const CATEGORY_LABEL: Record<NotificationCategory, string> = {
   payment: "Paiement",
 };
 
+/** i18n key per notification category (label via `t(...)`). */
+export const NOTIFICATION_CATEGORY_KEY: Record<
+  NotificationCategory,
+  import("@/lib/i18n").MessageKey
+> = {
+  video_ready: "notification.category.video_ready",
+  publish_success: "notification.category.publish_success",
+  new_lead: "notification.category.new_lead",
+  ads_alert: "notification.category.ads_alert",
+  payment: "notification.category.payment",
+};
+
 /** Compact FR relative time (no date-fns dep). `now` is injectable for tests. */
 export function relativeTime(iso: string, now: number = Date.now()): string {
   const diffMs = new Date(iso).getTime() - now;

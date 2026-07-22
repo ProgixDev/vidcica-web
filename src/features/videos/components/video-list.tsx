@@ -4,8 +4,9 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { STATUS_META, isRendering, type Video } from "@/lib/vidcica/video";
+import { STATUS_META, VIDEO_STATUS_KEY, isRendering, type Video } from "@/lib/vidcica/video";
 import { useVideosRealtime } from "@/lib/vidcica/use-videos-realtime";
+import { useT } from "@/lib/i18n/provider";
 
 /** Thumbnail that plays a muted preview on hover when the render is finished
  *  (like the landing showcase); static poster otherwise. */
@@ -43,6 +44,7 @@ function Thumb({ video }: { video: Video }) {
 }
 
 function VideoCard({ video }: { video: Video }) {
+  const t = useT();
   const meta = STATUS_META[video.status];
   return (
     <Link
@@ -61,7 +63,7 @@ function VideoCard({ video }: { video: Video }) {
             {isRendering(video.status) ? (
               <span className="bg-primary-foreground/80 size-1.5 animate-pulse rounded-full" />
             ) : null}
-            {meta.label}
+            {t(VIDEO_STATUS_KEY[video.status])}
           </Badge>
           {video.durationSec > 0 ? (
             <span
@@ -71,14 +73,14 @@ function VideoCard({ video }: { video: Video }) {
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-2.5">
                 <path d="M8 5.5v13l11-6.5-11-6.5Z" />
               </svg>
-              {Math.round(video.durationSec)} s
+              {t("videos.seconds", { n: Math.round(video.durationSec) })}
             </span>
           ) : null}
         </div>
         <div className="flex flex-col gap-0.5">
           <p className="truncate text-sm font-medium">{video.title}</p>
           <p className="text-muted-foreground text-xs">
-            {video.format} · {Math.round(video.durationSec)} s
+            {t("videos.formatDuration", { format: video.format, n: Math.round(video.durationSec) })}
           </p>
         </div>
       </div>
@@ -91,17 +93,18 @@ function VideoCard({ video }: { video: Video }) {
  * videos realtime channel. Renders a real empty state when there are none.
  */
 export function VideoList({ userId, initial }: { userId: string; initial: Video[] }) {
+  const t = useT();
   const videos = useVideosRealtime(userId, initial);
 
   if (videos.length === 0) {
     return (
       <EmptyState
         className="py-20"
-        title="Aucune vidéo pour le moment"
-        description="Transformez un script en vidéo verticale prête à publier. Votre première création prend moins d’une minute."
+        title={t("videos.emptyTitle")}
+        description={t("videos.emptyDescription")}
         action={
           <Link href="/create" className={buttonVariants()}>
-            Créer une vidéo
+            {t("videos.create")}
           </Link>
         }
       />

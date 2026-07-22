@@ -6,18 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  LEAD_SCORE_KEY,
+  LEAD_STATUS_KEY,
   SCORE_META,
-  STATUS_META,
   STATUS_ORDER,
   type ContactKind,
   type Lead,
 } from "@/lib/vidcica/lead";
+import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 import { useLeadsStore } from "../provider";
 
-const CONTACT_LABEL: Record<ContactKind, string> = {
-  call: "Appeler",
-  email: "E-mail",
-  whatsapp: "WhatsApp",
+const CONTACT_LABEL: Record<ContactKind, MessageKey> = {
+  call: "leads.contactCall",
+  email: "leads.contactEmail",
+  whatsapp: "leads.contactWhatsapp",
 };
 
 function fmt(iso: string): string {
@@ -27,6 +30,7 @@ function fmt(iso: string): string {
 /** Lead detail — contact + score, status pipeline, notes, contact log, timeline.
  *  All mutations are optimistic (store) + written through to the `leads` row. */
 export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
+  const t = useT();
   const lead = useLeadsStore((s) => s.byId(id)) ?? fallback;
   const setStatus = useLeadsStore((s) => s.setStatus);
   const addNote = useLeadsStore((s) => s.addNote);
@@ -52,18 +56,22 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
           </h1>
           <p className="text-muted-foreground text-sm">{lead.campaignName}</p>
         </div>
-        <Badge variant={score.variant}>{score.label}</Badge>
+        <Badge variant={score.variant}>{t(LEAD_SCORE_KEY[lead.scoreBucket])}</Badge>
       </header>
 
       <Card className="flex flex-col gap-1.5 p-4 text-sm">
-        <ContactRow label="Email" value={lead.email} href={`mailto:${lead.email}`} />
-        <ContactRow label="Téléphone" value={lead.phone} href={`tel:${lead.phone}`} />
-        {lead.city ? <ContactRow label="Ville" value={lead.city} /> : null}
-        <ContactRow label="Capturé le" value={fmt(lead.capturedAt)} />
+        <ContactRow
+          label={t("leads.fieldEmail")}
+          value={lead.email}
+          href={`mailto:${lead.email}`}
+        />
+        <ContactRow label={t("leads.fieldPhone")} value={lead.phone} href={`tel:${lead.phone}`} />
+        {lead.city ? <ContactRow label={t("leads.fieldCity")} value={lead.city} /> : null}
+        <ContactRow label={t("leads.fieldCapturedAt")} value={fmt(lead.capturedAt)} />
       </Card>
 
       <section className="flex flex-col gap-2" data-testid="status-pipeline">
-        <h2 className="text-sm font-medium">Statut</h2>
+        <h2 className="text-sm font-medium">{t("leads.statusHeading")}</h2>
         <div className="flex flex-wrap gap-2">
           {STATUS_ORDER.map((s) => {
             const active = lead.status === s;
@@ -80,7 +88,7 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
                     : "border-input hover:bg-accent rounded-full border px-3 py-1 text-xs"
                 }
               >
-                {STATUS_META[s].label}
+                {t(LEAD_STATUS_KEY[s])}
               </button>
             );
           })}
@@ -88,7 +96,7 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">Contacter</h2>
+        <h2 className="text-sm font-medium">{t("leads.contactHeading")}</h2>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(CONTACT_LABEL) as ContactKind[]).map((k) => (
             <Button
@@ -98,14 +106,14 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
               onClick={() => logContact(lead.id, k)}
               data-testid={`contact-${k}`}
             >
-              {CONTACT_LABEL[k]}
+              {t(CONTACT_LABEL[k])}
             </Button>
           ))}
         </div>
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">Notes</h2>
+        <h2 className="text-sm font-medium">{t("leads.notesHeading")}</h2>
         {lead.notes.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {lead.notes.map((n) => (
@@ -116,14 +124,14 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
             ))}
           </ul>
         ) : (
-          <p className="text-muted-foreground text-xs">Aucune note.</p>
+          <p className="text-muted-foreground text-xs">{t("leads.noNotes")}</p>
         )}
         <Textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Ajouter une note…"
+          placeholder={t("leads.notePlaceholder")}
           className="min-h-20"
-          aria-label="Nouvelle note"
+          aria-label={t("leads.noteAriaLabel")}
           data-testid="note-input"
         />
         <Button
@@ -133,12 +141,12 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
           className="self-start"
           data-testid="note-add"
         >
-          Ajouter la note
+          {t("leads.addNote")}
         </Button>
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">Historique</h2>
+        <h2 className="text-sm font-medium">{t("leads.historyHeading")}</h2>
         {timeline.length > 0 ? (
           <ul className="flex flex-col gap-2" data-testid="timeline">
             {timeline.map((i) => (
@@ -149,7 +157,7 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
             ))}
           </ul>
         ) : (
-          <p className="text-muted-foreground text-xs">Aucune interaction pour le moment.</p>
+          <p className="text-muted-foreground text-xs">{t("leads.noInteractions")}</p>
         )}
       </section>
     </div>

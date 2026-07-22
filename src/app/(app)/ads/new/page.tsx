@@ -5,11 +5,16 @@ import { listMyVideos } from "@/lib/vidcica/queries";
 import { isReady } from "@/lib/vidcica/video";
 import { BoostStoreProvider, BoostWizard, type VideoOption } from "@/features/ads";
 import { PageHeader } from "@/components/app-shell";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata = { title: "Booster une vidéo" };
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t("ads.boostVideo") };
+}
 export const dynamic = "force-dynamic";
 
 export default async function BoostPage() {
+  const t = await getT();
   const supabase = await createClient();
   const {
     data: { user },
@@ -24,10 +29,10 @@ export default async function BoostPage() {
   return (
     <>
       <PageHeader
-        title="Booster une vidéo"
+        title={t("ads.boostVideo")}
         actions={
           <Link href="/ads" className="text-muted-foreground hover:text-foreground text-sm">
-            ← Mes publicités
+            ← {t("ads.myAds")}
           </Link>
         }
       />

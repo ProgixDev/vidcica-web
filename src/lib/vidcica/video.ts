@@ -5,6 +5,7 @@
  * (ClipFlow/src/lib/db-mappers.ts) — only the fields the P0 workspace renders.
  */
 import type { Database } from "@/lib/supabase/database.types";
+import type { MessageKey } from "@/lib/i18n";
 
 export type VideoRow = Database["public"]["Tables"]["videos"]["Row"];
 
@@ -83,4 +84,16 @@ export const STATUS_META: Record<
   programme: { label: "Programmé", variant: "warning" },
   publishing: { label: "Publication…", variant: "brand" },
   publie: { label: "Publié", variant: "success" },
+};
+
+/** i18n key for each status label (use `t(VIDEO_STATUS_KEY[status])`; take the
+ *  badge `variant` from STATUS_META). */
+export const VIDEO_STATUS_KEY: Record<VideoStatus, MessageKey> = {
+  brouillon: "video.status.brouillon",
+  generating: "video.status.generating",
+  assembling: "video.status.assembling",
+  pret: "video.status.pret",
+  programme: "video.status.programme",
+  publishing: "video.status.publishing",
+  publie: "video.status.publie",
 };

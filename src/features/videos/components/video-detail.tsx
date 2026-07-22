@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { STATUS_META, type Video } from "@/lib/vidcica/video";
+import { STATUS_META, VIDEO_STATUS_KEY, type Video } from "@/lib/vidcica/video";
+import { useT } from "@/lib/i18n/provider";
 
 /**
  * Finished-video surface: plays the rendered MP4 and offers a download
@@ -9,12 +12,13 @@ import { STATUS_META, type Video } from "@/lib/vidcica/video";
  * `download` attribute so the browser saves the file.
  */
 export function VideoDetail({ video }: { video: Video }) {
+  const t = useT();
   const meta = STATUS_META[video.status];
   return (
     <div className="flex flex-col gap-5" data-testid="video-detail">
       <div className="flex items-center gap-3">
         <h2 className="text-lg font-semibold tracking-tight">{video.title}</h2>
-        <Badge variant={meta.variant}>{meta.label}</Badge>
+        <Badge variant={meta.variant}>{t(VIDEO_STATUS_KEY[video.status])}</Badge>
       </div>
 
       {video.videoUrl ? (
@@ -36,7 +40,7 @@ export function VideoDetail({ video }: { video: Video }) {
             className={buttonVariants({ variant: "default" })}
             data-testid="download-btn"
           >
-            Télécharger le MP4
+            {t("videos.downloadMp4")}
           </a>
         ) : null}
         <Link
@@ -44,10 +48,10 @@ export function VideoDetail({ video }: { video: Video }) {
           className={buttonVariants({ variant: "outline" })}
           data-testid="publish-link"
         >
-          Publier
+          {t("common.publish")}
         </Link>
         <span className="text-muted-foreground text-xs">
-          {video.format} · {Math.round(video.durationSec)} s
+          {t("videos.formatDuration", { format: video.format, n: Math.round(video.durationSec) })}
         </span>
       </div>
     </div>

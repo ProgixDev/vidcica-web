@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 import type { Plan } from "@/lib/vidcica/tiers";
 import { useCreateStore } from "../provider";
 import { estimateCost } from "../cost";
@@ -10,11 +12,11 @@ import { LENGTHS, MUSIC_MOODS, RATIOS, VOICES } from "../options";
 import { ModelMenu } from "./model-menu";
 
 /** Clickable starter ideas — kills the blank-page freeze on first visit. */
-const SUGGESTIONS = [
-  "3 astuces pour gagner du temps le matin",
-  "Présente ton produit phare en 20 secondes",
-  "Avant / après : la transformation d’un client",
-  "Une idée reçue de ton métier, démontée",
+const SUGGESTIONS: MessageKey[] = [
+  "create.suggestion1",
+  "create.suggestion2",
+  "create.suggestion3",
+  "create.suggestion4",
 ];
 
 /**
@@ -24,9 +26,11 @@ const SUGGESTIONS = [
  * Submitting asks the AI for a plan (step 2 = PlanReview).
  */
 export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
+  const t = useT();
   const input = useCreateStore((s) => s.input);
   const phase = useCreateStore((s) => s.phase);
   const error = useCreateStore((s) => s.error);
+  const errorKey = useCreateStore((s) => s.errorKey);
   const setInput = useCreateStore((s) => s.setInput);
   const requestPlan = useCreateStore((s) => s.requestPlan);
   const backToEdit = useCreateStore((s) => s.backToEdit);
@@ -34,6 +38,7 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
   const planning = phase === "planning";
   const cost = estimateCost(input.model, input.length, credits);
   const canSubmit = input.prompt.trim().length >= 10 && !planning && cost.affordable;
+  const videoWord = t(cost.videosLeft === 1 ? "create.videoSingular" : "create.videoPlural");
 
   return (
     <form
@@ -44,11 +49,11 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
       }}
     >
       {/* Kind pills — Idée (l’IA écrit) / Script (tel quel) */}
-      <div role="tablist" aria-label="Type de départ" className="flex gap-2">
+      <div role="tablist" aria-label={t("create.kindTablistLabel")} className="flex gap-2">
         {(
           [
-            { id: "idea", label: "Idée", hint: "L’IA écrit le script à partir de ton idée" },
-            { id: "script", label: "Script", hint: "Ton script tel quel" },
+            { id: "idea", label: t("create.kindIdea"), hint: t("create.kindIdeaHint") },
+            { id: "script", label: t("create.kindScript"), hint: t("create.kindScriptHint") },
           ] as const
         ).map((k) => (
           <button
@@ -69,7 +74,7 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
           </button>
         ))}
         <span className="text-muted-foreground/80 self-center text-xs">
-          {input.kind === "idea" ? "L’IA écrit le script pour toi" : "Ton script, mot pour mot"}
+          {input.kind === "idea" ? t("create.kindIdeaCaption") : t("create.kindScriptCaption")}
         </span>
       </div>
 
@@ -79,8 +84,10 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
           id="prompt"
           value={input.prompt}
           onChange={(e) => setInput({ prompt: e.target.value })}
-          placeholder="Que veux-tu créer aujourd’hui ?"
-          aria-label={input.kind === "idea" ? "Votre idée" : "Votre script"}
+          placeholder={t("create.promptPlaceholder")}
+          aria-label={
+            input.kind === "idea" ? t("create.promptAriaIdea") : t("create.promptAriaScript")
+          }
           rows={5}
           className="placeholder:text-muted-foreground min-h-36 w-full resize-y bg-transparent px-5 pt-4 pb-2 text-base leading-relaxed outline-none"
           data-testid="composer-prompt"
@@ -107,14 +114,18 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
           </svg>
           {cost.affordable ? (
             <>
-              ≈ {cost.total} cr · {cost.remaining} restants · ≈ {cost.videosLeft} vidéo
-              {cost.videosLeft === 1 ? "" : "s"}
+              {t("create.costAffordable", {
+                total: cost.total,
+                remaining: cost.remaining,
+                videosLeft: cost.videosLeft,
+                videos: videoWord,
+              })}
             </>
           ) : (
             <>
-              ≈ {cost.total} cr · solde insuffisant —{" "}
+              {t("create.costInsufficient", { total: cost.total })}{" "}
               <Link href="/billing" className="underline underline-offset-2">
-                recharger
+                {t("create.recharge")}
               </Link>
             </>
           )}
@@ -124,40 +135,40 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
         <div className="border-border/60 flex flex-wrap items-center gap-2 border-t px-3 py-3">
           <ModelMenu value={input.model} plan={plan} onChange={(v) => setInput({ model: v })} />
           <PillSelect
-            label="Durée"
+            label={t("create.optDuration")}
             value={String(input.length)}
             onChange={(v) => setInput({ length: Number(v) })}
             options={LENGTHS.map((l) => ({ value: String(l), label: `${l} s` }))}
           />
           <PillSelect
-            label="Format"
+            label={t("create.optFormat")}
             value={input.ratio}
             onChange={(v) => setInput({ ratio: v as (typeof RATIOS)[number] })}
             options={RATIOS.map((r) => ({ value: r, label: r }))}
           />
           <PillSelect
-            label="Voix"
+            label={t("create.optVoice")}
             value={input.voice}
             onChange={(v) => setInput({ voice: v })}
             options={VOICES.map((v) => ({ value: v.id, label: v.label }))}
             disabled={!input.voiceover}
           />
           <PillSelect
-            label="Musique"
+            label={t("create.optMusic")}
             value={input.music}
             onChange={(v) => setInput({ music: v })}
-            options={MUSIC_MOODS.map((m) => ({ value: m.id, label: m.label }))}
+            options={MUSIC_MOODS.map((m) => ({ value: m.id, label: t(m.labelKey) }))}
             disabled={input.model === "pexels"}
           />
           <PillToggle
-            label="Voix off"
+            label={t("create.optVoiceover")}
             checked={input.voiceover}
             onChange={(checked) =>
               setInput({ voiceover: checked, ...(checked ? {} : { captions: false }) })
             }
           />
           <PillToggle
-            label="Sous-titres"
+            label={t("create.optCaptions")}
             checked={input.captions}
             onChange={(checked) => setInput({ captions: checked })}
             disabled={!input.voiceover}
@@ -166,7 +177,7 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
           <button
             type="submit"
             disabled={!canSubmit}
-            aria-label={planning ? "Génération du plan en cours" : "Générer le plan"}
+            aria-label={planning ? t("create.submitPlanningAria") : t("create.submitAria")}
             data-testid="composer-submit"
             className="bg-primary text-primary-foreground ml-auto flex size-10 shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-90 disabled:opacity-40"
           >
@@ -194,30 +205,30 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
       </div>
 
       {input.prompt.trim() === "" ? (
-        <div className="flex flex-wrap gap-2" aria-label="Suggestions d’idées">
-          {SUGGESTIONS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setInput({ prompt: s, kind: "idea" })}
-              className="border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground rounded-full border border-dashed px-3 py-1.5 text-xs transition-colors"
-            >
-              ✦ {s}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-2" aria-label={t("create.suggestionsLabel")}>
+          {SUGGESTIONS.map((s) => {
+            const text = t(s);
+            return (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setInput({ prompt: text, kind: "idea" })}
+                className="border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground rounded-full border border-dashed px-3 py-1.5 text-xs transition-colors"
+              >
+                ✦ {text}
+              </button>
+            );
+          })}
         </div>
       ) : null}
 
-      <p className="text-muted-foreground/80 text-xs">
-        L’IA prépare d’abord un plan (titre, script, séquences) que tu valides avant de lancer le
-        rendu — les crédits ne sont débités qu’à ce moment-là.
-      </p>
+      <p className="text-muted-foreground/80 text-xs">{t("create.planNote")}</p>
 
-      {error && phase === "error" ? (
+      {(error || errorKey) && phase === "error" ? (
         <div role="alert" className="flex flex-col gap-2">
-          <p className="text-destructive text-sm">{error}</p>
+          <p className="text-destructive text-sm">{errorKey ? t(errorKey) : error}</p>
           <Button type="button" variant="outline" onClick={backToEdit} className="self-start">
-            Réessayer
+            {t("common.retry")}
           </Button>
         </div>
       ) : null}

@@ -4,11 +4,17 @@ import { createClient } from "@/lib/supabase/server";
 import { listMyLeads } from "@/lib/vidcica/leads-queries";
 import { LeadsList, LeadsStoreProvider } from "@/features/leads";
 import { PageHeader } from "@/components/app-shell";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata = { title: "Prospects" };
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata() {
+  const t = await getT();
+  return { title: t("leads.metaTitle") };
+}
+
 export default async function LeadsPage() {
+  const t = await getT();
   const supabase = await createClient();
   const {
     data: { user },
@@ -20,11 +26,11 @@ export default async function LeadsPage() {
   return (
     <>
       <PageHeader
-        title="Prospects"
-        subtitle="Suivez les prospects captés par vos campagnes et relancez-les au bon moment."
+        title={t("leads.title")}
+        subtitle={t("leads.subtitle")}
         actions={
           <Link href="/ads" className="text-muted-foreground hover:text-foreground text-sm">
-            Mes publicités →
+            {t("leads.myAds")}
           </Link>
         }
       />
