@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   rowToNotification,
@@ -34,11 +34,18 @@ export function useNotificationsRealtime(
     setItems(initial);
   }
 
+  // Channel topics must be unique PER MOUNT: the browser client is a
+  // singleton, and `channel(name)` returns the existing instance for a
+  // duplicate topic — adding a callback to an already-subscribed channel
+  // throws. The bell (always in the top bar) and the notifications-page centre
+  // both mount this hook, so a static topic crashed /notifications.
+  const mountId = useId();
+
   useEffect(() => {
     if (!userId) return;
     const supabase = createClient();
     const channel = supabase
-      .channel(`notifications:${userId}`)
+      .channel(`notifications:${userId}:${mountId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
@@ -55,7 +62,7 @@ export function useNotificationsRealtime(
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, mountId]);
 
   return items;
 }

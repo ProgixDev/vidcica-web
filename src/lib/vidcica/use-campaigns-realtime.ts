@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { rowToCampaign, type Campaign, type CampaignRow } from "@/lib/vidcica/campaign";
 
@@ -34,11 +34,16 @@ export function useCampaignsRealtime(userId: string, initial: Campaign[]): Campa
     setItems(initial);
   }
 
+  // Unique-per-mount topic — the singleton client returns the existing channel
+  // for a duplicate topic and a second `.on()` after subscribe() throws.
+  // See [[supabase-realtime-channel-gotcha]].
+  const mountId = useId();
+
   useEffect(() => {
     if (!userId) return;
     const supabase = createClient();
     const channel = supabase
-      .channel(`campaigns:${userId}`)
+      .channel(`campaigns:${userId}:${mountId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "campaigns", filter: `user_id=eq.${userId}` },
@@ -55,7 +60,7 @@ export function useCampaignsRealtime(userId: string, initial: Campaign[]): Campa
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, mountId]);
 
   return items;
 }

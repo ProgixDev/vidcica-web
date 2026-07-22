@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { rowToVideo, type Video, type VideoRow } from "@/lib/vidcica/video";
 
@@ -35,11 +35,17 @@ export function useVideosRealtime(userId: string, initial: Video[]): Video[] {
     setVideos(initial);
   }
 
+  // Unique-per-mount topic: the browser client is a singleton and returns the
+  // existing channel for a duplicate topic — a second `.on()` after subscribe()
+  // throws. VideoList can mount in more than one place (dashboard + list), so a
+  // static topic is a latent crash. See [[supabase-realtime-channel-gotcha]].
+  const mountId = useId();
+
   useEffect(() => {
     if (!userId) return;
     const supabase = createClient();
     const channel = supabase
-      .channel(`videos:${userId}`)
+      .channel(`videos:${userId}:${mountId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "videos", filter: `user_id=eq.${userId}` },
@@ -62,7 +68,7 @@ export function useVideosRealtime(userId: string, initial: Video[]): Video[] {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, mountId]);
 
   return videos;
 }

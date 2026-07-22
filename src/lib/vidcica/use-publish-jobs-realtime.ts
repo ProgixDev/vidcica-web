@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { mapPublishFailureReason, type PublishFailureReason } from "@/lib/vidcica/publishing";
 import type { PlatformId } from "@/lib/vidcica/network";
@@ -40,11 +40,15 @@ export function usePublishJobsRealtime(userId: string, videoId: string): Publish
 
   // Supabase realtime filters on a single column, so we filter to the user here
   // and match the specific video client-side below.
+  // mountId keeps the topic unique per mount — the singleton client throws on a
+  // second `.on()` for a duplicate topic. See [[supabase-realtime-channel-gotcha]].
+  const mountId = useId();
+
   useEffect(() => {
     if (!userId || !videoId) return;
     const supabase = createClient();
     const channel = supabase
-      .channel(`publish_jobs:${userId}:${videoId}`)
+      .channel(`publish_jobs:${userId}:${videoId}:${mountId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "publish_jobs", filter: `user_id=eq.${userId}` },
@@ -59,7 +63,7 @@ export function usePublishJobsRealtime(userId: string, videoId: string): Publish
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [userId, videoId]);
+  }, [userId, videoId, mountId]);
 
   return statuses;
 }
