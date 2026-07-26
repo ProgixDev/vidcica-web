@@ -3,11 +3,14 @@
  * mobile app (ClipFlow/src/components/feature/analytics/selectors.ts +
  * src/mocks/analytics.ts), adapted to the web domain shapes.
  *
- * HONESTY: there is no reach/engagement collection pipeline, so per-video and
- * audience-demographic metrics are reported as honest zeros / empty sets — never
- * fabricated. The figures that ARE real come straight from owned rows: published-
- * video counts, connected-network follower columns, campaign spend/leads that the
- * `sync-ad-insights` cron writes. Everything here is a pure function of those.
+ * HONESTY: engagement counts (views/likes/comments/shares) ARE now collected by
+ * the `sync-video-metrics` cron (YouTube + Meta at the granted scopes) and roll
+ * up onto the `videos` row — so totals + per-video figures below are real, and
+ * simply 0 until the first collection runs. What is STILL unavailable — reach /
+ * impressions (need extra scopes + a reconnect) and audience demographics (no
+ * data source) — is reported as honest zeros / empty sets, never fabricated.
+ * Campaign spend/leads come from the `sync-ad-insights` cron; followers from the
+ * connected-network column. Everything here is a pure function of those rows.
  */
 import { z } from "zod";
 import type { Campaign } from "@/lib/vidcica/campaign";
@@ -41,8 +44,9 @@ export function parseRange(value: string | string[] | undefined): AnalyticsRange
 
 export type AnalyticsTab = "overview" | "videos" | "audience" | "ads";
 
-/** Totals surfaced by the overview screen. Reach/engagement stay 0 (no pipeline);
- *  `leads`, `adSpend`, `followers` come from real owned rows. */
+/** Totals surfaced by the overview screen. views/likes/comments/shares are real
+ *  (collector-populated, 0 until first collection); `leads`, `adSpend`,
+ *  `followers` come from real owned rows. */
 export type AnalyticsTotals = {
   views: number;
   likes: number;
@@ -100,22 +104,32 @@ export function deriveAnalytics({
   const days = RANGE_DAYS[range];
   const publishedVideos = videos.filter((v) => v.status === "publie");
 
+  // Real cross-platform engagement, summed from the collector-populated columns.
+  // Lifetime cumulative (like ad spend) — NOT range-scaled, since splitting a
+  // cumulative total across a window would fabricate a per-day figure.
+  const views = publishedVideos.reduce((a, v) => a + v.views, 0);
+  const likes = publishedVideos.reduce((a, v) => a + v.likes, 0);
+  const comments = publishedVideos.reduce((a, v) => a + v.comments, 0);
+  const shares = publishedVideos.reduce((a, v) => a + v.shares, 0);
+  // Engagement rate = interactions / views (0 when no views collected yet).
+  const rate = views > 0 ? (likes + comments + shares) / views : 0;
+
   return {
     days,
     publishedVideos,
     totals: {
-      // No reach/engagement collection yet → honest zeros (not seeded numbers).
-      views: 0,
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      rate: 0,
+      views,
+      likes,
+      comments,
+      shares,
+      rate,
       followers: totalFollowers(networks),
       leads: leadsCount,
       adSpend: totalAdSpend(campaigns),
     },
-    // No time-series collection yet → empty curve + zero delta. The hero gates
-    // on length and falls back to a flat honest baseline.
+    // No per-day time-series collection yet (only cumulative totals) → empty
+    // curve + zero delta. The hero gates on length and falls back to a flat
+    // honest baseline.
     series: [],
     delta: 0,
   };
@@ -128,19 +142,21 @@ export type TopVideo = {
 };
 
 /**
- * Recently published videos, newest first. Engagement metrics have no source
- * yet, so the row shows the publish date + platform, never invented views/likes.
- * Web `Video` has no per-platform target column, so `platform` stays undefined
- * (the seam is kept for when publish targets are surfaced).
+ * Best-performing published videos. Sorted by collected views (desc), falling
+ * back to most-recent when nothing has been collected yet so the list is never
+ * empty. `platform` is the first network the video was published to (row icon).
  */
 export function buildTopVideos(
   publishedVideos: ReadonlyArray<Video>,
   limit: number,
 ): ReadonlyArray<TopVideo> {
   return [...publishedVideos]
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .sort(
+      (a, b) =>
+        b.views - a.views || new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    )
     .slice(0, limit)
-    .map((video) => ({ video, platform: undefined }));
+    .map((video) => ({ video, platform: video.networks[0] }));
 }
 
 /**

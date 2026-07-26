@@ -531,7 +531,13 @@ export const fr = {
   "publish.publishNow": "Publier maintenant",
   "publish.previewLabel": "Aperçu du post",
   "publish.captionNote":
-    "La légende provient du titre, de la description et des hashtags de la vidéo.",
+    "Par défaut, la légende reprend le titre, la description et les hashtags de la vidéo. Modifiez-la ci-dessus pour la personnaliser par réseau.",
+  "publish.captionEditorTitle": "Légende",
+  "publish.captionEditorSubtitle":
+    "Personnalisez le texte publié sur {platform}. Les hashtags de la vidéo sont ajoutés automatiquement.",
+  "publish.captionApplyAll": "Appliquer à tous les réseaux",
+  "publish.captionReset": "Réinitialiser",
+  "publish.captionSelectToEdit": "Sélectionnez un réseau pour modifier sa légende.",
   "publish.connected": "Connecté",
   "publish.soon": "Bientôt",
   "publish.statusDisconnected": "Non connecté",
@@ -1006,7 +1012,7 @@ export const fr = {
   "analytics.range.90d": "90 j",
   "analytics.range.label": "Période",
   "analytics.noData.collection":
-    "Les données de portée et d’engagement ne sont pas encore collectées.",
+    "Les vues, j’aime et commentaires sont collectés automatiquement après chaque publication. La portée et les données démographiques arrivent bientôt.",
   "analytics.hero.totalViews": "Vues totales · {days} j",
   "analytics.hero.deltaVsPrev": "vs période précédente",
   "analytics.hero.publications": "{count} publications",
@@ -1633,7 +1639,14 @@ export const en: Partial<Record<MessageKey, string>> = {
   "publish.schedulePublish": "Schedule publication",
   "publish.publishNow": "Publish now",
   "publish.previewLabel": "Post preview",
-  "publish.captionNote": "The caption comes from the video’s title, description and hashtags.",
+  "publish.captionNote":
+    "By default the caption uses the video’s title, description and hashtags. Edit it above to tailor it per network.",
+  "publish.captionEditorTitle": "Caption",
+  "publish.captionEditorSubtitle":
+    "Customize the text posted to {platform}. The video’s hashtags are appended automatically.",
+  "publish.captionApplyAll": "Apply to all networks",
+  "publish.captionReset": "Reset",
+  "publish.captionSelectToEdit": "Select a network to edit its caption.",
   "publish.connected": "Connected",
   "publish.soon": "Soon",
   "publish.statusDisconnected": "Not connected",
@@ -2094,7 +2107,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "analytics.range.30d": "30d",
   "analytics.range.90d": "90d",
   "analytics.range.label": "Period",
-  "analytics.noData.collection": "Reach and engagement data isn’t collected yet.",
+  "analytics.noData.collection":
+    "Views, likes and comments are collected automatically after each publish. Reach and audience demographics are coming soon.",
   "analytics.hero.totalViews": "Total views · {days}d",
   "analytics.hero.deltaVsPrev": "vs previous period",
   "analytics.hero.publications": "{count} published",

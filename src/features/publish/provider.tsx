@@ -16,14 +16,17 @@ const PublishStoreContext = createContext<PublishStore | null>(null);
 export function PublishStoreProvider({
   children,
   videoId,
+  hashtags,
   deps,
 }: {
   children: React.ReactNode;
   videoId: string;
+  /** The video's hashtags — folded into per-platform caption overrides at confirm. */
+  hashtags?: string[];
   deps?: PublishDeps;
 }) {
   const [store] = useState<PublishStore>(() =>
-    createPublishStore(deps ?? { enqueue: enqueuePublishAction }, { videoId }),
+    createPublishStore(deps ?? { enqueue: enqueuePublishAction }, { videoId, hashtags }),
   );
   return <PublishStoreContext.Provider value={store}>{children}</PublishStoreContext.Provider>;
 }

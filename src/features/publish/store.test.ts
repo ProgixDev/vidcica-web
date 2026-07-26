@@ -8,6 +8,7 @@ type EnqueueInput = {
   platforms: PlatformId[];
   scheduledFor?: string;
   asShort?: boolean;
+  captions?: Partial<Record<PlatformId, string>>;
 };
 
 function make(over: Partial<PublishDeps> = {}) {
@@ -69,5 +70,50 @@ describe("publish store (AC-6..AC-11)", () => {
     await store.getState().confirm();
     expect(store.getState().phase).toBe("error");
     expect(store.getState().error).toBe("boom");
+  });
+});
+
+describe("publish store — per-platform caption override", () => {
+  function makeWith(hashtags: string[]) {
+    const enqueue = vi.fn<(input: EnqueueInput) => Promise<EnqueueOutcome>>(async () => ({
+      ok: true,
+      jobs: [],
+      skipped: [],
+    }));
+    const store = createPublishStore({ enqueue }, { videoId: "v1", hashtags });
+    return { store, enqueue };
+  }
+
+  it("sends no captions key when nothing is edited", async () => {
+    const { store, enqueue } = makeWith([]);
+    store.getState().togglePlatform("youtube");
+    await store.getState().confirm();
+    expect(enqueue.mock.calls[0]![0].captions).toBeUndefined();
+  });
+
+  it("sends an override only for the edited platform", async () => {
+    const { store, enqueue } = makeWith([]);
+    store.getState().togglePlatform("youtube");
+    store.getState().togglePlatform("linkedin");
+    store.getState().setCaption("youtube", "Mon texte YouTube");
+    await store.getState().confirm();
+    expect(enqueue.mock.calls[0]![0].captions).toEqual({ youtube: "Mon texte YouTube" });
+  });
+
+  it("appends the video hashtags to the override (without duplicating present ones)", async () => {
+    const { store, enqueue } = makeWith(["#ai", "#short"]);
+    store.getState().togglePlatform("youtube");
+    // Body already contains #ai — only #short should be appended.
+    store.getState().setCaption("youtube", "Regardez ça #ai");
+    await store.getState().confirm();
+    expect(enqueue.mock.calls[0]![0].captions).toEqual({ youtube: "Regardez ça #ai\n\n#short" });
+  });
+
+  it("ignores an override for a platform that isn't selected", async () => {
+    const { store, enqueue } = makeWith([]);
+    store.getState().togglePlatform("youtube");
+    store.getState().setCaption("tiktok", "orphan");
+    await store.getState().confirm();
+    expect(enqueue.mock.calls[0]![0].captions).toBeUndefined();
   });
 });

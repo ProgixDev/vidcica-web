@@ -10,6 +10,11 @@ const v = (id: string, status: Video["status"]): Video => ({
   format: "9:16",
   durationSec: 10,
   hashtags: [],
+  networks: [],
+  views: 0,
+  likes: 0,
+  comments: 0,
+  shares: 0,
   createdAt: "2026-07-13T00:00:00Z",
   updatedAt: "2026-07-13T00:00:00Z",
 });

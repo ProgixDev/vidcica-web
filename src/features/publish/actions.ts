@@ -14,6 +14,9 @@ const Input = z.object({
   platforms: z.array(z.enum(CONNECTABLE)).min(1),
   scheduledFor: z.string().datetime().optional(),
   asShort: z.boolean().optional(),
+  // Per-platform caption overrides. Keys constrained to real platforms; the edge
+  // function re-clamps each value and each publisher enforces its own char cap.
+  captions: z.record(z.enum(CONNECTABLE), z.string().max(5000)).optional(),
 });
 
 /** Enqueue a publish via the existing `enqueue-publish` edge function (session-scoped). */
@@ -22,6 +25,7 @@ export async function enqueuePublishAction(input: {
   platforms: PlatformId[];
   scheduledFor?: string;
   asShort?: boolean;
+  captions?: Partial<Record<PlatformId, string>>;
 }): Promise<EnqueueOutcome> {
   const parsed = Input.safeParse(input);
   if (!parsed.success) {

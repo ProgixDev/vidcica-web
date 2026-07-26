@@ -25,6 +25,24 @@ publish entry. No P0 gaps.
 
 ---
 
+## Backend pipelines landed 2026-07-26 (previously "backend-dependent")
+
+Two items earlier listed as blocked on the backend are now built end-to-end
+(shared Supabase → both front-ends). **Uncommitted + not yet deployed** — see the
+deploy checklist in `ClipFlow/supabase/functions/README.md`.
+
+- **Organic analytics ingestion** — new `sync-video-metrics` edge function +
+  `video_metrics` table + 30-min cron collect views/likes/comments/shares from
+  YouTube + Meta (at granted scopes) and roll them onto the `videos` row. Web
+  `analytics.ts` / `video.ts` + mobile `selectors.ts` now derive REAL totals +
+  top-video engagement. Reach/impressions + demographics remain honest zeros
+  (need `yt-analytics.readonly` / `instagram_manage_insights` + a reconnect —
+  scopes added to `oauth-start`).
+- **Editable per-platform captions** — `publish_jobs.caption` column;
+  `enqueue-publish` accepts a `captions` map; `publish-job` passes it to the
+  publishers (used verbatim, else derived). Web gained a per-platform caption
+  editor; mobile now sends the wizard's existing per-platform captions.
+
 ## P1 — important gaps (the real parity work)
 
 1. **Analytics — entirely MISSING on web.** Mobile has 4 views (Overview /

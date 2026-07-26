@@ -40,6 +40,12 @@ export type EnqueuePublishInput = {
   scheduledFor?: string;
   /** YouTube only — publish as a Short (default true). */
   asShort?: boolean;
+  /**
+   * Optional per-platform caption override, keyed by `PlatformId`. When set for a
+   * platform the backend uses it verbatim as that platform's post body instead of
+   * deriving one from the video's title/description/hashtags.
+   */
+  captions?: Partial<Record<PlatformId, string>>;
 };
 
 export type EnqueuedJob = { id: string; platform: PlatformId };
@@ -67,6 +73,7 @@ export async function enqueuePublish(
         platforms: input.platforms,
         scheduledFor: input.scheduledFor,
         asShort: input.asShort,
+        captions: input.captions,
       }),
       signal: controller.signal,
     });

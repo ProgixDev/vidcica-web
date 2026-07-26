@@ -21,6 +21,11 @@ const base: Video = {
   format: "9:16",
   durationSec: 30,
   hashtags: [],
+  networks: [],
+  views: 0,
+  likes: 0,
+  comments: 0,
+  shares: 0,
   createdAt: "",
   updatedAt: "",
 };

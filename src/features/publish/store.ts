@@ -16,8 +16,24 @@ export type PublishDeps = {
     platforms: PlatformId[];
     scheduledFor?: string;
     asShort?: boolean;
+    captions?: Partial<Record<PlatformId, string>>;
   }) => Promise<EnqueueOutcome>;
 };
+
+/**
+ * Fold an edited caption body + the video's hashtags into the single override
+ * string the backend stores (publish_jobs.caption). Hashtags already present in
+ * the body aren't re-appended, so this is safe whether the body already contains
+ * them or not.
+ */
+function composeCaption(body: string, hashtags: string[]): string {
+  const text = body.trim();
+  const extra = hashtags
+    .map((h) => (h.startsWith("#") ? h : `#${h}`))
+    .filter((h) => !text.includes(h));
+  if (extra.length === 0) return text;
+  return text ? `${text}\n\n${extra.join(" ")}` : extra.join(" ");
+}
 
 export type PublishState = {
   videoId: string;
@@ -29,17 +45,28 @@ export type PublishState = {
   error: string | null;
   skipped: PlatformId[];
   jobs: ReadonlyArray<{ id: string; platform: PlatformId }>;
+  /**
+   * Per-platform edited caption BODY (not yet composed with hashtags). A key is
+   * present only once the user edits that platform; absent → the backend derives
+   * the caption. Composed with the video's hashtags at confirm time.
+   */
+  captions: Partial<Record<PlatformId, string>>;
   togglePlatform: (p: PlatformId) => void;
   setMode: (m: PublishMode) => void;
   setScheduledAt: (iso: string) => void;
   setYoutubeAsShort: (v: boolean) => void;
+  setCaption: (p: PlatformId, body: string) => void;
   canConfirm: () => boolean;
   confirm: () => Promise<void>;
 };
 
 export type PublishStore = ReturnType<typeof createPublishStore>;
 
-export function createPublishStore(deps: PublishDeps, init: { videoId: string }) {
+export function createPublishStore(
+  deps: PublishDeps,
+  init: { videoId: string; hashtags?: string[] },
+) {
+  const hashtags = init.hashtags ?? [];
   return createStore<PublishState>()((set, get) => ({
     videoId: init.videoId,
     selected: [],
@@ -50,6 +77,7 @@ export function createPublishStore(deps: PublishDeps, init: { videoId: string })
     error: null,
     skipped: [],
     jobs: [],
+    captions: {},
 
     togglePlatform: (p) =>
       set((s) => ({
@@ -58,6 +86,7 @@ export function createPublishStore(deps: PublishDeps, init: { videoId: string })
     setMode: (mode) => set({ mode }),
     setScheduledAt: (scheduledAt) => set({ scheduledAt }),
     setYoutubeAsShort: (youtubeAsShort) => set({ youtubeAsShort }),
+    setCaption: (p, body) => set((s) => ({ captions: { ...s.captions, [p]: body } })),
 
     canConfirm: () => {
       const s = get();
@@ -71,11 +100,19 @@ export function createPublishStore(deps: PublishDeps, init: { videoId: string })
       const s = get();
       if (!get().canConfirm()) return;
       set({ phase: "submitting", error: null, skipped: [] });
+      // Compose an override only for selected platforms the user actually edited;
+      // untouched platforms send nothing → the backend derives their caption.
+      const captions: Partial<Record<PlatformId, string>> = {};
+      for (const p of s.selected) {
+        const body = s.captions[p];
+        if (body !== undefined) captions[p] = composeCaption(body, hashtags);
+      }
       const res = await deps.enqueue({
         videoId: s.videoId,
         platforms: s.selected,
         scheduledFor: s.mode === "schedule" ? (s.scheduledAt ?? undefined) : undefined,
         asShort: s.youtubeAsShort,
+        captions: Object.keys(captions).length > 0 ? captions : undefined,
       });
       if (res.ok) {
         set({ phase: "done", jobs: res.jobs, skipped: [...res.skipped] });

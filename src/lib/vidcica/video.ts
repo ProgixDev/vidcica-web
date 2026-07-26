@@ -6,6 +6,7 @@
  */
 import type { Database } from "@/lib/supabase/database.types";
 import type { MessageKey } from "@/lib/i18n";
+import type { PlatformId } from "@/lib/vidcica/network";
 
 export type VideoRow = Database["public"]["Tables"]["videos"]["Row"];
 
@@ -40,6 +41,16 @@ export type Video = {
   durationSec: number;
   hashtags: string[];
   creditsUsed?: number;
+  /** Platforms the video is published to (empty until published). */
+  networks: PlatformId[];
+  /** Cross-platform engagement, populated by the sync-video-metrics collector.
+   *  0 when nothing has been collected yet (honest — a real 0 and "not yet
+   *  collected" are indistinguishable at the rolled-up column, so screens gate on
+   *  publish state, not on these being non-zero). */
+  views: number;
+  likes: number;
+  comments: number;
+  shares: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -57,6 +68,11 @@ export function rowToVideo(r: VideoRow): Video {
     durationSec: r.duration_sec,
     hashtags: r.hashtags,
     creditsUsed: r.credits_used ?? undefined,
+    networks: (r.networks ?? []) as PlatformId[],
+    views: r.views ?? 0,
+    likes: r.likes ?? 0,
+    comments: r.comments ?? 0,
+    shares: r.shares ?? 0,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { m } from "@/components/motion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { PlatformIcon } from "@/components/platform-icon";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/provider";
@@ -61,8 +62,8 @@ function statusView(
   return { label: t("publish.statusPublishing"), variant: "brand" };
 }
 
-/** Caption the backend will actually build (title + description). Hashtags are
- *  rendered separately in the preview. */
+/** Default caption body seeded into the editor (title + description). Hashtags
+ *  are rendered separately in the preview and appended to the override at confirm. */
 function buildCaption(video: PublishPreviewVideo): string {
   return [video.title, video.description].filter(Boolean).join("\n");
 }
@@ -88,13 +89,15 @@ export function PublishFlow({
   const setMode = usePublishStore((s) => s.setMode);
   const setScheduledAt = usePublishStore((s) => s.setScheduledAt);
   const setShort = usePublishStore((s) => s.setYoutubeAsShort);
+  const captions = usePublishStore((s) => s.captions);
+  const setCaption = usePublishStore((s) => s.setCaption);
   const canConfirm = usePublishStore((s) => s.canConfirm);
   const confirm = usePublishStore((s) => s.confirm);
 
   const t = useT();
   const statuses = usePublishJobsRealtime(userId, videoId);
   const connectable = platforms.filter((p) => p.status === "connected");
-  const caption = useMemo(() => buildCaption(video), [video]);
+  const defaultCaption = useMemo(() => buildCaption(video), [video]);
 
   // The platform shown in the right-hand preview. Defaults to the first
   // selected one, else the first connected one, else the first platform.
@@ -102,6 +105,18 @@ export function PublishFlow({
   const activePreview: PlatformId =
     previewTab ?? selected[0] ?? connectable[0]?.id ?? platforms[0]?.id ?? "instagram";
   const activeHandle = platforms.find((p) => p.id === activePreview)?.handle ?? "@vidcica";
+
+  // The caption is edited for whichever selected platform is being previewed
+  // (falling back to the first selected). Each platform keeps its own override;
+  // an untouched platform shows — and sends — the derived default.
+  const editTarget: PlatformId | null = selected.includes(activePreview)
+    ? activePreview
+    : (selected[0] ?? null);
+  const editBody = editTarget ? (captions[editTarget] ?? defaultCaption) : defaultCaption;
+  const previewCaption = captions[activePreview] ?? defaultCaption;
+  const editTargetLabel = editTarget
+    ? (platforms.find((p) => p.id === editTarget)?.label ?? editTarget)
+    : "";
 
   const youtubeSelected = selected.includes("youtube");
 
@@ -229,6 +244,56 @@ export function PublishFlow({
             ))}
           </ul>
         </section>
+
+        {/* Caption editor — per-platform override, folded with hashtags at confirm */}
+        {connectable.length > 0 ? (
+          <section className="bg-card rounded-2xl border p-4 sm:p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-sm font-semibold">{t("publish.captionEditorTitle")}</h2>
+                <p className="text-muted-foreground text-xs">
+                  {editTarget
+                    ? t("publish.captionEditorSubtitle", { platform: editTargetLabel })
+                    : t("publish.captionSelectToEdit")}
+                </p>
+              </div>
+              {editTarget ? <PlatformIcon platform={editTarget} size={28} /> : null}
+            </div>
+            <Textarea
+              value={editBody}
+              disabled={!editTarget}
+              onChange={(e) => editTarget && setCaption(editTarget, e.target.value)}
+              rows={5}
+              className="min-h-28 rounded-xl"
+              data-testid="publish-caption"
+              aria-label={t("publish.captionEditorTitle")}
+            />
+            {editTarget ? (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCaption(editTarget, defaultCaption)}
+                  disabled={editBody === defaultCaption}
+                  className="text-muted-foreground hover:text-foreground text-xs font-medium disabled:opacity-40"
+                >
+                  {t("publish.captionReset")}
+                </button>
+                {selected.length > 1 ? (
+                  <>
+                    <span className="text-muted-foreground/40 text-xs">·</span>
+                    <button
+                      type="button"
+                      onClick={() => selected.forEach((p) => setCaption(p, editBody))}
+                      className="text-primary text-xs font-medium hover:underline"
+                    >
+                      {t("publish.captionApplyAll")}
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            ) : null}
+          </section>
+        ) : null}
 
         {/* YouTube format */}
         {youtubeSelected ? (
@@ -369,7 +434,7 @@ export function PublishFlow({
           <NativeCardPreview
             platform={activePreview}
             handle={activeHandle}
-            caption={caption}
+            caption={previewCaption}
             hashtags={video.hashtags}
             thumbnailUrl={video.thumbnailUrl}
             asShort={asShort}
