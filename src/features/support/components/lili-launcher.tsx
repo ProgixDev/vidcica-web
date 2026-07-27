@@ -301,7 +301,7 @@ function LauncherInner() {
             transition={{ duration: 0.18 }}
             className="flex items-center justify-center"
           >
-            <Icon name={open ? "chevron-down" : "chat"} big />
+            <Icon name={open ? "chevron-down" : "bot"} big />
           </m.span>
         </AnimatePresence>
       </m.button>
@@ -339,7 +339,7 @@ function LiaAvatar({ size = "md" }: { size?: "sm" | "md" }) {
   );
 }
 
-type IconName = "chat" | "chevron-down" | "send" | "expand" | "close";
+type IconName = "bot" | "chevron-down" | "send" | "expand" | "close";
 function Icon({ name, big, small }: { name: IconName; big?: boolean; small?: boolean }) {
   const s = big ? 24 : small ? 13 : 18;
   const common = {
@@ -354,11 +354,30 @@ function Icon({ name, big, small }: { name: IconName; big?: boolean; small?: boo
     "aria-hidden": true,
   };
   switch (name) {
-    case "chat":
+    case "bot":
+      // Friendly robot head — antenna, rounded face, two eyes + a little smile.
+      // The eyes blink: a quick vertical squash every few seconds (paused for
+      // prefers-reduced-motion via the global MotionConfig).
       return (
         <svg {...common}>
-          <path d="M21 15a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z" />
-          <path d="M8 10h8M8 13.5h5" />
+          <circle cx="12" cy="3" r="1" />
+          <path d="M12 4v2" />
+          <rect x="4" y="6" width="16" height="12" rx="4" />
+          <path d="M2 12v2M22 12v2" />
+          {[9.5, 14.5].map((cx) => (
+            <m.circle
+              key={cx}
+              cx={cx}
+              cy="12"
+              r="1.15"
+              fill="currentColor"
+              stroke="none"
+              style={{ transformBox: "fill-box", transformOrigin: "center" }}
+              animate={{ scaleY: [1, 0.12, 1] }}
+              transition={{ duration: 0.22, repeat: Infinity, repeatDelay: 3.4, ease: "easeInOut" }}
+            />
+          ))}
+          <path d="M10 15.2c.6.5 3.4.5 4 0" />
         </svg>
       );
     case "chevron-down":
