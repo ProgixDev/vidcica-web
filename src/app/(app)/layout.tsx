@@ -5,6 +5,7 @@ import { listMyNotifications } from "@/lib/vidcica/notifications-queries";
 import { tierDef } from "@/lib/vidcica/tiers";
 import { AppShell } from "@/components/app-shell";
 import { NotificationBell } from "@/features/notifications";
+import { LiliLauncher } from "@/features/support";
 
 /**
  * Authenticated shell — one guard + one entitlement fetch for every app page
@@ -34,6 +35,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       bell={<NotificationBell userId={user.id} initial={notifications} />}
     >
       {children}
+      {/* Global Messenger-style assistant bubble — persists on every app page. */}
+      <LiliLauncher />
     </AppShell>
   );
 }

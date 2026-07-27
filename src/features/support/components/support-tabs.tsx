@@ -23,9 +23,15 @@ const TABS: ReadonlyArray<{ id: Tab; labelKey: MessageKey }> = [
   { id: "chat", labelKey: "help.tab.chat" },
 ];
 
-export function SupportTabs({ tickets }: { tickets: SupportTicket[] }) {
+export function SupportTabs({
+  tickets,
+  initialTab,
+}: {
+  tickets: SupportTicket[];
+  initialTab?: Tab;
+}) {
   const t = useT();
-  const [tab, setTab] = useState<Tab>("faq");
+  const [tab, setTab] = useState<Tab>(initialTab ?? "faq");
 
   return (
     <div className="flex flex-col gap-6" data-testid="support-tabs">

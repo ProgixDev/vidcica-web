@@ -11,20 +11,30 @@ export async function generateMetadata() {
 }
 export const dynamic = "force-dynamic";
 
-export default async function SupportPage() {
+const TAB_VALUES = ["faq", "guides", "tutorials", "contact", "chat"] as const;
+
+export default async function SupportPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/support");
 
-  const [t, tickets] = await Promise.all([getT(), listMyTickets()]);
+  const [t, tickets, params] = await Promise.all([getT(), listMyTickets(), searchParams]);
+  // Deep-link a tab, e.g. the Lia bubble's handoff → /support?tab=contact.
+  const initialTab = (TAB_VALUES as readonly string[]).includes(params.tab ?? "")
+    ? (params.tab as (typeof TAB_VALUES)[number])
+    : undefined;
 
   return (
     <>
       <PageHeader title={t("support.title")} subtitle={t("support.subtitle")} />
       <div className="w-full max-w-3xl">
-        <SupportTabs tickets={tickets} />
+        <SupportTabs tickets={tickets} initialTab={initialTab} />
       </div>
     </>
   );
