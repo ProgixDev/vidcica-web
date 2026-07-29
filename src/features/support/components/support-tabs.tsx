@@ -10,15 +10,13 @@ import { SupportChat } from "./support-chat";
 import { ContactForm } from "./contact-form";
 import { FaqSection } from "./faq-section";
 import { GuidesList } from "./guides-list";
-import { TutorialsList } from "./tutorials-list";
 import { TicketHistory } from "./ticket-history";
 
-type Tab = "faq" | "guides" | "tutorials" | "contact" | "chat";
+type Tab = "faq" | "guides" | "contact" | "chat";
 
 const TABS: ReadonlyArray<{ id: Tab; labelKey: MessageKey }> = [
   { id: "faq", labelKey: "help.tab.faq" },
   { id: "guides", labelKey: "help.tab.guides" },
-  { id: "tutorials", labelKey: "help.tab.tutorials" },
   { id: "contact", labelKey: "help.tab.contact" },
   { id: "chat", labelKey: "help.tab.chat" },
 ];
@@ -62,7 +60,6 @@ export function SupportTabs({
 
       {tab === "faq" ? <FaqSection onContact={() => setTab("contact")} /> : null}
       {tab === "guides" ? <GuidesList /> : null}
-      {tab === "tutorials" ? <TutorialsList /> : null}
       {tab === "contact" ? (
         <div className="flex flex-col gap-8">
           <ContactForm />

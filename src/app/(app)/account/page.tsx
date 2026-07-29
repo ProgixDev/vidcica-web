@@ -131,13 +131,16 @@ export default async function AccountPage() {
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{t("profile.creditsLabel")}</span>
               <span className="font-medium tabular-nums">
-                {t("profile.creditsOf", {
-                  used: numberFmt.format(entitlement.credits),
-                  total: numberFmt.format(tier.monthlyCredits),
-                })}
+                {tier.monthlyCredits > 0
+                  ? t("profile.creditsOf", {
+                      used: numberFmt.format(entitlement.credits),
+                      total: numberFmt.format(tier.monthlyCredits),
+                    })
+                  : numberFmt.format(entitlement.credits)}
               </span>
             </div>
-            <Progress value={creditPct} />
+            {/* No monthly allotment on the free (pay-as-you-go) plan → no gauge. */}
+            {tier.monthlyCredits > 0 ? <Progress value={creditPct} /> : null}
           </div>
         </div>
 

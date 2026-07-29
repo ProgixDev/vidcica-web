@@ -7,9 +7,10 @@ describe("tier matrix (AC-2)", () => {
     expect(TIERS.starter.priceEUR).toBe(25);
     expect(TIERS.pro.priceEUR).toBe(45);
     expect(TIERS.studio.priceEUR).toBe(99);
+    // Free grants NO monthly credits — the plan is pay-as-you-go (buy credit packs).
     expect(
       [TIERS.free, TIERS.starter, TIERS.pro, TIERS.studio].map((t) => t.monthlyCredits),
-    ).toEqual([20, 150, 300, 600]);
+    ).toEqual([0, 150, 300, 600]);
   });
 
   it("orders free < starter < pro < studio", () => {

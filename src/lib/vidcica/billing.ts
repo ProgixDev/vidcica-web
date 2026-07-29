@@ -137,6 +137,68 @@ export async function startCheckout(
   return runCheckout(deps, handle, opts);
 }
 
+/** Buy a one-time credit pack (`packCredits` = the pack's credit count). Unlike a
+ *  subscription (which flips `profiles.tier`), a pack raises the credit balance —
+ *  so we detect success by polling `credits_accounts.balance` past its starting
+ *  value (the stripe-webhook grants the pack before the popup returns). `popup`
+ *  MUST be opened synchronously in the click handler. */
+export async function startCreditCheckout(
+  supabase: DB,
+  packCredits: number,
+  popup: Window | null,
+  opts: RunOpts = {},
+): Promise<CheckoutOutcome> {
+  const handle: PopupHandle | null = popup
+    ? {
+        get closed() {
+          return popup.closed;
+        },
+        close: () => popup.close(),
+      }
+    : null;
+
+  // Baseline balance captured before checkout; a grant pushes it higher.
+  const { data: before } = await supabase.from("credits_accounts").select("balance").maybeSingle();
+  const startBalance = before?.balance ?? 0;
+
+  const deps: CheckoutDeps = {
+    start: async () => {
+      const t = await token(supabase);
+      if (!t) return { ok: false, reason: "error", message: "unauthenticated" };
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout-session`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${t}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ packCredits }),
+        });
+        if (res.status === 503) return { ok: false, reason: "not_configured" };
+        const body = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+        if (!res.ok || !body.url) {
+          return { ok: false, reason: "error", message: body.error ?? `HTTP ${res.status}` };
+        }
+        return { ok: true, url: body.url };
+      } catch (e) {
+        return { ok: false, reason: "error", message: (e as Error).message };
+      }
+    },
+    navigate: (url) => {
+      try {
+        if (popup) popup.location.href = url;
+      } catch {
+        // cross-origin once on Stripe — expected.
+      }
+    },
+    hasUpgraded: async () => {
+      const { data } = await supabase.from("credits_accounts").select("balance").maybeSingle();
+      return (data?.balance ?? 0) > startBalance;
+    },
+    wait: (ms) => new Promise((r) => setTimeout(r, ms)),
+    now: () => Date.now(),
+  };
+
+  return runCheckout(deps, handle, opts);
+}
+
 export type PortalOutcome =
   | { ok: true }
   | {

@@ -33,10 +33,10 @@ export const TIERS: Readonly<Record<Plan, TierDef>> = {
     label: "Gratuit",
     labelKey: "tiers.free.label",
     priceEUR: 0,
-    monthlyCredits: 20,
+    monthlyCredits: 0,
     maxLengthSec: 15,
     maxQuality: "720p",
-    highlights: ["20 crédits / mois", "Vidéos jusqu’à 15 s", "Banque d’images (sans voix)"],
+    highlights: ["Crédits à la carte", "Vidéos jusqu’à 15 s", "Banque d’images (sans voix)"],
     highlightKeys: ["tiers.free.h1", "tiers.free.h2", "tiers.free.h3"],
   },
   starter: {

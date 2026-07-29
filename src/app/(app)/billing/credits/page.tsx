@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getMyEntitlement } from "@/lib/vidcica/billing-queries";
+import { getMyEntitlement, listCreditPacks } from "@/lib/vidcica/billing-queries";
 import { listMyCreditLedger } from "@/lib/vidcica/credit-ledger-queries";
-import { CreditsView } from "@/features/billing";
+import { CreditsView, BuyCreditsSection } from "@/features/billing";
 import { PageHeader } from "@/components/app-shell";
 import { getT } from "@/lib/i18n/server";
 
@@ -20,17 +20,24 @@ export default async function CreditsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/billing/credits");
 
-  const [entitlement, entries] = await Promise.all([getMyEntitlement(), listMyCreditLedger()]);
+  const [entitlement, entries, packs] = await Promise.all([
+    getMyEntitlement(),
+    listMyCreditLedger(),
+    listCreditPacks(),
+  ]);
 
   return (
     <>
       <PageHeader title={t("billing.credits.title")} subtitle={t("billing.credits.subtitle")} />
-      <CreditsView
-        userId={user.id}
-        plan={entitlement.plan}
-        initialCredits={entitlement.credits}
-        entries={entries}
-      />
+      <div className="flex w-full max-w-2xl flex-col gap-6">
+        <CreditsView
+          userId={user.id}
+          plan={entitlement.plan}
+          initialCredits={entitlement.credits}
+          entries={entries}
+        />
+        <BuyCreditsSection packs={packs} />
+      </div>
     </>
   );
 }

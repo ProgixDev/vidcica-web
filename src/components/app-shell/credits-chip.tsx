@@ -66,15 +66,19 @@ export function CreditsChip({
         </span>
         <span className={cn("text-sm font-semibold", low && "text-destructive")}>
           {credits}
-          <span className="text-muted-foreground font-normal"> / {monthlyCredits}</span>
+          {monthlyCredits > 0 ? (
+            <span className="text-muted-foreground font-normal"> / {monthlyCredits}</span>
+          ) : null}
         </span>
       </div>
-      <div className="bg-muted h-1.5 overflow-hidden rounded-full" aria-hidden>
-        <div
-          className={cn("h-full rounded-full", low ? "bg-destructive" : "bg-primary")}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
+      {monthlyCredits > 0 ? (
+        <div className="bg-muted h-1.5 overflow-hidden rounded-full" aria-hidden>
+          <div
+            className={cn("h-full rounded-full", low ? "bg-destructive" : "bg-primary")}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      ) : null}
       <span className="text-muted-foreground text-[11px]">
         {low ? t("chrome.lowBalance") : t("chrome.manageOffer")}
       </span>

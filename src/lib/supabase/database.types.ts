@@ -300,6 +300,7 @@ export type Database = {
           credits: number;
           label: string | null;
           plan: string | null;
+          price_eur: number | null;
           product_id: string;
         };
         Insert: {
@@ -307,6 +308,7 @@ export type Database = {
           credits: number;
           label?: string | null;
           plan?: string | null;
+          price_eur?: number | null;
           product_id: string;
         };
         Update: {
@@ -314,6 +316,7 @@ export type Database = {
           credits?: number;
           label?: string | null;
           plan?: string | null;
+          price_eur?: number | null;
           product_id?: string;
         };
         Relationships: [];

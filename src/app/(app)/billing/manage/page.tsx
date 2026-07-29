@@ -81,14 +81,17 @@ export default async function ManageSubscriptionPage() {
             {t("billing.manage.includedTitle")}
           </h2>
           <Card className="flex flex-col gap-3 p-4">
-            <div className="flex items-center gap-2.5">
-              <span className="bg-success/15 flex size-5 shrink-0 items-center justify-center rounded-full">
-                <CheckIcon />
-              </span>
-              <span className="text-sm">
-                {t("billing.manage.creditsPerMonth", { credits: tier.monthlyCredits })}
-              </span>
-            </div>
+            {/* Monthly allotment is a paid-plan concept — free is pay-as-you-go. */}
+            {tier.monthlyCredits > 0 ? (
+              <div className="flex items-center gap-2.5">
+                <span className="bg-success/15 flex size-5 shrink-0 items-center justify-center rounded-full">
+                  <CheckIcon />
+                </span>
+                <span className="text-sm">
+                  {t("billing.manage.creditsPerMonth", { credits: tier.monthlyCredits })}
+                </span>
+              </div>
+            ) : null}
             {tier.highlightKeys.map((k) => (
               <div key={k} className="flex items-center gap-2.5">
                 <span className="bg-success/15 flex size-5 shrink-0 items-center justify-center rounded-full">

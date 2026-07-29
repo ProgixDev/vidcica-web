@@ -11,7 +11,7 @@ export async function generateMetadata() {
 }
 export const dynamic = "force-dynamic";
 
-const TAB_VALUES = ["faq", "guides", "tutorials", "contact", "chat"] as const;
+const TAB_VALUES = ["faq", "guides", "contact", "chat"] as const;
 
 export default async function SupportPage({
   searchParams,
