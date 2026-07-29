@@ -57,7 +57,7 @@ export function BuyCreditsSection({ packs }: { packs: CreditPack[] }) {
     packs.length > 1 ? packs[Math.floor(packs.length / 2)]?.credits : undefined;
 
   return (
-    <section className="flex flex-col gap-3" data-testid="buy-credits">
+    <section className="flex flex-col gap-3 lg:sticky lg:top-6" data-testid="buy-credits">
       <div className="flex flex-col gap-0.5 px-1">
         <h2 className="text-muted-foreground text-[11px] font-semibold tracking-widest uppercase">
           {t("billing.credits.buyTitle")}
@@ -78,7 +78,7 @@ export function BuyCreditsSection({ packs }: { packs: CreditPack[] }) {
         </p>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="flex flex-col gap-3">
         {packs.map((pack) => {
           const isPopular = pack.credits === popularCredits;
           const name = nameOf(pack.label);

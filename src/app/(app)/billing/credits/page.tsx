@@ -27,9 +27,9 @@ export default async function CreditsPage() {
   ]);
 
   return (
-    <>
+    <div className="flex w-full flex-col gap-6">
       <PageHeader title={t("billing.credits.title")} subtitle={t("billing.credits.subtitle")} />
-      <div className="flex w-full max-w-2xl flex-col gap-6">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <CreditsView
           userId={user.id}
           plan={entitlement.plan}
@@ -38,6 +38,6 @@ export default async function CreditsPage() {
         />
         <BuyCreditsSection packs={packs} />
       </div>
-    </>
+    </div>
   );
 }
