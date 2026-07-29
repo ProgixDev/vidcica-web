@@ -1,6 +1,8 @@
 "use server";
 
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { clientEnv } from "@/core/env.client";
 import { entityId as VideoId } from "@/lib/vidcica/id";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -125,5 +127,72 @@ export async function duplicateVideo(id: string): Promise<DuplicateResult> {
     .select("id")
     .single();
   if (insErr || !inserted) return { ok: false, message: insErr?.message ?? "Échec de la copie" };
+  return { ok: true, id: inserted.id };
+}
+
+const RATIOS = ["9:16", "1:1", "16:9"] as const;
+
+const UploadedVideoSchema = z.object({
+  title: z.string().trim().min(1).max(120),
+  videoUrl: z.string().url().max(2048),
+  thumbnailUrl: z.union([z.string().url().max(2048), z.literal("")]).optional(),
+  durationSec: z.number().int().min(1).max(3600),
+  format: z.enum(RATIOS),
+});
+
+export type UploadedVideoInput = z.infer<typeof UploadedVideoSchema>;
+
+/**
+ * Register a user-imported video (uploaded client-side to the public
+ * `user-uploads` bucket) as a ready-to-publish library video — status `pret`,
+ * so it behaves like a finished render (downloadable + publishable), just without
+ * an AI script/segments.
+ *
+ * SECURITY: `video_url` is fetched later by the publish pipeline (YouTube/TikTok
+ * stream it; Meta/Threads pull it), so an attacker-controlled URL would be an
+ * SSRF vector. We only accept URLs under THIS project's `user-uploads` bucket in
+ * the CALLER's own folder — i.e. a file they actually uploaded — never an
+ * arbitrary URL. RLS scopes the insert to the caller too.
+ */
+export async function createUploadedVideo(input: UploadedVideoInput): Promise<DuplicateResult> {
+  const parsed = UploadedVideoSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, message: parsed.error.issues[0]?.message ?? "Entrée invalide" };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Non authentifié" };
+
+  const ownPrefix = `${clientEnv.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/user-uploads/${user.id}/`;
+  if (!parsed.data.videoUrl.startsWith(ownPrefix)) {
+    return { ok: false, message: "URL de vidéo invalide" };
+  }
+  // Thumbnail is optional + best-effort; drop it unless it's also a file the
+  // caller uploaded to their own folder.
+  const thumbnailUrl =
+    parsed.data.thumbnailUrl && parsed.data.thumbnailUrl.startsWith(ownPrefix)
+      ? parsed.data.thumbnailUrl
+      : "";
+
+  const { data: inserted, error } = await supabase
+    .from("videos")
+    .insert({
+      id: crypto.randomUUID(),
+      user_id: user.id,
+      title: parsed.data.title,
+      status: "pret",
+      format: parsed.data.format,
+      tone: "energique",
+      thumbnail_url: thumbnailUrl,
+      video_url: parsed.data.videoUrl,
+      duration_sec: parsed.data.durationSec,
+      hashtags: [],
+    })
+    .select("id")
+    .single();
+  if (error || !inserted) return { ok: false, message: error?.message ?? "Échec de l'import" };
   return { ok: true, id: inserted.id };
 }

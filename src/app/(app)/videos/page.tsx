@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { listMyVideos } from "@/lib/vidcica/queries";
-import { VideoList } from "@/features/videos";
+import { VideoList, UploadVideoButton } from "@/features/videos";
 import { PageHeader } from "@/components/app-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { getT } from "@/lib/i18n/server";
@@ -42,6 +42,7 @@ export default async function VideosPage() {
             >
               {t("library.trash.title")}
             </Link>
+            <UploadVideoButton />
             <Link href="/create" className={buttonVariants({ className: "rounded-full" })}>
               {t("videos.create")}
             </Link>
