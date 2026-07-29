@@ -238,20 +238,20 @@ function ContactRow({
   testId?: string;
 }) {
   return (
-    <div className="flex justify-between gap-4">
-      <span className="text-muted-foreground">{label}</span>
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-muted-foreground shrink-0">{label}</span>
       {href ? (
         <a
           href={href}
           onClick={onOpen}
           data-testid={testId}
           {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-          className="font-medium underline-offset-2 hover:underline"
+          className="min-w-0 truncate text-right font-medium underline-offset-2 hover:underline"
         >
           {value}
         </a>
       ) : (
-        <span className="font-medium">{value}</span>
+        <span className="min-w-0 truncate text-right font-medium">{value}</span>
       )}
     </div>
   );

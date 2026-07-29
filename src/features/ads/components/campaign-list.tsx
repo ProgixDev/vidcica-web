@@ -92,9 +92,9 @@ function CampaignCard({ c }: { c: Campaign }) {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col">
-      <span className="text-foreground text-sm font-medium">{value}</span>
-      <span>{label}</span>
+    <div className="flex min-w-0 flex-col">
+      <span className="text-foreground truncate text-sm font-medium tabular-nums">{value}</span>
+      <span className="truncate">{label}</span>
     </div>
   );
 }

@@ -151,9 +151,9 @@ export default async function AccountPage() {
             { label: t("profile.statNetworks"), value: numberFmt.format(connectedCount) },
             { label: t("profile.statCredits"), value: numberFmt.format(entitlement.credits) },
           ].map((s) => (
-            <div key={s.label} className="bg-card rounded-2xl border p-4 text-center">
-              <p className="text-xl font-semibold tabular-nums">{s.value}</p>
-              <p className="text-muted-foreground text-xs">{s.label}</p>
+            <div key={s.label} className="bg-card min-w-0 rounded-2xl border p-4 text-center">
+              <p className="truncate text-xl font-semibold tabular-nums">{s.value}</p>
+              <p className="text-muted-foreground truncate text-xs">{s.label}</p>
             </div>
           ))}
         </div>
