@@ -46,6 +46,13 @@ export type EnqueuePublishInput = {
    * deriving one from the video's title/description/hashtags.
    */
   captions?: Partial<Record<PlatformId, string>>;
+  /**
+   * Optional per-platform posting options, keyed by `PlatformId` and already in
+   * the backend's snake_case wire shape (see `toWireOptions` in ./tiktok). Only
+   * TikTok uses this today — its audit requires the creator to choose privacy,
+   * interaction and commercial-disclosure settings for every post.
+   */
+  options?: Partial<Record<PlatformId, Record<string, unknown>>>;
 };
 
 export type EnqueuedJob = { id: string; platform: PlatformId };
@@ -74,6 +81,7 @@ export async function enqueuePublish(
         scheduledFor: input.scheduledFor,
         asShort: input.asShort,
         captions: input.captions,
+        options: input.options,
       }),
       signal: controller.signal,
     });

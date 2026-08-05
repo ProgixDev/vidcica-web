@@ -9,16 +9,18 @@ type SwitchProps = {
   disabled?: boolean;
   "aria-label"?: string;
   id?: string;
+  "data-testid"?: string;
 };
 
-export function Switch({ checked, onChange, disabled, id, ...aria }: SwitchProps) {
+export function Switch({ checked, onChange, disabled, id, ...rest }: SwitchProps) {
   return (
     <button
       id={id}
       type="button"
       role="switch"
       aria-checked={checked}
-      aria-label={aria["aria-label"]}
+      aria-label={rest["aria-label"]}
+      data-testid={rest["data-testid"]}
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn(

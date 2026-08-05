@@ -17,16 +17,23 @@ export function PublishStoreProvider({
   children,
   videoId,
   hashtags,
+  durationSec,
   deps,
 }: {
   children: React.ReactNode;
   videoId: string;
   /** The video's hashtags — folded into per-platform caption overrides at confirm. */
   hashtags?: string[];
+  /** Checked against TikTok's per-account max post duration before submitting. */
+  durationSec?: number;
   deps?: PublishDeps;
 }) {
   const [store] = useState<PublishStore>(() =>
-    createPublishStore(deps ?? { enqueue: enqueuePublishAction }, { videoId, hashtags }),
+    createPublishStore(deps ?? { enqueue: enqueuePublishAction }, {
+      videoId,
+      hashtags,
+      durationSec,
+    }),
   );
   return <PublishStoreContext.Provider value={store}>{children}</PublishStoreContext.Provider>;
 }

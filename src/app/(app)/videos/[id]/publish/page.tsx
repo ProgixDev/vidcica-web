@@ -60,7 +60,11 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
         }
       />
       <div className="w-full max-w-4xl">
-        <PublishStoreProvider videoId={video.id} hashtags={video.hashtags}>
+        <PublishStoreProvider
+          videoId={video.id}
+          hashtags={video.hashtags}
+          durationSec={video.durationSec}
+        >
           <PublishFlow
             userId={user.id}
             platforms={platforms}

@@ -17,6 +17,7 @@ import {
 } from "@/lib/vidcica/use-publish-jobs-realtime";
 import { usePublishStore } from "../provider";
 import { NativeCardPreview } from "./native-card-preview";
+import { TikTokOptions } from "./tiktok-options";
 
 /** A publish-target platform + its connection state (computed server-side). */
 export type PublishablePlatform = {
@@ -93,6 +94,7 @@ export function PublishFlow({
   const setCaption = usePublishStore((s) => s.setCaption);
   const canConfirm = usePublishStore((s) => s.canConfirm);
   const confirm = usePublishStore((s) => s.confirm);
+  const tiktokCreator = usePublishStore((s) => s.tiktokCreator);
 
   const t = useT();
   const statuses = usePublishJobsRealtime(userId, videoId);
@@ -104,7 +106,16 @@ export function PublishFlow({
   const [previewTab, setPreviewTab] = useState<PlatformId | null>(null);
   const activePreview: PlatformId =
     previewTab ?? selected[0] ?? connectable[0]?.id ?? platforms[0]?.id ?? "instagram";
-  const activeHandle = platforms.find((p) => p.id === activePreview)?.handle ?? "@vidcica";
+  // The preview must show the REAL account, never an invented one — TikTok's
+  // audit checks that the creator sees their own username before posting, and a
+  // hardcoded "@vidcica" would misrepresent every other platform too. For TikTok
+  // the freshly queried creator handle wins over the stored one; otherwise fall
+  // back to an obviously generic placeholder rather than a plausible handle.
+  const storedHandle = platforms.find((p) => p.id === activePreview)?.handle;
+  const activeHandle =
+    activePreview === "tiktok" && tiktokCreator?.username
+      ? `@${tiktokCreator.username}`
+      : (storedHandle ?? t("publish.previewHandleFallback"));
 
   // The caption is edited for whichever selected platform is being previewed
   // (falling back to the first selected). Each platform keeps its own override;
@@ -119,6 +130,7 @@ export function PublishFlow({
     : "";
 
   const youtubeSelected = selected.includes("youtube");
+  const tiktokSelected = selected.includes("tiktok");
 
   // ---- Confirmation view ----
   if (phase === "done") {
@@ -318,6 +330,10 @@ export function PublishFlow({
             </div>
           </section>
         ) : null}
+
+        {/* TikTok — privacy, interactions and commercial disclosure. Mandatory
+            pre-post UI required by TikTok's Content Posting API audit. */}
+        {tiktokSelected ? <TikTokOptions /> : null}
 
         {/* Timing */}
         <section className="bg-card rounded-2xl border p-4 sm:p-5">

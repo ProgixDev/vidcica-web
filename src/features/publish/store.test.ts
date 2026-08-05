@@ -9,6 +9,7 @@ type EnqueueInput = {
   scheduledFor?: string;
   asShort?: boolean;
   captions?: Partial<Record<PlatformId, string>>;
+  options?: Partial<Record<PlatformId, Record<string, unknown>>>;
 };
 
 function make(over: Partial<PublishDeps> = {}) {
@@ -115,5 +116,89 @@ describe("publish store — per-platform caption override", () => {
     store.getState().setCaption("tiktok", "orphan");
     await store.getState().confirm();
     expect(enqueue.mock.calls[0]![0].captions).toBeUndefined();
+  });
+});
+
+describe("publish store — TikTok per-post options", () => {
+  function makeTikTok(durationSec = 30) {
+    const enqueue = vi.fn<(input: EnqueueInput) => Promise<EnqueueOutcome>>(async () => ({
+      ok: true,
+      jobs: [],
+      skipped: [],
+    }));
+    const store = createPublishStore({ enqueue }, { videoId: "v1", durationSec });
+    return { store, enqueue };
+  }
+
+  const creator = {
+    username: "houssem",
+    avatarUrl: null,
+    nickname: null,
+    privacyOptions: ["PUBLIC_TO_EVERYONE", "SELF_ONLY"] as const,
+    commentDisabled: false,
+    duetDisabled: false,
+    stitchDisabled: false,
+    maxVideoPostDurationSec: 60,
+  };
+
+  it("does not gate a publish that doesn't include TikTok", () => {
+    const { store } = makeTikTok();
+    store.getState().togglePlatform("youtube");
+    expect(store.getState().tiktokBlockReason()).toBeNull();
+    expect(store.getState().canConfirm()).toBe(true);
+  });
+
+  it("blocks confirm until a privacy level is chosen for TikTok", () => {
+    const { store } = makeTikTok();
+    store.getState().togglePlatform("tiktok");
+    expect(store.getState().tiktokBlockReason()).toBe("privacy_required");
+    expect(store.getState().canConfirm()).toBe(false);
+    store.getState().setTikTokOptions({ privacyLevel: "PUBLIC_TO_EVERYONE" });
+    expect(store.getState().canConfirm()).toBe(true);
+  });
+
+  it("blocks the WHOLE publish, not just TikTok, so nothing posts half-configured", () => {
+    const { store } = makeTikTok();
+    store.getState().togglePlatform("youtube");
+    store.getState().togglePlatform("tiktok");
+    expect(store.getState().canConfirm()).toBe(false);
+  });
+
+  it("sends the wire options only when TikTok is selected", async () => {
+    const { store, enqueue } = makeTikTok();
+    store.getState().togglePlatform("youtube");
+    await store.getState().confirm();
+    expect(enqueue.mock.calls[0]![0].options).toBeUndefined();
+
+    const second = makeTikTok();
+    second.store.getState().togglePlatform("tiktok");
+    second.store.getState().setTikTokOptions({ privacyLevel: "SELF_ONLY", disableStitch: true });
+    await second.store.getState().confirm();
+    expect(second.enqueue.mock.calls[0]![0].options).toEqual({
+      tiktok: {
+        privacy_level: "SELF_ONLY",
+        disable_comment: false,
+        disable_duet: false,
+        disable_stitch: true,
+        brand_content_toggle: false,
+        brand_organic_toggle: false,
+      },
+    });
+  });
+
+  it("forces an account-disabled interaction off and never lets the app re-enable it", () => {
+    const { store } = makeTikTok();
+    store.getState().setTikTokOptions({ disableComment: false });
+    store.getState().setTikTokCreator({ ...creator, commentDisabled: true, privacyOptions: [] });
+    expect(store.getState().tiktok.disableComment).toBe(true);
+  });
+
+  it("blocks a video longer than the account's TikTok cap", () => {
+    const { store } = makeTikTok(90);
+    store.getState().togglePlatform("tiktok");
+    store.getState().setTikTokCreator({ ...creator, privacyOptions: [] });
+    store.getState().setTikTokOptions({ privacyLevel: "PUBLIC_TO_EVERYONE" });
+    expect(store.getState().tiktokBlockReason()).toBe("too_long");
+    expect(store.getState().canConfirm()).toBe(false);
   });
 });
