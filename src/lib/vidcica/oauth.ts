@@ -1,11 +1,16 @@
 /**
  * Web OAuth orchestrator for connecting a social network.
  *
- * The existing `oauth-start` returns the provider authorize URL; `oauth-callback`
- * exchanges + persists the token SERVER-SIDE, then 302s to `vidcica://` (a mobile
- * scheme a browser can't follow). So on web we open a popup and — since the token
- * is saved before that redirect — DETECT success by reading the `networks` row
- * (poll while the popup is open). No backend change.
+ * `oauth-start` returns the provider authorize URL; `oauth-callback` exchanges +
+ * persists the token SERVER-SIDE, then 302s the browser back. We pass
+ * `redirect_after` so that bounce lands on `/networks/connected` (a real page
+ * that closes itself) instead of the mobile `vidcica://` scheme, which a browser
+ * renders as an "unknown protocol" error — the first thing a Meta/TikTok
+ * reviewer would see while walking the connect flow.
+ *
+ * Success is still DETECTED by reading the `networks` row rather than trusting
+ * the redirect: polling covers the case where the server ignores our
+ * `redirect_after` (origin not allowlisted) and falls back to the deep link.
  *
  * IMPORTANT: the popup MUST be opened synchronously inside the click handler
  * (before any `await`), or the browser popup-blocks it. So the caller opens a
@@ -24,6 +29,13 @@ import { platformToProvider, type PlatformId } from "@/lib/vidcica/network";
 
 type DB = SupabaseClient<Database>;
 const SUPABASE_URL = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
+
+/** Where oauth-callback should send the popup once the token is stored. Read
+ *  from the live origin so localhost dev and production each return to
+ *  themselves; the server allowlist decides whether to honour it. */
+export const OAUTH_RETURN_PATH = "/oauth/connected";
+const OAUTH_RETURN_URL =
+  typeof window === "undefined" ? undefined : `${window.location.origin}${OAUTH_RETURN_PATH}`;
 
 export type OAuthOutcome =
   | { ok: true }
@@ -123,7 +135,12 @@ export async function startNetworkOAuth(
         const res = await fetch(`${SUPABASE_URL}/functions/v1/oauth-start`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ platform: provider }),
+          // `redirect_after` tells oauth-callback to bounce the popup to a real
+          // web page instead of the `vidcica://` deep link (which a browser
+          // renders as an "unknown protocol" error). The server only honours
+          // origins in its WEB_RETURN_ORIGINS allowlist, so an unknown origin
+          // degrades to the legacy deep link rather than failing the connect.
+          body: JSON.stringify({ platform: provider, redirect_after: OAUTH_RETURN_URL }),
         });
         const body = (await res.json().catch(() => ({}))) as {
           authorizeUrl?: string;

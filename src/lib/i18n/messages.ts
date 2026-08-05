@@ -192,6 +192,43 @@ export const fr = {
   "networks.tagline.tiktok": "Vidéos courtes virales",
   "networks.tagline.threads": "Posts et fils de discussion",
 
+  // ── oauth return page (popup landing after oauth-callback) ─────────
+  "oauth.successTitle": "Compte connecté",
+  "oauth.successBody": "Vous pouvez revenir à Vidcica. Cette fenêtre se ferme toute seule.",
+  "oauth.failureTitle": "Connexion annulée",
+  "oauth.failureBody": "Aucun compte n’a été connecté. Vous pouvez réessayer depuis Vidcica.",
+
+  // ── TikTok pre-post panel (required by TikTok’s Content Posting audit) ──
+  "tiktok.sectionTitle": "Paramètres TikTok",
+  "tiktok.sectionSubtitle": "TikTok exige ces choix avant chaque publication.",
+  "tiktok.needsReconnect": "Votre compte TikTok doit être reconnecté avant de publier.",
+  "tiktok.loadFailed": "Impossible de récupérer vos paramètres TikTok. Réessayez.",
+  "tiktok.privacyTitle": "Qui peut voir cette vidéo ?",
+  "tiktok.privacy.public": "Tout le monde",
+  "tiktok.privacy.friends": "Amis (abonnements mutuels)",
+  "tiktok.privacy.followers": "Mes abonnés",
+  "tiktok.privacy.private": "Moi uniquement",
+  "tiktok.noPrivacyOptions": "Aucune option de confidentialité disponible pour ce compte.",
+  "tiktok.interactionsTitle": "Interactions",
+  "tiktok.allowComments": "Autoriser les commentaires",
+  "tiktok.allowDuet": "Autoriser les Duos",
+  "tiktok.allowStitch": "Autoriser les Collages",
+  "tiktok.lockedByAccount": "Désactivé sur votre compte",
+  "tiktok.disclosureTitle": "Contenu commercial",
+  "tiktok.disclosureHelp":
+    "Indiquez si cette vidéo fait la promotion d’une marque, d’un produit ou d’un service.",
+  "tiktok.yourBrand": "Votre marque",
+  "tiktok.brandedContent": "Contenu de marque (partenariat rémunéré)",
+  "tiktok.labelPreview": "Votre vidéo affichera la mention « {label} ».",
+  "tiktok.labelPromotional": "Contenu promotionnel",
+  "tiktok.labelPaidPartnership": "Partenariat rémunéré",
+  "tiktok.blockPrivacyRequired": "Choisissez qui peut voir cette vidéo avant de publier.",
+  "tiktok.blockBrandedPrivate":
+    "Un contenu de marque ne peut pas être publié en « Moi uniquement ». Choisissez une autre confidentialité.",
+  "tiktok.blockTooLong": "Cette vidéo dépasse la durée maximale autorisée par TikTok ({max} s).",
+  "tiktok.consent":
+    "En publiant, vous acceptez les Conditions d’utilisation des créateurs de musique TikTok.",
+
   // ── generated (workflow) ──
   "dashboard.metaTitle": "Accueil",
   "dashboard.greeting": "Bonjour {name} 👋",
@@ -560,6 +597,7 @@ export const fr = {
   "publish.captionApplyAll": "Appliquer à tous les réseaux",
   "publish.captionReset": "Réinitialiser",
   "publish.captionSelectToEdit": "Sélectionnez un réseau pour modifier sa légende.",
+  "publish.previewHandleFallback": "@votre_compte",
   "publish.connected": "Connecté",
   "publish.soon": "Bientôt",
   "publish.statusDisconnected": "Non connecté",
@@ -1334,6 +1372,41 @@ export const en: Partial<Record<MessageKey, string>> = {
   "networks.tagline.tiktok": "Viral short videos",
   "networks.tagline.threads": "Posts and threads",
 
+  // ── oauth return page (popup landing after oauth-callback) ─────────
+  "oauth.successTitle": "Account connected",
+  "oauth.successBody": "You can head back to Vidcica. This window closes on its own.",
+  "oauth.failureTitle": "Connection cancelled",
+  "oauth.failureBody": "No account was connected. You can try again from Vidcica.",
+
+  // ── TikTok pre-post panel (required by TikTok’s Content Posting audit) ──
+  "tiktok.sectionTitle": "TikTok settings",
+  "tiktok.sectionSubtitle": "TikTok requires these choices before every post.",
+  "tiktok.needsReconnect": "Your TikTok account needs reconnecting before you can post.",
+  "tiktok.loadFailed": "Couldn’t load your TikTok settings. Try again.",
+  "tiktok.privacyTitle": "Who can view this video?",
+  "tiktok.privacy.public": "Everyone",
+  "tiktok.privacy.friends": "Friends (mutual follows)",
+  "tiktok.privacy.followers": "My followers",
+  "tiktok.privacy.private": "Only me",
+  "tiktok.noPrivacyOptions": "No privacy options available for this account.",
+  "tiktok.interactionsTitle": "Interactions",
+  "tiktok.allowComments": "Allow comments",
+  "tiktok.allowDuet": "Allow Duet",
+  "tiktok.allowStitch": "Allow Stitch",
+  "tiktok.lockedByAccount": "Turned off on your account",
+  "tiktok.disclosureTitle": "Commercial content",
+  "tiktok.disclosureHelp": "Tell us whether this video promotes a brand, product or service.",
+  "tiktok.yourBrand": "Your brand",
+  "tiktok.brandedContent": "Branded content (paid partnership)",
+  "tiktok.labelPreview": "Your video will show the “{label}” label.",
+  "tiktok.labelPromotional": "Promotional content",
+  "tiktok.labelPaidPartnership": "Paid partnership",
+  "tiktok.blockPrivacyRequired": "Choose who can view this video before posting.",
+  "tiktok.blockBrandedPrivate":
+    "Branded content can’t be posted as “Only me”. Pick a different privacy level.",
+  "tiktok.blockTooLong": "This video is longer than TikTok allows for your account ({max}s).",
+  "tiktok.consent": "By posting, you agree to TikTok’s Music Usage Confirmation.",
+
   // ── generated (workflow) ──
   "dashboard.metaTitle": "Home",
   "dashboard.greeting": "Hi {name} 👋",
@@ -1698,6 +1771,7 @@ export const en: Partial<Record<MessageKey, string>> = {
   "publish.captionApplyAll": "Apply to all networks",
   "publish.captionReset": "Reset",
   "publish.captionSelectToEdit": "Select a network to edit its caption.",
+  "publish.previewHandleFallback": "@your_account",
   "publish.connected": "Connected",
   "publish.soon": "Soon",
   "publish.statusDisconnected": "Not connected",
