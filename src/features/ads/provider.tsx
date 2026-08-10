@@ -14,9 +14,17 @@ const BoostStoreContext = createContext<BoostStore | null>(null);
 export function BoostStoreProvider({
   children,
   deps,
+  initialVideoId,
+  initialName,
+  initialStep,
 }: {
   children: React.ReactNode;
   deps?: BoostDeps;
+  /** Preselected video when arriving from a video's "Booster" action. */
+  initialVideoId?: string;
+  initialName?: string;
+  /** Skip past the video picker when the video is already chosen. */
+  initialStep?: number;
 }) {
   const [store] = useState<BoostStore>(() =>
     createBoostStore(
@@ -25,6 +33,7 @@ export function BoostStoreProvider({
         createDraft: (draft) => createDraftCampaign(draft),
         createCampaign: (id) => createAdCampaign(createClient(), id),
       },
+      { videoId: initialVideoId, name: initialName, step: initialStep },
     ),
   );
   return <BoostStoreContext.Provider value={store}>{children}</BoostStoreContext.Provider>;

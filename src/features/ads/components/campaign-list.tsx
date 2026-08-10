@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useCampaignsRealtime } from "@/lib/vidcica/use-campaigns-realtime";
 import {
   budgetText,
+  formatAdMoney,
   objectiveLabel,
   CAMPAIGN_OBJECTIVE_KEY,
   CAMPAIGN_STATUS_KEY,
@@ -45,7 +46,7 @@ function tabOf(status: CampaignStatus): Tab {
   return "active";
 }
 
-function CampaignCard({ c }: { c: Campaign }) {
+function CampaignCard({ c, currency }: { c: Campaign; currency: string }) {
   const t = useT();
   const meta = STATUS_META[c.status];
   const isDraft = c.status === "brouillon";
@@ -57,7 +58,7 @@ function CampaignCard({ c }: { c: Campaign }) {
             <div className="flex min-w-0 flex-col gap-0.5">
               <span className="truncate font-medium">{c.name}</span>
               <span className="text-muted-foreground text-xs">
-                {objectiveText(t, c.objective)} · {budgetText(t, c)}
+                {objectiveText(t, c.objective)} · {budgetText(t, c, currency)}
               </span>
             </div>
             <Badge variant={meta.variant} data-testid={`campaign-status-${c.id}`}>
@@ -73,7 +74,10 @@ function CampaignCard({ c }: { c: Campaign }) {
               label={t("ads.metric.clicks")}
               value={c.metrics.clicks.toLocaleString("fr-FR")}
             />
-            <Metric label={t("ads.metric.spent")} value={`${c.metrics.budgetSpent.toFixed(2)} €`} />
+            <Metric
+              label={t("ads.metric.spent")}
+              value={formatAdMoney(c.metrics.budgetSpent, currency)}
+            />
           </div>
         </Card>
       </Link>
@@ -105,7 +109,17 @@ function Metric({ label, value }: { label: string; value: string }) {
  * realtime list; draft cards surface a "resume in the wizard" affordance. Honest empty
  * states per tab and for a fully empty account.
  */
-export function CampaignList({ userId, initial }: { userId: string; initial: Campaign[] }) {
+export function CampaignList({
+  userId,
+  initial,
+  currency = "EUR",
+}: {
+  userId: string;
+  initial: Campaign[];
+  /** The ad account's currency (see getMyAdAccountCurrency). Every money figure
+   *  below is in Meta's account currency, never assumed to be euros. */
+  currency?: string;
+}) {
   const t = useT();
   const campaigns = useCampaignsRealtime(userId, initial);
   const [tab, setTab] = useState<Tab>("active");
@@ -167,7 +181,7 @@ export function CampaignList({ userId, initial }: { userId: string; initial: Cam
       ) : (
         <div className="flex flex-col gap-3">
           {visible.map((c) => (
-            <CampaignCard key={c.id} c={c} />
+            <CampaignCard key={c.id} c={c} currency={currency} />
           ))}
         </div>
       )}

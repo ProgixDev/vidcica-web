@@ -13,7 +13,11 @@ export async function generateMetadata() {
 }
 export const dynamic = "force-dynamic";
 
-export default async function BoostPage() {
+export default async function BoostPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ videoId?: string }>;
+}) {
   const t = await getT();
   const supabase = await createClient();
   const {
@@ -26,6 +30,13 @@ export default async function BoostPage() {
     .filter(isReady)
     .map((v) => ({ id: v.id, title: v.title }));
 
+  // ?videoId= arrives from a video's "Booster" action. Resolve it against the
+  // user's own ready videos rather than trusting the URL: an unknown or
+  // someone else's id simply falls through to the normal picker instead of
+  // seeding a draft that would fail at create time.
+  const { videoId } = await searchParams;
+  const preselected = videoId ? videos.find((v) => v.id === videoId) : undefined;
+
   return (
     <>
       <PageHeader
@@ -37,7 +48,11 @@ export default async function BoostPage() {
         }
       />
       <div className="w-full max-w-2xl">
-        <BoostStoreProvider>
+        <BoostStoreProvider
+          initialVideoId={preselected?.id}
+          initialName={preselected ? t("ads.boostName", { title: preselected.title }) : undefined}
+          initialStep={preselected ? 1 : 0}
+        >
           <BoostWizard videos={videos} />
         </BoostStoreProvider>
       </div>

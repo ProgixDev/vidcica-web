@@ -47,7 +47,16 @@ describe("<CampaignList /> (AC-1)", () => {
     render(<CampaignList userId="" initial={[campaign()]} />);
     expect(screen.getByTestId("campaign-list")).toBeInTheDocument();
     expect(screen.getByTestId("campaign-status-c1")).toHaveTextContent("Active");
-    expect(screen.getByText(/Trafic · 25 €\/jour/)).toBeInTheDocument();
+    // Defaults to EUR when no ad account is connected.
+    expect(screen.getByText(/Trafic · 25\s*€ par jour/)).toBeInTheDocument();
     expect(screen.getByText("3 120")).toBeInTheDocument(); // impressions, fr-FR grouping
+  });
+
+  it("renders money in the AD ACCOUNT's currency, not a hardcoded euro", () => {
+    // A Canadian ad account bills CAD; showing "€" would misstate what the
+    // campaign actually costs and what it has already spent.
+    render(<CampaignList userId="" initial={[campaign()]} currency="CAD" />);
+    expect(screen.queryByText(/€/)).not.toBeInTheDocument();
+    expect(screen.getByText(/25/)).toBeInTheDocument();
   });
 });

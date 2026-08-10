@@ -93,6 +93,17 @@ export function VideoDetail({ video }: { video: Video }) {
         >
           {t("common.publish")}
         </Link>
+        {/* Mirrors the mobile app's "Booster avec Meta Ads" card on this screen
+            (ClipFlow app/video/[id].tsx). The wizard resolves ?videoId= against
+            the user's own ready videos, so an unknown id degrades to the normal
+            picker rather than seeding an unusable draft. */}
+        <Link
+          href={`/ads/new?videoId=${encodeURIComponent(video.id)}`}
+          className={buttonVariants({ variant: "outline" })}
+          data-testid="boost-link"
+        >
+          {t("videos.boost")}
+        </Link>
         <Button variant="outline" onClick={onShare} data-testid="share-btn">
           {copied ? t("videos.linkCopied") : t("videos.copyLink")}
         </Button>

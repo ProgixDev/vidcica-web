@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
-import { listMyCampaigns } from "@/lib/vidcica/ads-queries";
+import { getMyAdAccountCurrency, listMyCampaigns } from "@/lib/vidcica/ads-queries";
 import { CampaignList } from "@/features/ads";
 import { PageHeader } from "@/components/app-shell";
 import { getT } from "@/lib/i18n/server";
@@ -21,7 +21,7 @@ export default async function AdsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/ads");
 
-  const campaigns = await listMyCampaigns();
+  const [campaigns, currency] = await Promise.all([listMyCampaigns(), getMyAdAccountCurrency()]);
 
   return (
     <>
@@ -38,7 +38,7 @@ export default async function AdsPage() {
         }
       />
       <div className="w-full max-w-3xl">
-        <CampaignList userId={user.id} initial={campaigns} />
+        <CampaignList userId={user.id} initial={campaigns} currency={currency} />
       </div>
     </>
   );

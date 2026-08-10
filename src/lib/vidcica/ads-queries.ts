@@ -22,6 +22,20 @@ export async function listMyCampaigns(): Promise<Campaign[]> {
   return data.map((r) => rowToCampaign(r as Parameters<typeof rowToCampaign>[0]));
 }
 
+/**
+ * The currency of the caller's Meta ad account, or EUR when none is connected.
+ *
+ * Every money figure on the ads surface — budgets, spend, CPM, CPC — is
+ * denominated in the AD ACCOUNT's currency, because that is what Meta bills and
+ * reports in. A Canadian account spends CAD no matter what the UI says, so the
+ * UI has to ask rather than assume.
+ */
+export async function getMyAdAccountCurrency(): Promise<string> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("ad_accounts").select("currency").maybeSingle();
+  return (data?.currency as string | null) || "EUR";
+}
+
 /** One campaign by id, or null if it isn't the caller's (RLS filters it out). */
 export async function getMyCampaign(id: string): Promise<Campaign | null> {
   const supabase = await createClient();

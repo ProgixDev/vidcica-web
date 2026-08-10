@@ -214,11 +214,27 @@ export function budgetLabel(
 }
 
 /** Localized budget summary — pass the caller's `t()`. */
+/**
+ * Format an amount in the AD ACCOUNT's currency.
+ *
+ * Meta denominates budgets, spend, CPM and CPC in the ad account's currency, so
+ * nothing on the ads surface may assume euros — a Canadian account genuinely
+ * spends CAD. Callers pass the currency from `getMyAdAccountCurrency()`.
+ */
+export function formatAdMoney(amount: number, currency = "EUR", locale = "fr-FR"): string {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+  }).format(Number.isFinite(amount) ? amount : 0);
+}
+
 export function budgetText(
   t: import("@/lib/i18n").TFunction,
   c: Pick<Campaign, "budgetMode" | "budgetTotal" | "budgetDaily">,
+  currency = "EUR",
 ): string {
   return c.budgetMode === "total"
-    ? t("ads.budgetTotalValue", { amount: c.budgetTotal })
-    : t("ads.budgetDailyValue", { amount: c.budgetDaily ?? 0 });
+    ? t("ads.budgetTotalValue", { amount: formatAdMoney(c.budgetTotal ?? 0, currency) })
+    : t("ads.budgetDailyValue", { amount: formatAdMoney(c.budgetDaily ?? 0, currency) });
 }

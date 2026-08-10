@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { AnimatePresence, m } from "@/components/motion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -16,12 +17,31 @@ import {
   type CampaignGender,
   type SupportedObjective,
 } from "@/lib/vidcica/campaign";
-import { useT } from "@/lib/i18n/provider";
+import { useLocale, useT } from "@/lib/i18n/provider";
+import { cn } from "@/lib/utils";
 import type { MessageKey } from "@/lib/i18n";
-import { BOOST_STEPS, isDraftReady } from "../store";
+import { BOOST_STEPS, gateCurrency, isDraftReady } from "../store";
 import { useBoostStore } from "../provider";
 
 export type VideoOption = { id: string; title: string };
+
+/** Money formatted in the AD ACCOUNT's currency, not a hardcoded euro sign.
+ *  A CAD account genuinely spends CAD, so showing "€" would misstate what a
+ *  campaign costs. Intl also gets the locale's placement/separators right. */
+function useMoney() {
+  const locale = useLocale();
+  const gate = useBoostStore((s) => s.gate);
+  const currency = gateCurrency(gate);
+  return {
+    currency,
+    format: (amount: number) =>
+      new Intl.NumberFormat(locale === "en" ? "en-CA" : "fr-FR", {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 0,
+      }).format(Number.isFinite(amount) ? amount : 0),
+  };
+}
 
 const COUNTRIES: [string, MessageKey][] = [
   ["FR", "ads.country.FR"],
@@ -113,6 +133,10 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
   const submit = useBoostStore((s) => s.submit);
   const saveDraft = useBoostStore((s) => s.saveDraft);
   const campaignId = useBoostStore((s) => s.campaignId);
+  // Forward steps enter from the right, back steps from the left, so the motion
+  // matches the mental model of moving through a form. The store sets this on
+  // each transition (see BoostState.dir).
+  const dir = useBoostStore((s) => s.dir);
 
   const draftOnly = phase === "draftOnly";
   const creating = phase === "creating";
@@ -134,23 +158,30 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
         </div>
       ) : null}
 
-      <ol
-        className="text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 text-xs"
-        aria-label={t("ads.stepsAria")}
-      >
-        {BOOST_STEPS.map((s, i) => (
-          <li key={s} className={i === step ? "text-foreground font-medium" : undefined}>
-            {i + 1}. {t(STEP_TITLE[s])}
-          </li>
-        ))}
-      </ol>
+      <Stepper step={step} onSelect={setStep} />
 
-      <Card className="flex flex-col gap-4 p-5">
-        {key === "video" ? <VideoStep videos={videos} draft={draft} setDraft={setDraft} /> : null}
-        {key === "objective" ? <ObjectiveStep draft={draft} setDraft={setDraft} /> : null}
-        {key === "audience" ? <AudienceStep draft={draft} setDraft={setDraft} /> : null}
-        {key === "budget" ? <BudgetStep draft={draft} setDraft={setDraft} /> : null}
-        {key === "review" ? <ReviewStep draft={draft} videos={videos} /> : null}
+      {/* mode="wait" so the outgoing step finishes before the next arrives —
+          crossfading two forms of different heights makes the card jump. */}
+      <Card className="overflow-hidden p-5">
+        <AnimatePresence mode="wait" initial={false} custom={dir}>
+          <m.div
+            key={key}
+            custom={dir}
+            initial={{ opacity: 0, x: dir * 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: dir * -24 }}
+            transition={{ type: "spring", stiffness: 320, damping: 32, mass: 0.6 }}
+            className="flex flex-col gap-4"
+          >
+            {key === "video" ? (
+              <VideoStep videos={videos} draft={draft} setDraft={setDraft} />
+            ) : null}
+            {key === "objective" ? <ObjectiveStep draft={draft} setDraft={setDraft} /> : null}
+            {key === "audience" ? <AudienceStep draft={draft} setDraft={setDraft} /> : null}
+            {key === "budget" ? <BudgetStep draft={draft} setDraft={setDraft} /> : null}
+            {key === "review" ? <ReviewStep draft={draft} videos={videos} /> : null}
+          </m.div>
+        </AnimatePresence>
       </Card>
 
       {error ? (
@@ -196,6 +227,88 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * Progress rail. Completed steps stay clickable so a user can jump back and
+ * correct something without walking the whole wizard again; steps ahead are
+ * disabled because they may not be valid yet.
+ *
+ * The fill is a single animated element rather than per-segment colouring, so
+ * progress reads as one continuous movement.
+ */
+function Stepper({ step, onSelect }: { step: number; onSelect: (i: number) => void }) {
+  const t = useT();
+  const pct = (step / (BOOST_STEPS.length - 1)) * 100;
+
+  return (
+    <nav aria-label={t("ads.stepsAria")} data-testid="boost-stepper">
+      <div className="relative">
+        <div className="bg-muted absolute top-3.5 right-0 left-0 h-0.5" aria-hidden />
+        <m.div
+          className="bg-primary absolute top-3.5 left-0 h-0.5"
+          aria-hidden
+          initial={false}
+          animate={{ width: `${pct}%` }}
+          transition={{ type: "spring", stiffness: 260, damping: 30 }}
+        />
+        <ol className="relative flex justify-between">
+          {BOOST_STEPS.map((s, i) => {
+            const done = i < step;
+            const current = i === step;
+            const reachable = i <= step;
+            return (
+              <li key={s} className="flex flex-col items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => reachable && onSelect(i)}
+                  disabled={!reachable}
+                  aria-current={current ? "step" : undefined}
+                  data-testid={`boost-step-${s}`}
+                  className={cn(
+                    "bg-background flex size-7 items-center justify-center rounded-full border-2 text-[11px] font-semibold transition-colors",
+                    done && "border-primary bg-primary text-primary-foreground",
+                    current && "border-primary text-primary",
+                    !done && !current && "border-muted text-muted-foreground",
+                    reachable ? "cursor-pointer" : "cursor-default",
+                  )}
+                >
+                  {done ? (
+                    <m.svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      initial={{ scale: 0.4, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                      aria-hidden
+                    >
+                      <path d="M20 6 9 17l-5-5" />
+                    </m.svg>
+                  ) : (
+                    i + 1
+                  )}
+                </button>
+                <span
+                  className={cn(
+                    "hidden text-[11px] sm:block",
+                    current ? "text-foreground font-medium" : "text-muted-foreground",
+                  )}
+                >
+                  {t(STEP_TITLE[s])}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    </nav>
   );
 }
 
@@ -347,6 +460,8 @@ function AudienceStep({ draft, setDraft }: StepProps) {
 
 function BudgetStep({ draft, setDraft }: StepProps) {
   const t = useT();
+  const { currency, format } = useMoney();
+  const amount = draft.budgetMode === "total" ? draft.budgetTotal : draft.budgetDaily;
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
@@ -364,7 +479,7 @@ function BudgetStep({ draft, setDraft }: StepProps) {
       </div>
       {draft.budgetMode === "total" ? (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="bw-budget-total">{t("ads.field.budgetTotal")}</Label>
+          <Label htmlFor="bw-budget-total">{t("ads.field.budgetTotal", { currency })}</Label>
           <Input
             id="bw-budget-total"
             data-testid="bw-budget-total"
@@ -376,7 +491,7 @@ function BudgetStep({ draft, setDraft }: StepProps) {
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="bw-budget-daily">{t("ads.field.budgetDaily")}</Label>
+          <Label htmlFor="bw-budget-daily">{t("ads.field.budgetDaily", { currency })}</Label>
           <Input
             id="bw-budget-daily"
             data-testid="bw-budget-daily"
@@ -387,12 +502,29 @@ function BudgetStep({ draft, setDraft }: StepProps) {
           />
         </div>
       )}
+
+      {/* Restate the amount in the ad account's own currency. The number the
+          user types is sent to Meta in THAT currency, so seeing it formatted
+          removes any doubt about what is actually being spent. */}
+      <m.p
+        key={`${draft.budgetMode}-${amount}`}
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
+        className="text-muted-foreground text-xs"
+        data-testid="bw-budget-preview"
+      >
+        {draft.budgetMode === "total"
+          ? t("ads.budgetTotalValue", { amount: format(amount) })
+          : t("ads.budgetDailyValue", { amount: format(amount) })}
+      </m.p>
     </div>
   );
 }
 
 function ReviewStep({ draft, videos }: { draft: StepProps["draft"]; videos: VideoOption[] }) {
   const t = useT();
+  const { format } = useMoney();
   const video = videos.find((v) => v.id === draft.videoId);
   const rows: [string, string][] = [
     [t("ads.review.video"), video?.title ?? "—"],
@@ -404,17 +536,25 @@ function ReviewStep({ draft, videos }: { draft: StepProps["draft"]; videos: Vide
     [
       t("ads.review.budget"),
       draft.budgetMode === "total"
-        ? t("ads.budgetTotalValue", { amount: draft.budgetTotal })
-        : t("ads.budgetDailyValue", { amount: draft.budgetDaily }),
+        ? t("ads.budgetTotalValue", { amount: format(draft.budgetTotal) })
+        : t("ads.budgetDailyValue", { amount: format(draft.budgetDaily) }),
     ],
   ];
   return (
     <dl className="flex flex-col gap-2 text-sm" data-testid="bw-review">
-      {rows.map(([k, v]) => (
-        <div key={k} className="flex justify-between gap-4">
+      {rows.map(([k, v], i) => (
+        <m.div
+          key={k}
+          className="flex justify-between gap-4"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          // Staggered so the summary reads top-to-bottom as it lands, which
+          // encourages actually checking it before spending money.
+          transition={{ delay: i * 0.04, duration: 0.22, ease: "easeOut" }}
+        >
           <dt className="text-muted-foreground">{k}</dt>
           <dd className="text-right font-medium">{v}</dd>
-        </div>
+        </m.div>
       ))}
       <p className="text-muted-foreground mt-2 text-xs">{t("ads.review.note")}</p>
     </dl>

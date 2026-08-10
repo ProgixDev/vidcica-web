@@ -50,6 +50,11 @@ export type BoostState = {
   phase: BoostPhase;
   gate: AdAccountOutcome | null;
   step: number;
+  /** Direction of the last step change: 1 forward, -1 back. The wizard slides
+   *  each step in from the side you came from. Kept here because direction is a
+   *  property of the TRANSITION, and the store is what owns transitions —
+   *  deriving it in the component would mean reading a ref during render. */
+  dir: 1 | -1;
   draft: BoostDraft;
   error: string | null;
   /** Set once a campaigns row exists (real in_review OR a saved draft) — the UI links to it. */
@@ -77,12 +82,29 @@ export function isDraftReady(d: BoostDraft): boolean {
   );
 }
 
-export function createBoostStore(deps: BoostDeps) {
+/** The ad account's currency, or EUR when the gate hasn't resolved one. Meta
+ *  budgets are always in the AD ACCOUNT's currency, so the UI must never assume
+ *  euros — a Canadian account spends CAD whatever the wizard says. */
+export function gateCurrency(gate: AdAccountOutcome | null): string {
+  return (gate?.ok && gate.currency) || "EUR";
+}
+
+export function createBoostStore(
+  deps: BoostDeps,
+  /** Optional seed, e.g. arriving from a video's "Booster" button with the
+   *  video already chosen. Starting past step 0 skips re-picking it. */
+  init?: { videoId?: string; name?: string; step?: number },
+) {
   return createStore<BoostState>()((set, get) => ({
     phase: "checking",
     gate: null,
-    step: 0,
-    draft: { ...EMPTY_DRAFT },
+    step: init?.step ?? 0,
+    dir: 1,
+    draft: {
+      ...EMPTY_DRAFT,
+      ...(init?.videoId ? { videoId: init.videoId } : {}),
+      ...(init?.name ? { name: init.name } : {}),
+    },
     error: null,
     campaignId: null,
     launched: false,
@@ -94,7 +116,11 @@ export function createBoostStore(deps: BoostDeps) {
       set({ gate, phase: canLaunch ? "ready" : "draftOnly" });
     },
 
-    setStep: (step) => set({ step: Math.max(0, Math.min(step, BOOST_STEPS.length - 1)) }),
+    setStep: (step) =>
+      set((s) => {
+        const clamped = Math.max(0, Math.min(step, BOOST_STEPS.length - 1));
+        return { step: clamped, dir: clamped < s.step ? -1 : 1 };
+      }),
     setDraft: (patch) => set((s) => ({ draft: { ...s.draft, ...patch } })),
 
     submit: async () => {
