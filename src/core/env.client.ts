@@ -17,6 +17,10 @@ const clientEnvSchema = z.object({
       message:
         "That looks like a SERVICE ROLE / secret key — never expose it. Use the anon/publishable key; the service key bypasses RLS.",
     }),
+  // VAPID public key for Web Push. PUBLIC by design (it's the applicationServerKey
+  // the browser needs to subscribe). Empty when push isn't configured — the client
+  // treats "no key" as "push unavailable" and hides the enable control.
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().default(""),
 });
 
 // NEXT_PUBLIC_* must be referenced statically for Next.js to inline them.
@@ -24,4 +28,5 @@ export const clientEnv = clientEnvSchema.parse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://localhost.supabase.co",
   NEXT_PUBLIC_SUPABASE_ANON_KEY:
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "public-anon-key-placeholder",
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
 });

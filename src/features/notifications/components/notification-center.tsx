@@ -16,6 +16,7 @@ import {
 } from "@/lib/vidcica/notification";
 import { useNotificationsRealtime } from "@/lib/vidcica/use-notifications-realtime";
 import { markAllRead, markRead } from "../actions";
+import { EnablePushBanner } from "./enable-push-banner";
 
 const DOT = {
   success: "bg-success",
@@ -125,6 +126,7 @@ export function NotificationCenter({
 
   return (
     <div className="flex flex-col gap-5" data-testid="notification-center">
+      <EnablePushBanner />
       <div className="flex items-center justify-between">
         <p className="text-sm">
           <span data-testid="unread-count" className="font-semibold">
