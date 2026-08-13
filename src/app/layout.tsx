@@ -3,7 +3,7 @@ import { Outfit, Geist_Mono } from "next/font/google";
 import { MotionProvider } from "@/components/motion";
 import { I18nProvider, LocaleTransition } from "@/lib/i18n/provider";
 import { getLocale } from "@/lib/i18n/server";
-import { site } from "@/core/site";
+import { site, isIndexableDeploy } from "@/core/site";
 import "./globals.css";
 
 // Outfit is the Vidcica brand face (mobile uses @expo-google-fonts/outfit).
@@ -41,7 +41,8 @@ export const metadata: Metadata = {
     title: site.name,
     description: site.description,
   },
-  robots: { index: true, follow: true },
+  // Preview/branch deploys must never be indexed — only the production deploy is.
+  robots: isIndexableDeploy ? { index: true, follow: true } : { index: false, follow: false },
   // Google Search Console ownership proof (required for the OAuth app / YouTube
   // scope verification). Emits <meta name="google-site-verification" …>.
   verification: { google: "j47WpSBEqnX5rs3T3knaupZDrQoeKR-xvitw4UF8-w0" },
