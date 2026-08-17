@@ -343,12 +343,12 @@ export const fr = {
   "legal.metaTitle": "Mentions légales",
   "legal.metaDescription": "Mentions légales du site vidcica.com — éditeur, hébergement, contact.",
   "legal.pageTitle": "Mentions légales",
-  "legal.lastUpdated": "Dernière mise à jour : 19 juillet 2026",
+  "legal.lastUpdated": "Dernière mise à jour : 17 août 2026",
   "legal.backHome": "← Retour à l’accueil",
   "legal.editor.title": "Éditeur du site",
   "legal.editor.body":
-    "Le site vidcica.com et le service Vidcica sont édités par [raison sociale à compléter], [forme juridique à compléter], immatriculée sous le numéro [SIREN à compléter], dont le siège social est situé [adresse à compléter].",
-  "legal.editor.director": "Directeur de la publication : [à compléter].",
+    "Le site vidcica.com et le service Vidcica sont édités par VIDCICA, établie à Rouyn-Noranda (Québec) J9X 3H5, Canada.",
+  "legal.editor.director": "Directeur de la publication : Kenn Dimitri.",
   "legal.editor.contact": "Contact :",
   "legal.hosting.title": "Hébergement",
   "legal.hosting.body":
@@ -1528,12 +1528,12 @@ export const en: Partial<Record<MessageKey, string>> = {
   "legal.metaTitle": "Legal notice",
   "legal.metaDescription": "Legal notice for vidcica.com — publisher, hosting, contact.",
   "legal.pageTitle": "Legal notice",
-  "legal.lastUpdated": "Last updated: 19 July 2026",
+  "legal.lastUpdated": "Last updated: 17 August 2026",
   "legal.backHome": "← Back to home",
   "legal.editor.title": "Website publisher",
   "legal.editor.body":
-    "The vidcica.com website and the Vidcica service are published by [raison sociale à compléter], [forme juridique à compléter], registered under number [SIREN à compléter], with its registered office located at [adresse à compléter].",
-  "legal.editor.director": "Publication director: [à compléter].",
+    "The vidcica.com website and the Vidcica service are published by VIDCICA, located in Rouyn-Noranda, Quebec J9X 3H5, Canada.",
+  "legal.editor.director": "Publication director: Kenn Dimitri.",
   "legal.editor.contact": "Contact:",
   "legal.hosting.title": "Hosting",
   "legal.hosting.body":
