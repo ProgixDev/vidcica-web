@@ -7,9 +7,10 @@ import { HeaderCta } from "@/components/header-cta";
 import { LandingAmbience } from "@/components/landing-ambience";
 import { LandingVideo } from "@/components/landing-video";
 import { LanguageToggle } from "@/components/language-toggle";
+import { PricingCards } from "@/components/pricing-cards";
 import { Reveal } from "@/components/reveal";
+import { ShowcaseVideo } from "@/components/showcase-video";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ORDERED_TIERS, TIERS } from "@/lib/vidcica/tiers";
 import { getT } from "@/lib/i18n/server";
 import type { MessageKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -37,21 +38,37 @@ const HERO_CLIP = clip("hero");
 
 const PLATFORMS = ["Instagram", "TikTok", "YouTube Shorts", "Facebook", "LinkedIn", "Threads"];
 
-const SHOWCASE: { clip: ReturnType<typeof clip>; chip: MessageKey; caption: MessageKey }[] = [
+/**
+ * The first three cards are REAL Vidcica renders pulled from the production
+ * `videos` bucket (trimmed + re-encoded for the web), so each one actually
+ * demonstrates the claim printed under it: an ElevenLabs voiceover, the
+ * burned-in animated subtitles, and the catalog music bed. They carry audio and
+ * a sound toggle. The remaining three stay silent stock B-roll — their claims
+ * (script, footage, 9:16 export) are visual, not audible.
+ */
+const SHOWCASE: {
+  clip: ReturnType<typeof clip>;
+  chip: MessageKey;
+  caption: MessageKey;
+  sound?: boolean;
+}[] = [
   {
-    clip: clip("clip-restaurant"),
+    clip: clip("proof-voice"),
     chip: "landing.showcase.1.chip",
     caption: "landing.showcase.1.caption",
+    sound: true,
   },
   {
-    clip: clip("clip-boutique"),
+    clip: clip("proof-subtitles"),
     chip: "landing.showcase.2.chip",
     caption: "landing.showcase.2.caption",
+    sound: true,
   },
   {
-    clip: clip("clip-sport"),
+    clip: clip("proof-music"),
     chip: "landing.showcase.3.chip",
     caption: "landing.showcase.3.caption",
+    sound: true,
   },
   {
     clip: bucketClip("welcome-1"),
@@ -412,11 +429,21 @@ export default async function Home() {
               <Reveal key={item.chip} delay={(i % 3) * 0.08}>
                 <figure className="group flex flex-col gap-3">
                   <div className="border-border bg-card relative overflow-hidden rounded-lg border shadow-lg transition-transform duration-300 group-hover:-translate-y-1 motion-reduce:transition-none">
-                    <LandingVideo
-                      src={item.clip.src}
-                      poster={item.clip.poster}
-                      className="aspect-9/16 w-full object-cover"
-                    />
+                    {item.sound ? (
+                      <ShowcaseVideo
+                        src={item.clip.src}
+                        poster={item.clip.poster}
+                        className="aspect-9/16 w-full object-cover"
+                        soundOnLabel={t("landing.showcase.soundOn")}
+                        soundOffLabel={t("landing.showcase.soundOff")}
+                      />
+                    ) : (
+                      <LandingVideo
+                        src={item.clip.src}
+                        poster={item.clip.poster}
+                        className="aspect-9/16 w-full object-cover"
+                      />
+                    )}
                     <GlassChip className="absolute bottom-3 left-3">{t(item.chip)}</GlassChip>
                   </div>
                   <figcaption className="text-muted-foreground px-1 text-xs leading-relaxed">
@@ -575,85 +602,7 @@ export default async function Home() {
                 {t("landing.pricing.subtitle")}
               </p>
             </Reveal>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {ORDERED_TIERS.map((id, i) => {
-                const tier = TIERS[id];
-                const popular = id === "pro";
-                return (
-                  <Reveal
-                    key={id}
-                    delay={(i % 4) * 0.07}
-                    className={cn(
-                      "relative flex h-full flex-col gap-4 rounded-lg border p-5 transition-transform hover:-translate-y-1 motion-reduce:transition-none",
-                      popular
-                        ? "border-primary shadow-xl sm:-my-2 sm:py-7"
-                        : "border-border bg-card/80 shadow-sm backdrop-blur-sm",
-                    )}
-                    style={
-                      popular
-                        ? {
-                            background:
-                              "linear-gradient(160deg, color-mix(in oklab, var(--primary) 14%, var(--card)), var(--card))",
-                          }
-                        : undefined
-                    }
-                  >
-                    {popular ? (
-                      <span
-                        className="text-primary-foreground absolute -top-3 left-5 rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase shadow-md"
-                        style={{
-                          background:
-                            "linear-gradient(140deg, var(--primary), color-mix(in oklab, var(--primary) 72%, black))",
-                        }}
-                      >
-                        {t("landing.pricing.popular")}
-                      </span>
-                    ) : null}
-                    <div className="flex flex-col gap-1">
-                      <h3 className="text-sm font-semibold">{t(tier.labelKey)}</h3>
-                      <p className="flex items-baseline gap-1">
-                        <span className="text-3xl font-semibold tracking-tight">
-                          {tier.priceEUR} €
-                        </span>
-                        <span className="text-muted-foreground text-xs">
-                          {t("landing.pricing.perMonth")}
-                        </span>
-                      </p>
-                    </div>
-                    <ul className="flex flex-1 flex-col gap-2">
-                      {tier.highlightKeys.map((h) => (
-                        <li key={h} className="text-muted-foreground flex gap-2 text-xs">
-                          <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.4"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="text-primary mt-0.5 size-3 shrink-0"
-                            aria-hidden
-                          >
-                            <path d="m4.5 12.5 5 5 10-11" />
-                          </svg>
-                          {t(h)}
-                        </li>
-                      ))}
-                    </ul>
-                    <Link
-                      href="/sign-in"
-                      className={cn(
-                        buttonVariants({ variant: popular ? "default" : "outline", size: "sm" }),
-                        "rounded-full",
-                      )}
-                    >
-                      {tier.priceEUR === 0
-                        ? t("landing.pricing.startFree")
-                        : t("landing.pricing.choose", { plan: t(tier.labelKey) })}
-                    </Link>
-                  </Reveal>
-                );
-              })}
-            </div>
+            <PricingCards t={t} />
           </div>
         </section>
 
