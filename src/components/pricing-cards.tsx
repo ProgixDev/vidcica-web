@@ -2,7 +2,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import type { TFunction } from "@/lib/i18n";
-import { modelsUnlockedAt } from "@/lib/vidcica/models";
+import { modelsAvailableTo, modelsUnlockedAt } from "@/lib/vidcica/models";
 import { ORDERED_TIERS, TIERS, type Plan, type TierDef } from "@/lib/vidcica/tiers";
 import { cn } from "@/lib/utils";
 
@@ -65,7 +65,11 @@ const isPayg = (tier: TierDef): boolean => FREE_IS_PAYG && tier.monthlyCredits =
 function PlanCard({ id, index, t }: { id: Plan; index: number; t: TFunction }) {
   const tier = TIERS[id];
   const popular = id === "pro";
-  const newModels = modelsUnlockedAt(id);
+  // Every model the tier can actually use, not just the ones it adds — the
+  // label promises what is included, so Studio must list the whole roster.
+  // Newly-unlocked ones stay emphasised so the upgrade delta is still legible.
+  const models = modelsAvailableTo(id);
+  const newIds = new Set(modelsUnlockedAt(id).map((m) => m.id));
   const previous = ORDERED_TIERS[index - 1];
 
   return (
@@ -121,16 +125,21 @@ function PlanCard({ id, index, t }: { id: Plan; index: number; t: TFunction }) {
       </div>
 
       {/* Models unlocked at this tier — the detail buyers compare on. */}
-      {newModels.length > 0 ? (
+      {models.length > 0 ? (
         <div className="flex flex-col gap-1.5">
           <p className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
-            {t("landing.pricing.modelsLabel")}
+            {t("landing.pricing.modelsLabel")} ({models.length})
           </p>
           <ul className="flex flex-wrap gap-1">
-            {newModels.map((m) => (
+            {models.map((m) => (
               <li
                 key={m.id}
-                className="border-primary/30 bg-primary/10 text-primary rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                className={cn(
+                  "rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                  newIds.has(m.id)
+                    ? "border-primary/40 bg-primary/15 text-primary"
+                    : "border-border text-muted-foreground",
+                )}
               >
                 {t(m.labelKey)}
               </li>
@@ -203,12 +212,12 @@ function ComparisonTable({ t }: { t: TFunction }) {
     },
     {
       labelKey: "landing.pricing.row.models",
-      render: (tier) =>
-        modelsUnlockedAt(tier.id).length > 0
-          ? modelsUnlockedAt(tier.id)
-              .map((m) => t(m.labelKey))
-              .join(" · ")
-          : "—",
+      render: (tier) => {
+        const n = modelsAvailableTo(tier.id).length;
+        return n === 1
+          ? t("landing.pricing.modelsCountOne")
+          : t("landing.pricing.modelsCount", { n });
+      },
     },
     { labelKey: "landing.pricing.row.quality", render: (tier) => tier.maxQuality },
     {
