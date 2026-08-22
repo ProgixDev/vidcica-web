@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getMyVideo, getLatestJob } from "@/lib/vidcica/queries";
-import { isReady } from "@/lib/vidcica/video";
+import { hasRenderedVideo } from "@/lib/vidcica/video";
 import { RenderProgress, VideoDetail } from "@/features/videos";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -37,7 +37,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
         }
       />
       <div className="w-full max-w-2xl">
-        {isReady(video) ? (
+        {hasRenderedVideo(video) ? (
           <VideoDetail video={video} />
         ) : job ? (
           <RenderProgress videoId={video.id} jobId={job.jobId} initialStatus={job.status} />

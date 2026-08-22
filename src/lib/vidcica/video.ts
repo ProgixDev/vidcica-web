@@ -88,6 +88,22 @@ export function isReady(v: Pick<Video, "status" | "videoUrl">): boolean {
   return v.status === "pret" && !!v.videoUrl;
 }
 
+/**
+ * True when the render finished and a playable file exists — regardless of what
+ * has happened to the video since.
+ *
+ * `isReady` means the narrower "rendered AND not yet published", which is right
+ * for counting what's waiting to go out. Using it to decide whether to SHOW a
+ * video was a bug: `publie`, `programme` and `publishing` rows all carry a
+ * perfectly good `videoUrl`, so the detail page fell through to the
+ * render-progress branch and a published video became unwatchable and
+ * unmanageable — no player, no download, no delete. Same for the publish page,
+ * which bounced you away from re-publishing to a second platform.
+ */
+export function hasRenderedVideo(v: Pick<Video, "status" | "videoUrl">): boolean {
+  return !!v.videoUrl && !isRendering(v.status) && v.status !== "brouillon";
+}
+
 /** Badge presentation per status: FR label + shadcn role token variant. */
 export const STATUS_META: Record<
   VideoStatus,

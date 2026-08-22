@@ -3,7 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getMyVideo } from "@/lib/vidcica/queries";
 import { listMyNetworks } from "@/lib/vidcica/networks-queries";
-import { isReady } from "@/lib/vidcica/video";
+import { hasRenderedVideo } from "@/lib/vidcica/video";
 import { PLATFORMS, networkStatus } from "@/lib/vidcica/network";
 import { PublishStoreProvider, PublishFlow, type PublishablePlatform } from "@/features/publish";
 import { PageHeader } from "@/components/app-shell";
@@ -27,7 +27,9 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
   const video = await getMyVideo(id);
   if (!video) notFound();
   // Only a finished video can be published.
-  if (!isReady(video)) redirect(`/videos/${id}`);
+  // A published video may legitimately be published again to another
+  // platform, so gate on "has a rendered file", not on "not yet published".
+  if (!hasRenderedVideo(video)) redirect(`/videos/${id}`);
 
   const networks = await listMyNetworks();
   const byPlatform = new Map(networks.map((n) => [n.platform, n]));

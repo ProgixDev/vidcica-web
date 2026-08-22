@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { isReady, isRendering, rowToVideo, STATUS_META, type VideoRow } from "./video";
+import {
+  hasRenderedVideo,
+  isReady,
+  isRendering,
+  rowToVideo,
+  STATUS_META,
+  type VideoRow,
+} from "./video";
 
 // A minimal fixture row shaped like the videos table (extra columns ignored).
 const row = {
@@ -57,6 +64,26 @@ describe("status helpers", () => {
     expect(isReady({ status: "pret", videoUrl: "https://cdn/x.mp4" })).toBe(true);
     expect(isReady({ status: "pret", videoUrl: undefined })).toBe(false);
     expect(isReady({ status: "generating", videoUrl: "https://cdn/x.mp4" })).toBe(false);
+  });
+
+  // REGRESSION (2026-08-21): the video detail page gated on `isReady`, which is
+  // false once a video is published. A published video therefore rendered the
+  // render-progress bar stuck at 100% — no player, no download, no delete — and
+  // the publish page bounced you away from publishing to a second platform.
+  it("hasRenderedVideo accepts published/scheduled videos, unlike isReady", () => {
+    const published = { status: "publie", videoUrl: "https://cdn/x.mp4" } as const;
+    expect(isReady(published)).toBe(false); // narrow "not yet published" meaning
+    expect(hasRenderedVideo(published)).toBe(true); // but it IS watchable
+
+    expect(hasRenderedVideo({ status: "pret", videoUrl: "https://cdn/x.mp4" })).toBe(true);
+    expect(hasRenderedVideo({ status: "programme", videoUrl: "https://cdn/x.mp4" })).toBe(true);
+    expect(hasRenderedVideo({ status: "publishing", videoUrl: "https://cdn/x.mp4" })).toBe(true);
+
+    // Nothing playable yet → still the progress/draft branches.
+    expect(hasRenderedVideo({ status: "generating", videoUrl: "https://cdn/x.mp4" })).toBe(false);
+    expect(hasRenderedVideo({ status: "assembling", videoUrl: "https://cdn/x.mp4" })).toBe(false);
+    expect(hasRenderedVideo({ status: "brouillon", videoUrl: "https://cdn/x.mp4" })).toBe(false);
+    expect(hasRenderedVideo({ status: "publie", videoUrl: undefined })).toBe(false);
   });
 
   it("every status has badge metadata", () => {
