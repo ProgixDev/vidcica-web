@@ -16,6 +16,12 @@ import { deleteVideo, duplicateVideo } from "../actions";
  * boost, duplicate, share, delete — plus where it was published and how it
  * performed.
  *
+ * LAYOUT: two-up from `lg` — player left, everything else right. A 9:16 player
+ * is ~600px tall, so the previous single narrow column pushed the action row
+ * below the fold (you had to scroll to reach Delete) while the right half of a
+ * desktop window sat empty. The player is sticky so it stays in view while the
+ * right column scrolls. Below `lg` it collapses back to one column, player first.
+ *
  * NOTE (2026-08-21): this screen used to be unreachable for published videos.
  * The page gated on `isReady`, which is false once status flips to `publie`, so
  * a published video rendered the render-progress bar stuck at 100% with no
@@ -104,131 +110,138 @@ export function VideoDetail({ video }: { video: Video }) {
   ] as const;
 
   return (
-    <div className="flex flex-col gap-6" data-testid="video-detail">
-      {/* Title + status */}
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-lg font-semibold tracking-tight">{video.title}</h2>
-          <Badge variant={meta.variant}>{t(VIDEO_STATUS_KEY[video.status])}</Badge>
-        </div>
-        <p className="text-muted-foreground text-xs">
-          {t("videos.formatDuration", { format: video.format, n: Math.round(video.durationSec) })}
-        </p>
-      </div>
-
+    <div
+      className="grid w-full max-w-6xl gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start lg:gap-8"
+      data-testid="video-detail"
+    >
+      {/* Player. `auto` column + a height-capped 9:16 element means the column
+          sizes to the video's natural width, so the right column takes the rest. */}
       {video.videoUrl ? (
         <video
           controls
           playsInline
           src={video.videoUrl}
           poster={video.thumbnailUrl ?? undefined}
-          className="bg-muted mx-auto aspect-[9/16] max-h-[70dvh] w-auto rounded-xl"
+          className="bg-muted mx-auto aspect-[9/16] max-h-[62dvh] w-auto rounded-xl lg:sticky lg:top-4"
           data-testid="video-player"
         />
       ) : null}
 
-      {/* Where it went out */}
-      {video.networks.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-2" data-testid="video-networks">
-          <span className="text-muted-foreground text-xs font-medium">
-            {t("videos.publishedOn")}
-          </span>
-          {video.networks.map((p) => (
-            <PlatformIcon key={p} platform={p} size={20} />
-          ))}
+      {/* Everything else */}
+      <div className="flex min-w-0 flex-col gap-5">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-lg font-semibold tracking-tight">{video.title}</h2>
+            <Badge variant={meta.variant}>{t(VIDEO_STATUS_KEY[video.status])}</Badge>
+          </div>
+          <p className="text-muted-foreground text-xs">
+            {t("videos.formatDuration", { format: video.format, n: Math.round(video.durationSec) })}
+          </p>
         </div>
-      ) : null}
 
-      {/* Performance — only meaningful once something has actually gone out. */}
-      {isPublished ? (
-        <div className="flex flex-col gap-2" data-testid="video-metrics">
-          <p className="text-muted-foreground text-xs font-medium">{t("videos.metrics.title")}</p>
-          <div className="grid grid-cols-4 gap-2">
-            {metrics.map((m) => (
-              <div key={m.key} className="bg-muted flex flex-col gap-0.5 rounded-xl px-3 py-2">
-                <span className="text-base font-semibold tabular-nums">{compact(m.value)}</span>
-                <span className="text-muted-foreground text-[11px]">{t(m.key)}</span>
-              </div>
+        {/* Where it went out */}
+        {video.networks.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2" data-testid="video-networks">
+            <span className="text-muted-foreground text-xs font-medium">
+              {t("videos.publishedOn")}
+            </span>
+            {video.networks.map((p) => (
+              <PlatformIcon key={p} platform={p} size={20} />
             ))}
           </div>
-          <p className="text-muted-foreground text-[11px]">{t("videos.metrics.hint")}</p>
-        </div>
-      ) : null}
+        ) : null}
 
-      {/* Actions — primary first, destructive last. */}
-      <div className="flex flex-col gap-2">
-        <p className="text-muted-foreground text-xs font-medium">{t("videos.actions.title")}</p>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href={`/videos/${video.id}/publish`}
-            className={buttonVariants({ variant: "default" })}
-            data-testid="publish-link"
-          >
-            {isPublished ? t("videos.republish") : t("common.publish")}
-          </Link>
-          {video.videoUrl ? (
-            <a
-              href={video.videoUrl}
-              download
-              className={buttonVariants({ variant: "outline" })}
-              data-testid="download-btn"
+        {/* Performance — only meaningful once something has actually gone out. */}
+        {isPublished ? (
+          <div className="flex flex-col gap-2" data-testid="video-metrics">
+            <p className="text-muted-foreground text-xs font-medium">{t("videos.metrics.title")}</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {metrics.map((m) => (
+                <div key={m.key} className="bg-muted flex flex-col gap-0.5 rounded-xl px-3 py-2">
+                  <span className="text-base font-semibold tabular-nums">{compact(m.value)}</span>
+                  <span className="text-muted-foreground text-[11px]">{t(m.key)}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-muted-foreground text-[11px]">{t("videos.metrics.hint")}</p>
+          </div>
+        ) : null}
+
+        {/* Actions — primary first, destructive last. */}
+        <div className="flex flex-col gap-2">
+          <p className="text-muted-foreground text-xs font-medium">{t("videos.actions.title")}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/videos/${video.id}/publish`}
+              className={buttonVariants({ variant: "default" })}
+              data-testid="publish-link"
             >
-              {t("videos.downloadMp4")}
-            </a>
-          ) : null}
-          {/* Mirrors the mobile app's "Booster avec Meta Ads" card. The wizard
-              resolves ?videoId= against the user's own videos, so an unknown id
-              degrades to the normal picker rather than seeding an unusable draft. */}
-          <Link
-            href={`/ads/new?videoId=${encodeURIComponent(video.id)}`}
-            className={buttonVariants({ variant: "outline" })}
-            data-testid="boost-link"
-          >
-            {t("videos.boost")}
-          </Link>
-          <Button
-            variant="outline"
-            onClick={onDuplicate}
-            disabled={pending}
-            data-testid="duplicate-btn"
-          >
-            {t("videos.duplicate")}
-          </Button>
-          <Button variant="outline" onClick={onShare} data-testid="share-btn">
-            {copied ? t("videos.linkCopied") : t("videos.copyLink")}
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={onDelete}
-            disabled={pending}
-            data-testid="delete-btn"
-          >
-            {t("common.delete")}
-          </Button>
-        </div>
-      </div>
-
-      {video.hashtags.length > 0 ? (
-        <div className="flex flex-col gap-2" data-testid="video-hashtags">
-          <p className="text-muted-foreground text-xs font-medium">{t("videos.hashtagsLabel")}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {video.hashtags.map((tag) => (
-              <span
-                key={tag}
-                className="bg-accent text-accent-foreground rounded-full px-2.5 py-0.5 text-xs font-medium"
+              {isPublished ? t("videos.republish") : t("common.publish")}
+            </Link>
+            {video.videoUrl ? (
+              <a
+                href={video.videoUrl}
+                download
+                className={buttonVariants({ variant: "outline" })}
+                data-testid="download-btn"
               >
-                {tag.startsWith("#") ? tag : `#${tag}`}
-              </span>
-            ))}
+                {t("videos.downloadMp4")}
+              </a>
+            ) : null}
+            {/* Mirrors the mobile app's "Booster avec Meta Ads" card. The wizard
+                resolves ?videoId= against the user's own videos, so an unknown id
+                degrades to the normal picker rather than seeding an unusable draft. */}
+            <Link
+              href={`/ads/new?videoId=${encodeURIComponent(video.id)}`}
+              className={buttonVariants({ variant: "outline" })}
+              data-testid="boost-link"
+            >
+              {t("videos.boost")}
+            </Link>
+            <Button
+              variant="outline"
+              onClick={onDuplicate}
+              disabled={pending}
+              data-testid="duplicate-btn"
+            >
+              {t("videos.duplicate")}
+            </Button>
+            <Button variant="outline" onClick={onShare} data-testid="share-btn">
+              {copied ? t("videos.linkCopied") : t("videos.copyLink")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={onDelete}
+              disabled={pending}
+              data-testid="delete-btn"
+            >
+              {t("common.delete")}
+            </Button>
           </div>
         </div>
-      ) : null}
 
-      {usesStock ? (
-        <p className="text-muted-foreground text-[11px]" data-testid="stock-attribution">
-          {t("videos.stockAttribution")}
-        </p>
-      ) : null}
+        {video.hashtags.length > 0 ? (
+          <div className="flex flex-col gap-2" data-testid="video-hashtags">
+            <p className="text-muted-foreground text-xs font-medium">{t("videos.hashtagsLabel")}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {video.hashtags.map((tag) => (
+                <span
+                  key={tag}
+                  className="bg-accent text-accent-foreground rounded-full px-2.5 py-0.5 text-xs font-medium"
+                >
+                  {tag.startsWith("#") ? tag : `#${tag}`}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {usesStock ? (
+          <p className="text-muted-foreground text-[11px]" data-testid="stock-attribution">
+            {t("videos.stockAttribution")}
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

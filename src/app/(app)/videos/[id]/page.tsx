@@ -36,20 +36,26 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
           </Link>
         }
       />
-      <div className="w-full max-w-2xl">
-        {hasRenderedVideo(video) ? (
-          <VideoDetail video={video} />
-        ) : job ? (
-          <RenderProgress videoId={video.id} jobId={job.jobId} initialStatus={job.status} />
-        ) : (
-          <div className="flex flex-col gap-3">
-            <p className="text-muted-foreground text-sm">{t("videos.draftNotGenerated")}</p>
-            <Link href="/create" className={cn(buttonVariants(), "self-start")}>
-              {t("videos.create")}
-            </Link>
-          </div>
-        )}
-      </div>
+      {/* The finished-video view lays itself out two-up on wide screens (a 9:16
+          player is tall, so a single narrow column pushed every action below the
+          fold while the right half of the page sat empty). It therefore manages
+          its own width; only the narrow progress/draft states stay capped. */}
+      {hasRenderedVideo(video) ? (
+        <VideoDetail video={video} />
+      ) : (
+        <div className="w-full max-w-2xl">
+          {job ? (
+            <RenderProgress videoId={video.id} jobId={job.jobId} initialStatus={job.status} />
+          ) : (
+            <div className="flex flex-col gap-3">
+              <p className="text-muted-foreground text-sm">{t("videos.draftNotGenerated")}</p>
+              <Link href="/create" className={cn(buttonVariants(), "self-start")}>
+                {t("videos.create")}
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }
