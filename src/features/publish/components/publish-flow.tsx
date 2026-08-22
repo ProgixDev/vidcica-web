@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { m } from "@/components/motion";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { PlatformIcon } from "@/components/platform-icon";
 import { cn } from "@/lib/utils";
+import { canBeYouTubeShort } from "@/lib/vidcica/video";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
 import type { NetworkStatus, PlatformId } from "@/lib/vidcica/network";
@@ -128,6 +129,14 @@ export function PublishFlow({
   const editTargetLabel = editTarget
     ? (platforms.find((p) => p.id === editTarget)?.label ?? editTarget)
     : "";
+
+  // YouTube classifies Shorts from the FILE (vertical + <=3min); the Data API
+  // has no flag for it. Offering the choice on a 16:9 video promises something
+  // we can't deliver, so gate it and force the store back to "video".
+  const shortEligible = canBeYouTubeShort(video);
+  useEffect(() => {
+    if (!shortEligible && asShort) setShort(false);
+  }, [shortEligible, asShort, setShort]);
 
   const youtubeSelected = selected.includes("youtube");
   const tiktokSelected = selected.includes("tiktok");
@@ -339,7 +348,8 @@ export function PublishFlow({
               <FormatOption
                 title={t("publish.formatShortTitle")}
                 hint={t("publish.formatShortHint")}
-                selected={asShort}
+                selected={asShort && shortEligible}
+                disabled={!shortEligible}
                 onClick={() => setShort(true)}
               />
               <FormatOption
@@ -349,6 +359,11 @@ export function PublishFlow({
                 onClick={() => setShort(false)}
               />
             </div>
+            {!shortEligible ? (
+              <p className="text-muted-foreground mt-3 text-xs" data-testid="short-ineligible">
+                {t("publish.formatShortIneligible", { format: video.format })}
+              </p>
+            ) : null}
           </section>
         ) : null}
 
@@ -595,20 +610,24 @@ function FormatOption({
   hint,
   selected,
   onClick,
+  disabled = false,
 }: {
   title: string;
   hint: string;
   selected: boolean;
   onClick: () => void;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-pressed={selected}
       className={cn(
         "flex flex-col gap-0.5 rounded-xl border p-3 text-left transition-colors",
         selected ? "border-primary bg-accent/60" : "hover:bg-muted border-border",
+        disabled && "cursor-not-allowed opacity-50 hover:bg-transparent",
       )}
     >
       <span className={cn("text-sm font-semibold", selected && "text-primary")}>{title}</span>

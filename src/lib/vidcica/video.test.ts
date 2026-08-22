@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  canBeYouTubeShort,
   hasRenderedVideo,
   isReady,
   isRendering,
@@ -84,6 +85,20 @@ describe("status helpers", () => {
     expect(hasRenderedVideo({ status: "assembling", videoUrl: "https://cdn/x.mp4" })).toBe(false);
     expect(hasRenderedVideo({ status: "brouillon", videoUrl: "https://cdn/x.mp4" })).toBe(false);
     expect(hasRenderedVideo({ status: "publie", videoUrl: undefined })).toBe(false);
+  });
+
+  // REGRESSION (2026-08-22): a 16:9 video was published with "Short" selected
+  // and arrived on YouTube as an ordinary video. The Data API has no flag for
+  // this -- YouTube classifies from the file -- so the UI must not offer the
+  // choice when the file can't qualify.
+  it("canBeYouTubeShort requires vertical/square and <= 3 minutes", () => {
+    expect(canBeYouTubeShort({ format: "9:16", durationSec: 15 })).toBe(true);
+    expect(canBeYouTubeShort({ format: "1:1", durationSec: 15 })).toBe(true);
+    expect(canBeYouTubeShort({ format: "16:9", durationSec: 13 })).toBe(false); // the reported case
+    expect(canBeYouTubeShort({ format: "9:16", durationSec: 181 })).toBe(false);
+    expect(canBeYouTubeShort({ format: "9:16", durationSec: 180 })).toBe(true);
+    // Unknown format must not block the user on our own uncertainty.
+    expect(canBeYouTubeShort({ format: "portrait", durationSec: 10 })).toBe(true);
   });
 
   it("every status has badge metadata", () => {

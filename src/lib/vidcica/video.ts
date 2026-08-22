@@ -129,3 +129,27 @@ export const VIDEO_STATUS_KEY: Record<VideoStatus, MessageKey> = {
   publishing: "video.status.publishing",
   publie: "video.status.publie",
 };
+
+/** YouTube's own ceiling for Shorts. */
+export const YOUTUBE_SHORT_MAX_SECONDS = 180;
+
+/**
+ * Can YouTube classify this video as a Short?
+ *
+ * The Data API has NO "upload as a Short" parameter -- YouTube decides from the
+ * file itself: vertical (or square) aspect ratio AND at most 3 minutes. Our
+ * `asShort` option only appends #Shorts to the description and formats the
+ * outgoing link, so offering it for a landscape video promises something we
+ * cannot deliver: it uploads as an ordinary video and the /shorts/ URL simply
+ * redirects. Reported 2026-08-22 after a 16:9 video published "as a Short"
+ * appeared as a normal video.
+ */
+export function canBeYouTubeShort(v: Pick<Video, "format" | "durationSec">): boolean {
+  if (v.durationSec > YOUTUBE_SHORT_MAX_SECONDS) return false;
+  const parts = v.format.split(":");
+  const w = Number.parseInt(parts[0] ?? "", 10);
+  const h = Number.parseInt(parts[1] ?? "", 10);
+  // Unparseable format -> don't block the user on our own uncertainty.
+  if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return true;
+  return h >= w; // vertical or square
+}

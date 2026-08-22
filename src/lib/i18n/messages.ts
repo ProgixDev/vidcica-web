@@ -605,6 +605,8 @@ export const fr = {
   "publish.youtubeFormatSubtitle": "Publier en Short vertical ou en vidéo classique.",
   "publish.formatShortTitle": "Short",
   "publish.formatShortHint": "Vertical, format court",
+  "publish.formatShortIneligible":
+    "Cette vidéo est en {format} — YouTube ne crée des Shorts qu’à partir de vidéos verticales de 3 minutes maximum. Elle sera publiée en vidéo classique.",
   "publish.formatVideoTitle": "Vidéo classique",
   "publish.formatVideoHint": "Publication standard",
   "publish.timingTitle": "Quand publier ?",
@@ -1874,6 +1876,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "publish.youtubeFormatSubtitle": "Publish as a vertical Short or as a standard video.",
   "publish.formatShortTitle": "Short",
   "publish.formatShortHint": "Vertical, short format",
+  "publish.formatShortIneligible":
+    "This video is {format} — YouTube only creates Shorts from vertical videos of 3 minutes or less. It will be published as a regular video.",
   "publish.formatVideoTitle": "Standard video",
   "publish.formatVideoHint": "Standard post",
   "publish.timingTitle": "When to publish?",
