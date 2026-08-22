@@ -991,6 +991,8 @@ export const fr = {
   "videos.moreActions": "Plus d’actions",
   "videos.duplicate": "Dupliquer",
   "videos.unpublish": "Retirer",
+  "videos.viewPost": "Voir la publication",
+  "videos.viewPostUnavailable": "Lien direct indisponible",
   "videos.unpublishConfirm":
     "Retirer cette vidéo de {platform} ? La publication sera supprimée définitivement sur la plateforme.",
   "videos.unpublishDone": "Publication retirée.",
@@ -2253,6 +2255,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "videos.moreActions": "More actions",
   "videos.duplicate": "Duplicate",
   "videos.unpublish": "Remove",
+  "videos.viewPost": "View post",
+  "videos.viewPostUnavailable": "No direct link",
   "videos.unpublishConfirm":
     "Remove this video from {platform}? The post will be permanently deleted on the platform.",
   "videos.unpublishDone": "Post removed.",

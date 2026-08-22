@@ -200,3 +200,31 @@ export function mapUnpublishReason(error: string | undefined): UnpublishFailReas
       return "error";
   }
 }
+
+/**
+ * Public URL of a published post, or null when one cannot be derived.
+ *
+ * Only three platforms store an id a URL can be built from:
+ *   youtube   video id            -> /watch?v=<id>
+ *   linkedin  urn:li:ugcPost:<n>  -> /feed/update/<urn>/
+ *   facebook  post id             -> /<id>
+ *
+ * The rest deliberately return null rather than a plausible-looking broken
+ * link. TikTok stores a PUBLISH id ("v_pub_file~v2-1.765...") which is not the
+ * video id, and Instagram/Threads store a media id, not the shortcode their
+ * public URLs use. There is no way to turn either into a working link without
+ * an extra API round-trip.
+ */
+export function publicPostUrl(platform: PlatformId, externalPostId: string | null): string | null {
+  if (!externalPostId) return null;
+  switch (platform) {
+    case "youtube":
+      return `https://www.youtube.com/watch?v=${encodeURIComponent(externalPostId)}`;
+    case "linkedin":
+      return `https://www.linkedin.com/feed/update/${encodeURIComponent(externalPostId)}/`;
+    case "facebook":
+      return `https://www.facebook.com/${encodeURIComponent(externalPostId)}`;
+    default:
+      return null;
+  }
+}

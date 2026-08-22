@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getMyVideo, getLatestJob } from "@/lib/vidcica/queries";
+import { getMyVideo, getLatestJob, getPublishTargets } from "@/lib/vidcica/queries";
 import { hasRenderedVideo } from "@/lib/vidcica/video";
 import { RenderProgress, VideoDetail } from "@/features/videos";
 import { buttonVariants } from "@/components/ui/button";
@@ -25,6 +25,9 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
   if (!video) notFound(); // not the caller's video (RLS) or doesn't exist
 
   const job = await getLatestJob(id);
+  // Where it is live right now, with the post ids needed to link out. Only
+  // fetched for a finished video — a draft or a render in progress has none.
+  const targets = hasRenderedVideo(video) ? await getPublishTargets(id) : [];
 
   return (
     <>
@@ -41,7 +44,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
           fold while the right half of the page sat empty). It therefore manages
           its own width; only the narrow progress/draft states stay capped. */}
       {hasRenderedVideo(video) ? (
-        <VideoDetail video={video} />
+        <VideoDetail video={video} targets={targets} />
       ) : (
         <div className="w-full max-w-2xl">
           {job ? (

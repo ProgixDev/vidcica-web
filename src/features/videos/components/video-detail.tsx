@@ -9,7 +9,8 @@ import { PlatformIcon } from "@/components/platform-icon";
 import { STATUS_META, VIDEO_STATUS_KEY, type Video } from "@/lib/vidcica/video";
 import { useT } from "@/lib/i18n/provider";
 import { PLATFORMS, type PlatformId } from "@/lib/vidcica/network";
-import { canUnpublish } from "@/lib/vidcica/publishing";
+import { canUnpublish, publicPostUrl } from "@/lib/vidcica/publishing";
+import type { PublishTarget } from "@/lib/vidcica/queries";
 import { deleteVideo, duplicateVideo, unpublishVideo } from "../actions";
 
 /** Brand-correct label ("YouTube", not "Youtube") for confirm copy. */
@@ -44,7 +45,15 @@ function compact(n: number): string {
   return `${k >= 10 ? Math.round(k) : k.toFixed(1)}k`;
 }
 
-export function VideoDetail({ video }: { video: Video }) {
+export function VideoDetail({
+  video,
+  targets = [],
+}: {
+  video: Video;
+  /** Live publish targets + post ids, from publish_jobs. Authoritative over
+   *  video.networks because it also carries the id needed to link out. */
+  targets?: ReadonlyArray<PublishTarget>;
+}) {
   const t = useT();
   const router = useRouter();
   const [copied, setCopied] = useState(false);
@@ -169,37 +178,55 @@ export function VideoDetail({ video }: { video: Video }) {
           </p>
         </div>
 
-        {/* Where it went out */}
-        {video.networks.length > 0 ? (
+        {/* Where it is live, with a way through to each post */}
+        {targets.length > 0 ? (
           <div className="flex flex-col gap-2" data-testid="video-networks">
             <span className="text-muted-foreground text-xs font-medium">
               {t("videos.publishedOn")}
             </span>
-            <div className="flex flex-wrap items-center gap-2">
-              {video.networks.map((p) => (
-                <span
-                  key={p}
-                  className="bg-muted flex items-center gap-1.5 rounded-full py-1 pr-1 pl-2"
-                >
-                  <PlatformIcon platform={p} size={18} />
-                  {/* Only YouTube and Facebook can actually be deleted through
-                      their API. Instagram forbids it and the rest are
-                      unsupported, so we don't offer a button that would only
-                      ever return a refusal. */}
-                  {canUnpublish(p) ? (
-                    <button
-                      type="button"
-                      onClick={() => onUnpublish(p)}
-                      disabled={pending}
-                      className="hover:bg-background rounded-full px-2 py-0.5 text-xs font-medium disabled:opacity-50"
-                      data-testid={`unpublish-${p}`}
-                    >
-                      {t("videos.unpublish")}
-                    </button>
-                  ) : null}
-                </span>
-              ))}
-            </div>
+            <ul className="flex flex-col gap-1.5">
+              {targets.map(({ platform: p, externalPostId }) => {
+                const url = publicPostUrl(p, externalPostId);
+                return (
+                  <li
+                    key={p}
+                    className="bg-muted flex flex-wrap items-center gap-2 rounded-xl px-3 py-2"
+                  >
+                    <PlatformIcon platform={p} size={20} />
+                    <span className="flex-1 text-sm font-medium">{platformLabel(p)}</span>
+                    {url ? (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="text-xs font-medium underline underline-offset-2"
+                        data-testid={`open-post-${p}`}
+                      >
+                        {t("videos.viewPost")}
+                      </a>
+                    ) : (
+                      // TikTok stores a publish id and Instagram/Threads a media
+                      // id, neither of which yields a public URL. Say so rather
+                      // than ship a link that 404s.
+                      <span className="text-muted-foreground text-[11px]">
+                        {t("videos.viewPostUnavailable")}
+                      </span>
+                    )}
+                    {canUnpublish(p) ? (
+                      <button
+                        type="button"
+                        onClick={() => onUnpublish(p)}
+                        disabled={pending}
+                        className="hover:bg-background rounded-full px-2 py-0.5 text-xs font-medium disabled:opacity-50"
+                        data-testid={`unpublish-${p}`}
+                      >
+                        {t("videos.unpublish")}
+                      </button>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
             {unpublishMsg ? (
               <p className="text-muted-foreground text-[11px]" data-testid="unpublish-msg">
                 {unpublishMsg}
@@ -207,7 +234,6 @@ export function VideoDetail({ video }: { video: Video }) {
             ) : null}
           </div>
         ) : null}
-
         {/* Performance — only meaningful once something has actually gone out. */}
         {isPublished ? (
           <div className="flex flex-col gap-2" data-testid="video-metrics">
