@@ -134,6 +134,11 @@ export function PublishFlow({
 
   // ---- Confirmation view ----
   if (phase === "done") {
+    // Only platforms that actually got a job can make progress. A skipped one
+    // has no publish_jobs row, so tracking it would show "Pending" forever —
+    // which is exactly how a blocked republish used to read as a hung publish.
+    const queued = selected.filter((p) => !skipped.includes(p));
+    const nothingQueued = queued.length === 0;
     return (
       <m.div
         initial={{ opacity: 0, y: 12 }}
@@ -146,7 +151,10 @@ export function PublishFlow({
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 220, damping: 15 }}
-          className="bg-success text-success-foreground flex size-20 items-center justify-center rounded-full shadow-lg"
+          className={cn(
+            "flex size-20 items-center justify-center rounded-full shadow-lg",
+            nothingQueued ? "bg-muted text-muted-foreground" : "bg-success text-success-foreground",
+          )}
         >
           <svg
             width="38"
@@ -159,7 +167,12 @@ export function PublishFlow({
             strokeLinejoin="round"
             aria-hidden
           >
-            {mode === "schedule" ? (
+            {nothingQueued ? (
+              <>
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8h.01M11 12h1v4h1" />
+              </>
+            ) : mode === "schedule" ? (
               <>
                 <rect x="3" y="4" width="18" height="18" rx="2" />
                 <path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4" />
@@ -172,15 +185,23 @@ export function PublishFlow({
 
         <div className="flex flex-col items-center gap-1.5 text-center">
           <h2 className="text-lg font-semibold tracking-tight">
-            {mode === "schedule" ? t("publish.doneScheduledTitle") : t("publish.doneLaunchedTitle")}
+            {nothingQueued
+              ? t("publish.doneNothingTitle")
+              : mode === "schedule"
+                ? t("publish.doneScheduledTitle")
+                : t("publish.doneLaunchedTitle")}
           </h2>
           <p className="text-muted-foreground text-sm">
-            {mode === "schedule" ? t("publish.doneScheduledDesc") : t("publish.doneLaunchedDesc")}
+            {nothingQueued
+              ? t("publish.doneNothingDesc")
+              : mode === "schedule"
+                ? t("publish.doneScheduledDesc")
+                : t("publish.doneLaunchedDesc")}
           </p>
         </div>
 
         <ul className="flex w-full flex-col gap-2">
-          {selected.map((p) => {
+          {queued.map((p) => {
             const s = statusView(statuses[p], t);
             const meta = platforms.find((x) => x.id === p);
             return (

@@ -4,6 +4,8 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { clientEnv } from "@/core/env.client";
 import { entityId as VideoId } from "@/lib/vidcica/id";
+import { canUnpublish, deletePublishedPost, type UnpublishOutcome } from "@/lib/vidcica/publishing";
+import type { PlatformId } from "@/lib/vidcica/network";
 import type { Database } from "@/lib/supabase/database.types";
 
 type VideoInsert = Database["public"]["Tables"]["videos"]["Insert"];
@@ -195,4 +197,26 @@ export async function createUploadedVideo(input: UploadedVideoInput): Promise<Du
     .single();
   if (error || !inserted) return { ok: false, message: error?.message ?? "Échec de l'import" };
   return { ok: true, id: inserted.id };
+}
+
+/**
+ * Remove a published post from the platform and un-publish it in the app —
+ * the web port of the mobile screen's "Retirer".
+ *
+ * Delegates entirely to the existing `delete-post` edge function, which holds
+ * the OAuth tokens; the web app never talks to a platform API itself. On
+ * success that function sets `post_deleted_at` and drops the platform from
+ * `videos.networks`, which is what unblocks an immediate republish instead of
+ * waiting up to an hour for the liveness cron to notice.
+ *
+ * Guarded twice on purpose: `canUnpublish` keeps unsupported platforms out of
+ * the request, and the edge function refuses them again server-side.
+ */
+export async function unpublishVideo(id: string, platform: PlatformId): Promise<UnpublishOutcome> {
+  const parsed = VideoId.safeParse(id);
+  if (!parsed.success) return { ok: false, reason: "error", message: "Identifiant invalide" };
+  if (!canUnpublish(platform)) return { ok: false, reason: "unsupported_platform" };
+
+  const supabase = await createClient();
+  return deletePublishedPost(supabase, parsed.data, platform);
 }

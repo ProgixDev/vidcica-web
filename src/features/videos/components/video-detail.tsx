@@ -8,7 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { PlatformIcon } from "@/components/platform-icon";
 import { STATUS_META, VIDEO_STATUS_KEY, type Video } from "@/lib/vidcica/video";
 import { useT } from "@/lib/i18n/provider";
-import { deleteVideo, duplicateVideo } from "../actions";
+import { PLATFORMS, type PlatformId } from "@/lib/vidcica/network";
+import { canUnpublish } from "@/lib/vidcica/publishing";
+import { deleteVideo, duplicateVideo, unpublishVideo } from "../actions";
+
+/** Brand-correct label ("YouTube", not "Youtube") for confirm copy. */
+function platformLabel(p: PlatformId): string {
+  return PLATFORMS.find((x) => x.id === p)?.label ?? p;
+}
 
 /**
  * Finished-video surface: plays the rendered MP4 and exposes what the mobile
@@ -41,6 +48,7 @@ export function VideoDetail({ video }: { video: Video }) {
   const t = useT();
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [unpublishMsg, setUnpublishMsg] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const meta = STATUS_META[video.status];
 
@@ -88,6 +96,28 @@ export function VideoDetail({ video }: { video: Video }) {
         router.push(`/videos/${res.id}`);
         router.refresh();
       }
+    });
+  };
+
+  const onUnpublish = (platform: PlatformId) => {
+    if (!window.confirm(t("videos.unpublishConfirm", { platform: platformLabel(platform) }))) {
+      return;
+    }
+    setUnpublishMsg(null);
+    startTransition(async () => {
+      const res = await unpublishVideo(video.id, platform);
+      if (res.ok) {
+        setUnpublishMsg(t("videos.unpublishDone"));
+        router.refresh(); // re-reads networks, which delete-post has just drained
+        return;
+      }
+      setUnpublishMsg(
+        res.reason === "not_deletable"
+          ? t("videos.unpublishNotDeletable")
+          : res.reason === "reconnect_required"
+            ? t("videos.unpublishReconnect")
+            : t("videos.unpublishFailed"),
+      );
     });
   };
 
@@ -141,13 +171,40 @@ export function VideoDetail({ video }: { video: Video }) {
 
         {/* Where it went out */}
         {video.networks.length > 0 ? (
-          <div className="flex flex-wrap items-center gap-2" data-testid="video-networks">
+          <div className="flex flex-col gap-2" data-testid="video-networks">
             <span className="text-muted-foreground text-xs font-medium">
               {t("videos.publishedOn")}
             </span>
-            {video.networks.map((p) => (
-              <PlatformIcon key={p} platform={p} size={20} />
-            ))}
+            <div className="flex flex-wrap items-center gap-2">
+              {video.networks.map((p) => (
+                <span
+                  key={p}
+                  className="bg-muted flex items-center gap-1.5 rounded-full py-1 pr-1 pl-2"
+                >
+                  <PlatformIcon platform={p} size={18} />
+                  {/* Only YouTube and Facebook can actually be deleted through
+                      their API. Instagram forbids it and the rest are
+                      unsupported, so we don't offer a button that would only
+                      ever return a refusal. */}
+                  {canUnpublish(p) ? (
+                    <button
+                      type="button"
+                      onClick={() => onUnpublish(p)}
+                      disabled={pending}
+                      className="hover:bg-background rounded-full px-2 py-0.5 text-xs font-medium disabled:opacity-50"
+                      data-testid={`unpublish-${p}`}
+                    >
+                      {t("videos.unpublish")}
+                    </button>
+                  ) : null}
+                </span>
+              ))}
+            </div>
+            {unpublishMsg ? (
+              <p className="text-muted-foreground text-[11px]" data-testid="unpublish-msg">
+                {unpublishMsg}
+              </p>
+            ) : null}
           </div>
         ) : null}
 

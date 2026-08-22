@@ -104,3 +104,99 @@ export async function enqueuePublish(
     clearTimeout(timer);
   }
 }
+
+// -- Unpublish (delete the live post) ----------------------------------------
+
+/**
+ * Platforms whose live post `delete-post` can actually remove.
+ *
+ * The edge function answers honestly for the rest: Instagram media is NOT
+ * deletable through the Graph API (`not_deletable`), and TikTok / LinkedIn /
+ * Threads return `unsupported_platform`. The UI must therefore only offer
+ * "Retirer" for these two rather than imply a success it cannot deliver.
+ */
+export const UNPUBLISHABLE_PLATFORMS: readonly PlatformId[] = ["youtube", "facebook"];
+
+export function canUnpublish(platform: PlatformId): boolean {
+  return UNPUBLISHABLE_PLATFORMS.includes(platform);
+}
+
+export type UnpublishFailReason =
+  | "unauthenticated"
+  | "not_deletable"
+  | "unsupported_platform"
+  | "reconnect_required"
+  | "delete_failed"
+  | "error";
+
+export type UnpublishOutcome =
+  | { ok: true }
+  | { ok: false; reason: UnpublishFailReason; message?: string };
+
+/**
+ * Delete a published post from the platform AND un-publish it in the app.
+ *
+ * This is the immediate counterpart to the hourly liveness cron. That cron
+ * eventually notices a post deleted on the platform and sets `post_deleted_at`
+ * / drains `videos.networks` — but until it runs, `enqueue-publish` still treats
+ * the platform as live and silently refuses to republish. Removing from inside
+ * the app closes that up-to-an-hour window immediately.
+ */
+export async function deletePublishedPost(
+  supabase: DB,
+  videoId: string,
+  platform: PlatformId,
+): Promise<UnpublishOutcome> {
+  const { data } = await supabase.auth.getSession();
+  const accessToken = data.session?.access_token;
+  if (!accessToken) return { ok: false, reason: "unauthenticated" };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ENQUEUE_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-post`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ videoId, platform }),
+      signal: controller.signal,
+    });
+    // delete-post answers HTTP 200 with { ok:false, error } for EXPECTED
+    // refusals (not_deletable, reconnect_required...), so read the body before
+    // trusting the status code.
+    const body = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+      message?: string;
+    };
+    if (res.ok && body.ok) return { ok: true };
+    return {
+      ok: false,
+      reason: mapUnpublishReason(body.error),
+      message: body.message ?? body.error ?? `HTTP ${res.status}`,
+    };
+  } catch (e) {
+    const message =
+      (e as Error).name === "AbortError" ? "Delai depasse. Reessayez." : (e as Error).message;
+    return { ok: false, reason: "error", message };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Map delete-post's error string -> a caller-actionable reason. */
+export function mapUnpublishReason(error: string | undefined): UnpublishFailReason {
+  switch (error) {
+    case "not_deletable":
+      return "not_deletable";
+    case "unsupported_platform":
+      return "unsupported_platform";
+    case "reconnect_required":
+    case "google_oauth_not_configured":
+      return "reconnect_required";
+    case "delete_failed":
+    case "lookup_failed":
+      return "delete_failed";
+    default:
+      return "error";
+  }
+}

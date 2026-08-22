@@ -592,6 +592,9 @@ export const fr = {
   "publish.doneScheduledDesc": "Vos vidéos partiront à l’heure prévue.",
   "publish.doneLaunchedDesc": "Suivez l’avancement réseau par réseau ci-dessous.",
   "publish.skippedLabel": "Ignoré (déjà publié ou en cours) :",
+  "publish.doneNothingTitle": "Aucune publication lancée",
+  "publish.doneNothingDesc":
+    "Cette vidéo est déjà en ligne sur les réseaux sélectionnés. Supprimez la publication existante avant de republier.",
   "publish.viewVideo": "Voir la vidéo",
   "publish.backToDashboard": "Retour au tableau de bord",
   "publish.networksTitle": "Réseaux",
@@ -987,6 +990,14 @@ export const fr = {
   "videos.searchEmptyDescription": "Aucune vidéo ne correspond à votre recherche.",
   "videos.moreActions": "Plus d’actions",
   "videos.duplicate": "Dupliquer",
+  "videos.unpublish": "Retirer",
+  "videos.unpublishConfirm":
+    "Retirer cette vidéo de {platform} ? La publication sera supprimée définitivement sur la plateforme.",
+  "videos.unpublishDone": "Publication retirée.",
+  "videos.unpublishNotDeletable":
+    "Instagram ne permet pas de supprimer une publication via son API. Supprimez-la depuis l’application Instagram.",
+  "videos.unpublishReconnect": "Reconnectez ce réseau, puis réessayez.",
+  "videos.unpublishFailed": "Impossible de retirer la publication. Réessayez.",
   "videos.republish": "Republier",
   "videos.publishedOn": "Publié sur",
   "videos.stockAttribution": "Vidéos fournies par Pexels",
@@ -1848,6 +1859,9 @@ export const en: Partial<Record<MessageKey, string>> = {
   "publish.doneScheduledDesc": "Your videos will go out at the scheduled time.",
   "publish.doneLaunchedDesc": "Track the progress network by network below.",
   "publish.skippedLabel": "Skipped (already published or in progress):",
+  "publish.doneNothingTitle": "Nothing was published",
+  "publish.doneNothingDesc":
+    "This video is already live on the networks you selected. Remove the existing post before republishing.",
   "publish.viewVideo": "View the video",
   "publish.backToDashboard": "Back to dashboard",
   "publish.networksTitle": "Networks",
@@ -2238,6 +2252,14 @@ export const en: Partial<Record<MessageKey, string>> = {
   "videos.searchEmptyDescription": "No video matches your search.",
   "videos.moreActions": "More actions",
   "videos.duplicate": "Duplicate",
+  "videos.unpublish": "Remove",
+  "videos.unpublishConfirm":
+    "Remove this video from {platform}? The post will be permanently deleted on the platform.",
+  "videos.unpublishDone": "Post removed.",
+  "videos.unpublishNotDeletable":
+    "Instagram does not allow deleting a post through its API. Delete it from the Instagram app.",
+  "videos.unpublishReconnect": "Reconnect this network, then try again.",
+  "videos.unpublishFailed": "Could not remove the post. Please try again.",
   "videos.republish": "Republish",
   "videos.publishedOn": "Published on",
   "videos.stockAttribution": "Videos provided by Pexels",
