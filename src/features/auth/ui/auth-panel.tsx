@@ -7,18 +7,23 @@ import { useT } from "@/lib/i18n/provider";
 import { SignInForm } from "./sign-in-form";
 import { PhoneOtpForm } from "./phone-otp-form";
 import { GoogleButton } from "./google-button";
+import { AppleButton } from "./apple-button";
 
 type Method = "email" | "phone";
 
 /**
  * Sign-in with the same methods as the mobile app: email + password, phone +
- * SMS code, or Google OAuth — all against the same Supabase project, so one
- * account works everywhere.
+ * SMS code, or Google/Apple OAuth — all against the same Supabase project, so
+ * one account works everywhere.
  */
 export function AuthPanel() {
   const t = useT();
   const [method, setMethod] = useState<Method>("email");
-  const oauthFailed = useSearchParams().get("error") === "oauth";
+  const params = useSearchParams();
+  // /auth/callback bounces failed exchanges back here, naming the provider so
+  // the message matches the button the user actually pressed.
+  const oauthFailed = params.get("error") === "oauth";
+  const failedProvider = params.get("provider") === "apple" ? "apple" : "google";
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-5">
@@ -48,7 +53,7 @@ export function AuthPanel() {
       </div>
       {method === "email" ? <SignInForm /> : <PhoneOtpForm />}
 
-      {/* Divider + Google — same alternative-provider block as the app */}
+      {/* Divider + Google/Apple — same alternative-provider block as the app */}
       <div className="flex items-center gap-3" aria-hidden>
         <span className="bg-border h-px flex-1" />
         <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
@@ -56,10 +61,13 @@ export function AuthPanel() {
         </span>
         <span className="bg-border h-px flex-1" />
       </div>
-      <GoogleButton />
+      <div className="flex w-full flex-col gap-2.5">
+        <GoogleButton />
+        <AppleButton />
+      </div>
       {oauthFailed ? (
         <p role="alert" className="text-destructive text-center text-sm">
-          {t("auth.googleOauthFailed")}
+          {failedProvider === "apple" ? t("auth.appleOauthFailed") : t("auth.googleOauthFailed")}
         </p>
       ) : null}
     </div>

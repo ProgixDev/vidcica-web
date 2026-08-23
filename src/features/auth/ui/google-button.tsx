@@ -1,10 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { safeRedirectPath } from "@/lib/redirect";
 import { useT } from "@/lib/i18n/provider";
+import { OAuthButton } from "./oauth-button";
 
 /** Official Google “G” — 4-colour mark per Google's brand spec (as on mobile). */
 function GoogleG({ size = 18 }: { size?: number }) {
@@ -32,48 +29,18 @@ function GoogleG({ size = 18 }: { size?: number }) {
 
 /**
  * «Continuer avec Google» — the same Supabase Google provider the mobile app
- * uses (auth.store continueWithGoogle), via the web PKCE redirect flow: Supabase
- * sends the browser to Google, then back to /auth/callback which exchanges the
- * code for the session cookies.
+ * uses (auth.store continueWithGoogle), via the shared web PKCE redirect flow.
  */
 export function GoogleButton() {
   const t = useT();
-  const next = safeRedirectPath(useSearchParams().get("next"), "/dashboard");
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function signInWithGoogle() {
-    setPending(true);
-    setError(null);
-    const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo },
-    });
-    // On success the browser navigates away — we only get here on failure.
-    if (oauthError) {
-      setPending(false);
-      setError(oauthError.message);
-    }
-  }
-
   return (
-    <div className="flex w-full flex-col gap-2">
-      <button
-        type="button"
-        onClick={signInWithGoogle}
-        disabled={pending}
-        className="focus-visible:ring-ring flex h-10 w-full items-center justify-center gap-2.5 rounded-full border border-black/10 bg-white text-sm font-semibold text-[#1A130C] shadow-xs transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60"
-      >
-        <GoogleG />
-        {pending ? t("auth.googleRedirecting") : t("auth.googleContinue")}
-      </button>
-      {error ? (
-        <p role="alert" className="text-destructive text-center text-sm">
-          {error}
-        </p>
-      ) : null}
-    </div>
+    <OAuthButton
+      provider="google"
+      testId="auth-google"
+      label={t("auth.googleContinue")}
+      pendingLabel={t("auth.googleRedirecting")}
+      icon={<GoogleG />}
+      className="border border-black/10 bg-white text-[#1A130C]"
+    />
   );
 }

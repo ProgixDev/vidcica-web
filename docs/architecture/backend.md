@@ -22,6 +22,28 @@ authorization boundary, not the client.**
 `deleteAccount` are server actions; `/account` is a Server Component guarded by the middleware and
 re-checked server-side. The `?next=` redirect target is sanitised by `safeRedirectPath`.
 
+### Social providers (Google + Apple)
+
+Both buttons share one code path (`features/auth/ui/oauth-button.tsx`) — the web PKCE redirect
+flow: `signInWithOAuth` → provider → Supabase → `/auth/callback`, which exchanges the code for the
+session cookies. Mobile signs in natively instead (`signInWithIdToken`), but hits the same Supabase
+project, so one account works on both front-ends.
+
+Dashboard prerequisites (code alone is not enough):
+
+- **Redirect URLs** must allow `/auth/callback` on localhost and `vidcica.com`
+  (Authentication → URL Configuration).
+- **Apple** (Authentication → Providers → Apple) needs a **Services ID** as the web client ID —
+  the mobile bundle ID (`com.progix.vidcica`) only covers the native flow — plus the Sign in with
+  Apple key so Supabase can mint the client secret. On the Apple side the Services ID must list
+  `vidcica.com` as a domain and
+  `https://<project>.supabase.co/auth/v1/callback` as its return URL. Both IDs can live in
+  Supabase’s “Client IDs” field at once (comma-separated), which is what lets one account span web
+  and iOS.
+- Apple returns the user’s name **only on the first authorisation**, and may issue a private-relay
+  address (`@privaterelay.appleid.com`) instead of the real e-mail — never treat the address as a
+  stable identifier, use the user id.
+
 ## Database — secure-by-default rules
 
 Migrations in `supabase/migrations/` run in order. `0001_security_baseline` enforces deny-by-default:

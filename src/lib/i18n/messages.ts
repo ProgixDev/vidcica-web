@@ -503,6 +503,9 @@ export const fr = {
   "auth.googleOauthFailed": "La connexion Google n’a pas abouti. Réessaie ou utilise l’e-mail.",
   "auth.googleRedirecting": "Redirection vers Google…",
   "auth.googleContinue": "Continuer avec Google",
+  "auth.appleOauthFailed": "La connexion Apple n’a pas abouti. Réessaie ou utilise l’e-mail.",
+  "auth.appleRedirecting": "Redirection vers Apple…",
+  "auth.appleContinue": "Continuer avec Apple",
   "auth.signOut": "Se déconnecter",
   "auth.deleteAccount": "Supprimer le compte",
   "auth.deleteAccountConfirm":
@@ -1775,6 +1778,9 @@ export const en: Partial<Record<MessageKey, string>> = {
   "auth.googleOauthFailed": "Google sign-in didn't complete. Try again or use email.",
   "auth.googleRedirecting": "Redirecting to Google…",
   "auth.googleContinue": "Continue with Google",
+  "auth.appleOauthFailed": "Apple sign-in didn’t complete. Try again or use email.",
+  "auth.appleRedirecting": "Redirecting to Apple…",
+  "auth.appleContinue": "Continue with Apple",
   "auth.signOut": "Sign out",
   "auth.deleteAccount": "Delete account",
   "auth.deleteAccountConfirm":

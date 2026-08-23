@@ -6,7 +6,7 @@ Date: 2026-07-22. Compares vidcica-web (Next.js) against the ClipFlow mobile app
 ## Verdict
 
 The web app is **not identical** to mobile, but **no core journey is broken** —
-sign-in (email / phone-OTP / Google), create → plan → render, watch, download,
+sign-in (email / phone-OTP / Google / Apple), create → plan → render, watch, download,
 and publish all work on web. The gaps are **richness and completeness**, not
 dead ends. Biggest missing area: the entire **Analytics** section.
 
@@ -61,7 +61,7 @@ deploy checklist in `ClipFlow/supabase/functions/README.md`.
 3. **Change email / change phone — MISSING on web.** A web user cannot change
    their account email or phone (phone is the primary web login identifier).
    Mobile: settings/change-email.tsx, settings/change-phone.tsx. (Change-password
-   is N/A — web is passwordless for OTP/Google users.)
+   is N/A — web is passwordless for OTP/Google/Apple users.)
 
 4. **Billing depth — THINNER.** Web = paywall + a "Manage plan" button that opens
    the Stripe billing portal. Missing in-app: subscription manage (cancel / resume
