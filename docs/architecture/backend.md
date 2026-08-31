@@ -35,11 +35,21 @@ Dashboard prerequisites (code alone is not enough):
   (Authentication → URL Configuration).
 - **Apple** (Authentication → Providers → Apple) needs a **Services ID** as the web client ID —
   the mobile bundle ID (`com.progix.vidcica`) only covers the native flow — plus the Sign in with
-  Apple key so Supabase can mint the client secret. On the Apple side the Services ID must list
-  `vidcica.com` as a domain and
-  `https://<project>.supabase.co/auth/v1/callback` as its return URL. Both IDs can live in
-  Supabase’s “Client IDs” field at once (comma-separated), which is what lets one account span web
-  and iOS.
+  Apple key so Supabase can mint the client secret.
+  - On the Apple side, the Services ID’s **Domains and Subdomains** is the domain _Supabase_ is
+    served from (`<project>.supabase.co`), **not** `vidcica.com`, and its **Return URL** is
+    `https://<project>.supabase.co/auth/v1/callback`. Apple matches the return URL against that
+    field — putting our own domain there rejects the sign-in. (If we ever buy a Supabase custom
+    domain, add that host and its callback here _as well_, keeping the `supabase.co` pair.)
+  - In Supabase’s **Client IDs** field both IDs live together, comma-separated — but **the
+    Services ID must come first**. Supabase uses the first entry as the audience for the web
+    `signInWithOAuth` flow, while native `signInWithIdToken` accepts any entry in the list. Bundle
+    ID first → iOS keeps working and _web silently breaks_.
+  - Native config alone is **not** enough for web: `signInWithIdToken` needs no client secret, so
+    Apple can read as “enabled” while the web flow is still dead. Probe it without a browser —
+    `curl -s "$SUPABASE_URL/auth/v1/authorize?provider=apple&redirect_to=https://vidcica.com/auth/callback"`
+    returns a 302 to `appleid.apple.com` when web is configured, and
+    `400 {"msg":"Unsupported provider: missing OAuth secret"}` when only the native half is set up.
 - Apple returns the user’s name **only on the first authorisation**, and may issue a private-relay
   address (`@privaterelay.appleid.com`) instead of the real e-mail — never treat the address as a
   stable identifier, use the user id.
