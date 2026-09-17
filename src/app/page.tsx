@@ -1,16 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { BrandLockup } from "@/components/brand";
 import { FaqAccordion } from "@/components/faq-accordion";
-import { HeaderCta } from "@/components/header-cta";
 import { LandingAmbience } from "@/components/landing-ambience";
 import { LandingVideo } from "@/components/landing-video";
-import { LanguageToggle } from "@/components/language-toggle";
 import { PricingCards } from "@/components/pricing-cards";
 import { Reveal } from "@/components/reveal";
 import { ShowcaseVideo } from "@/components/showcase-video";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { FAQ_ITEMS } from "@/lib/marketing/faq";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
