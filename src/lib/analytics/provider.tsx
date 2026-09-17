@@ -41,12 +41,33 @@ const isConfigured = () => clientEnv.NEXT_PUBLIC_POSTHOG_KEY.length > 0;
 type PostHog = typeof import("posthog-js").default;
 
 let sdk: PostHog | null = null;
+let ready: Promise<PostHog> | null = null;
 
-async function loadPostHog(): Promise<PostHog> {
-  if (sdk) return sdk;
-  const mod = await import("posthog-js");
-  sdk = mod.default;
-  return sdk;
+/**
+ * Load and initialise exactly once, and hand back the same promise to every
+ * caller.
+ *
+ * Loading and initialising were two steps before, which raced: the page-view
+ * effect could resolve the module before the init effect had run `init()`, see
+ * a not-yet-loaded SDK and skip silently — so the first page view of a session,
+ * the one right after consent, was dropped and nothing was ever sent.
+ */
+function ensurePostHog(): Promise<PostHog> {
+  ready ??= import("posthog-js").then(({ default: posthog }) => {
+    posthog.init(clientEnv.NEXT_PUBLIC_POSTHOG_KEY, {
+      api_host: clientEnv.NEXT_PUBLIC_POSTHOG_HOST,
+      // We capture page views ourselves (below) — autocapture would miss every
+      // client-side navigation.
+      capture_pageview: false,
+      // No session recording: it would film people's video scripts and account
+      // screens, which is not what they consented to.
+      disable_session_recording: true,
+      persistence: "localStorage+cookie",
+    });
+    sdk = posthog;
+    return posthog;
+  });
+  return ready;
 }
 
 /** True once hydrated. Read as an external store rather than an effect+setState,
@@ -76,33 +97,13 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const allowed = hydrated && analyticsAllowed(isConfigured(), consent);
 
-  useEffect(() => {
-    if (!allowed) return;
-    let cancelled = false;
-    void loadPostHog().then((posthog) => {
-      if (cancelled || posthog.__loaded) return;
-      posthog.init(clientEnv.NEXT_PUBLIC_POSTHOG_KEY, {
-        api_host: clientEnv.NEXT_PUBLIC_POSTHOG_HOST,
-        // We capture page views ourselves (below) — autocapture would miss every
-        // client-side navigation.
-        capture_pageview: false,
-        // No session recording: it would film people's video scripts and account
-        // screens, which is not what they consented to.
-        disable_session_recording: true,
-        persistence: "localStorage+cookie",
-      });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [allowed]);
-
-  // One page view per route change, once allowed.
+  // One page view per route change, once allowed. `ensurePostHog` does the
+  // loading and the init, so there is nothing to sequence here.
   useEffect(() => {
     if (!allowed) return;
     const url = `${window.location.origin}${pathname}${window.location.search}`;
-    void loadPostHog().then((posthog) => {
-      if (posthog.__loaded) posthog.capture("$pageview", { $current_url: url });
+    void ensurePostHog().then((posthog) => {
+      posthog.capture("$pageview", { $current_url: url });
     });
   }, [pathname, allowed]);
 
@@ -117,8 +118,8 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
 
   const capture = useCallback<AnalyticsValue["capture"]>(
     (event, properties) => {
-      if (!allowed || !sdk?.__loaded) return;
-      sdk.capture(event, properties);
+      if (!allowed) return;
+      void ensurePostHog().then((posthog) => posthog.capture(event, properties));
     },
     [allowed],
   );
