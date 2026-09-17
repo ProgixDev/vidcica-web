@@ -98,7 +98,7 @@ export const fr = {
   "tiers.pro.f2": "Vidéos jusqu’à 60 s en 1080p",
   "tiers.pro.f3": "Publication programmée + analytics avancés",
   "tiers.pro.f4": "Publicités Meta et capture de leads",
-  "tiers.pro.f5": "7 réseaux · 5 comptes par réseau · kit de marque",
+  "tiers.pro.f5": "Tous les réseaux · 5 comptes par réseau · kit de marque",
   "tiers.studio.f1": "Veo 3.1, le modèle le plus réaliste",
   "tiers.studio.f2": "Comptes connectés et bibliothèque illimités",
   "tiers.studio.f3": "Campagnes publicitaires illimitées",
@@ -716,8 +716,7 @@ export const fr = {
   "landing.feature.music.body":
     "Un catalogue de titres libres de droits, mixés sous la voix automatiquement.",
   "landing.feature.publish.title": "Publication multi-réseaux",
-  "landing.feature.publish.body":
-    "Instagram, TikTok, YouTube Shorts, Facebook, LinkedIn, Threads — en un clic.",
+  "landing.feature.publish.body": "TikTok, YouTube Shorts et LinkedIn — en un clic.",
   "landing.feature.campaigns.title": "Campagnes et prospects",
   "landing.feature.campaigns.body":
     "Boostez une vidéo en campagne Meta et suivez les prospects qu’elle génère.",
@@ -1085,8 +1084,7 @@ export const fr = {
   "help.guide.start.desc":
     "Créez votre compte, réglez votre ton et lancez votre première génération.",
   "help.guide.networks": "Connecter ses réseaux",
-  "help.guide.networks.desc":
-    "Reliez Instagram, TikTok, YouTube et LinkedIn pour publier en un geste.",
+  "help.guide.networks.desc": "Reliez TikTok, YouTube et LinkedIn pour publier en un geste.",
   "help.guide.ads": "Lancer une campagne Meta Ads",
   "help.guide.ads.desc":
     "Configurez budget, audience et créatif avec l’assistant en quelques minutes.",
@@ -1098,7 +1096,7 @@ export const fr = {
   "help.tutorials.first.body":
     "Créez votre compte, configurez votre ton et lancez votre première génération.",
   "help.tutorials.networks.title": "Connecter ses réseaux",
-  "help.tutorials.networks.body": "Reliez Instagram, TikTok et YouTube en moins de deux minutes.",
+  "help.tutorials.networks.body": "Reliez TikTok, YouTube et LinkedIn en moins de deux minutes.",
   "help.tutorials.script.title": "Du script à la vidéo",
   "help.tutorials.script.body":
     "Écrivez, choisissez votre voix, votre style, votre musique : votre vidéo est prête.",
@@ -1380,7 +1378,7 @@ export const en: Partial<Record<MessageKey, string>> = {
   "tiers.pro.f2": "Videos up to 60s in 1080p",
   "tiers.pro.f3": "Scheduled publishing + advanced analytics",
   "tiers.pro.f4": "Meta ads and lead capture",
-  "tiers.pro.f5": "7 networks · 5 accounts per network · brand kit",
+  "tiers.pro.f5": "All networks · 5 accounts per network · brand kit",
   "tiers.studio.f1": "Veo 3.1, our most realistic model",
   "tiers.studio.f2": "Unlimited connected accounts and library",
   "tiers.studio.f3": "Unlimited ad campaigns",
@@ -1989,8 +1987,7 @@ export const en: Partial<Record<MessageKey, string>> = {
   "landing.feature.music.body":
     "A catalog of royalty-free tracks, mixed under the voice automatically.",
   "landing.feature.publish.title": "Multi-network publishing",
-  "landing.feature.publish.body":
-    "Instagram, TikTok, YouTube Shorts, Facebook, LinkedIn, Threads — in one click.",
+  "landing.feature.publish.body": "TikTok, YouTube Shorts and LinkedIn — in one click.",
   "landing.feature.campaigns.title": "Campaigns and leads",
   "landing.feature.campaigns.body":
     "Boost a video as a Meta campaign and track the leads it generates.",
@@ -2353,7 +2350,7 @@ export const en: Partial<Record<MessageKey, string>> = {
   "help.guide.start": "Getting started with Vidcica",
   "help.guide.start.desc": "Create your account, set your tone and launch your first generation.",
   "help.guide.networks": "Connect your networks",
-  "help.guide.networks.desc": "Link Instagram, TikTok, YouTube and LinkedIn to publish in one tap.",
+  "help.guide.networks.desc": "Link TikTok, YouTube and LinkedIn to publish in one tap.",
   "help.guide.ads": "Launch a Meta Ads campaign",
   "help.guide.ads.desc": "Set budget, audience and creative with the wizard in minutes.",
   "help.guide.brand": "Customize your brand kit",
@@ -2364,7 +2361,7 @@ export const en: Partial<Record<MessageKey, string>> = {
   "help.tutorials.first.body":
     "Create your account, set your tone and launch your first generation.",
   "help.tutorials.networks.title": "Connect your networks",
-  "help.tutorials.networks.body": "Link Instagram, TikTok and YouTube in under two minutes.",
+  "help.tutorials.networks.body": "Link TikTok, YouTube and LinkedIn in under two minutes.",
   "help.tutorials.script.title": "From script to video",
   "help.tutorials.script.body": "Write, pick your voice, style and music: your video is ready.",
   "help.tutorials.publish.title": "Publish everywhere in one tap",
