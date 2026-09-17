@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Outfit, Geist_Mono } from "next/font/google";
 import { MotionProvider } from "@/components/motion";
 import { I18nProvider, LocaleTransition } from "@/lib/i18n/provider";
+import { AnalyticsProvider } from "@/lib/analytics/provider";
+import { ConsentBanner } from "@/components/consent-banner";
 import { getLocale, getPathname, getUrlLocale } from "@/lib/i18n/server";
 import { isBilingualDocumentPath, localizedPath } from "@/lib/i18n/routing";
 import { site, isIndexableDeploy } from "@/core/site";
@@ -100,9 +102,14 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <I18nProvider locale={locale}>
-          <MotionProvider>
-            <LocaleTransition>{children}</LocaleTransition>
-          </MotionProvider>
+          <AnalyticsProvider>
+            <MotionProvider>
+              <LocaleTransition>{children}</LocaleTransition>
+            </MotionProvider>
+            {/* Inside I18nProvider: the banner is translated. Renders nothing
+                until analytics is configured and unanswered. */}
+            <ConsentBanner />
+          </AnalyticsProvider>
         </I18nProvider>
       </body>
     </html>

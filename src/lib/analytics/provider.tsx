@@ -1,0 +1,151 @@
+"use client";
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
+import { usePathname } from "next/navigation";
+import { clientEnv } from "@/core/env.client";
+import {
+  analyticsAllowed,
+  readConsent,
+  serverConsentSnapshot,
+  setConsent as persistConsent,
+  shouldAskConsent,
+  subscribeConsent,
+  type Consent,
+} from "./consent";
+
+/**
+ * Analytics, gated on consent.
+ *
+ * Nothing runs until two things are true: a PostHog key is configured, and the
+ * visitor has said yes. Without a key the whole thing is inert — no script, no
+ * banner — so deploying this before the account exists changes nothing.
+ *
+ * Page views are captured manually: the App Router does not reload on
+ * navigation, so automatic capture would only ever see the first page.
+ */
+const isConfigured = () => clientEnv.NEXT_PUBLIC_POSTHOG_KEY.length > 0;
+
+/**
+ * The SDK is imported dynamically, and only once consent is granted: a static
+ * import ships tens of kilobytes of analytics JavaScript to every visitor —
+ * including the ones who declined and every crawler — which is exactly the page
+ * weight the SEO work is trying to keep down.
+ */
+type PostHog = typeof import("posthog-js").default;
+
+let sdk: PostHog | null = null;
+
+async function loadPostHog(): Promise<PostHog> {
+  if (sdk) return sdk;
+  const mod = await import("posthog-js");
+  sdk = mod.default;
+  return sdk;
+}
+
+/** True once hydrated. Read as an external store rather than an effect+setState,
+ *  so the banner can wait for the client without a cascading render. */
+const subscribeNothing = () => () => {};
+const useHydrated = () =>
+  useSyncExternalStore(
+    subscribeNothing,
+    () => true,
+    () => false,
+  );
+
+type AnalyticsValue = {
+  /** Null until the visitor answers. */
+  consent: Consent | null;
+  askConsent: boolean;
+  setConsent: (value: Consent) => void;
+  /** Record a product event. A no-op unless analytics is allowed. */
+  capture: (event: string, properties?: Record<string, unknown>) => void;
+};
+
+const AnalyticsContext = createContext<AnalyticsValue | null>(null);
+
+export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
+  const consent = useSyncExternalStore(subscribeConsent, readConsent, serverConsentSnapshot);
+  const hydrated = useHydrated();
+  const pathname = usePathname();
+  const allowed = hydrated && analyticsAllowed(isConfigured(), consent);
+
+  useEffect(() => {
+    if (!allowed) return;
+    let cancelled = false;
+    void loadPostHog().then((posthog) => {
+      if (cancelled || posthog.__loaded) return;
+      posthog.init(clientEnv.NEXT_PUBLIC_POSTHOG_KEY, {
+        api_host: clientEnv.NEXT_PUBLIC_POSTHOG_HOST,
+        // We capture page views ourselves (below) — autocapture would miss every
+        // client-side navigation.
+        capture_pageview: false,
+        // No session recording: it would film people's video scripts and account
+        // screens, which is not what they consented to.
+        disable_session_recording: true,
+        persistence: "localStorage+cookie",
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [allowed]);
+
+  // One page view per route change, once allowed.
+  useEffect(() => {
+    if (!allowed) return;
+    const url = `${window.location.origin}${pathname}${window.location.search}`;
+    void loadPostHog().then((posthog) => {
+      if (posthog.__loaded) posthog.capture("$pageview", { $current_url: url });
+    });
+  }, [pathname, allowed]);
+
+  const setConsent = useCallback((value: Consent) => {
+    persistConsent(value);
+    if (value === "denied" && sdk?.__loaded) {
+      // Honour a withdrawal immediately: stop sending and drop the identifiers.
+      sdk.opt_out_capturing();
+      sdk.reset();
+    }
+  }, []);
+
+  const capture = useCallback<AnalyticsValue["capture"]>(
+    (event, properties) => {
+      if (!allowed || !sdk?.__loaded) return;
+      sdk.capture(event, properties);
+    },
+    [allowed],
+  );
+
+  const value = useMemo<AnalyticsValue>(
+    () => ({
+      consent,
+      // Never render the banner during SSR: the server cannot know the stored
+      // choice, so it would flash for people who already answered.
+      askConsent: hydrated && shouldAskConsent(isConfigured(), consent),
+      setConsent,
+      capture,
+    }),
+    [consent, hydrated, setConsent, capture],
+  );
+
+  return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>;
+}
+
+/** Analytics API for components. Safe outside the provider (tests, stray mounts). */
+export function useAnalytics(): AnalyticsValue {
+  return (
+    useContext(AnalyticsContext) ?? {
+      consent: null,
+      askConsent: false,
+      setConsent: () => {},
+      capture: () => {},
+    }
+  );
+}

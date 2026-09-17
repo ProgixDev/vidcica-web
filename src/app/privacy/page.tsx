@@ -29,15 +29,19 @@ const FR: LegalDoc = {
       p: "Lorsque tu connectes ta chaîne YouTube, nous accédons uniquement aux données nécessaires à la publication et au suivi de tes propres vidéos publiées via Vidcica : l’identifiant et le nom de ta chaîne, la mise en ligne de la vidéo que tu choisis de publier, les statistiques (vues, likes, commentaires, portée, temps de visionnage) de cette vidéo, et sa suppression à ta demande. Nous ne partageons, ne transférons et ne divulguons ces données à aucun tiers, à l’exception de notre hébergeur et prestataire de base de données (Supabase), qui les traite exclusivement pour notre compte, sous obligation de confidentialité, afin de faire fonctionner le service. Elles ne sont jamais utilisées à des fins publicitaires, ni vendues, ni utilisées pour entraîner des modèles d’intelligence artificielle. L’utilisation par Vidcica des informations reçues des API Google respecte la Google API Services User Data Policy, y compris les exigences de Limited Use. Ton compte Google est lui-même régi par la politique de confidentialité de Google : https://policies.google.com/privacy.",
     },
     {
-      h: "5. Conservation",
+      h: "5. Mesure d’audience et cookies",
+      p: "Le site utilise un outil de mesure d’audience (PostHog, hébergé dans l’Union européenne) pour comprendre quelles pages sont consultées et améliorer le service. Il n’est chargé qu’après ton accord explicite : tant que tu n’as pas accepté, aucun cookie de mesure n’est déposé et aucune donnée n’est envoyée. Tu peux refuser sans perdre l’accès à quoi que ce soit, et revenir sur ton choix en effaçant les données du site dans ton navigateur. Aucune session n’est enregistrée : le contenu de tes vidéos, de tes scripts et de ton compte n’est jamais transmis à cet outil.",
+    },
+    {
+      h: "6. Conservation",
       p: "Les vidéos sont conservées 12 mois après leur dernière publication. Les données de compte sont conservées tant que ton compte est actif, puis supprimées dans les 30 jours suivant la fermeture.",
     },
     {
-      h: "6. Tes droits",
+      h: "7. Tes droits",
       p: "Tu disposes d’un droit d’accès, de rectification, d’effacement et de portabilité de tes données. Pour exercer ces droits, contacte-nous depuis Aide → Nous contacter.",
     },
     {
-      h: "7. Sécurité",
+      h: "8. Sécurité",
       p: "Tes données sont chiffrées en transit (TLS 1.3) et au repos (AES-256). Nos prestataires sont localisés en Union Européenne et conformes au RGPD.",
     },
   ],
@@ -67,15 +71,19 @@ const EN: LegalDoc = {
       p: "When you connect your YouTube channel, we access only the data needed to publish and track your own videos published through Vidcica: your channel id and name, uploading the video you choose to publish, statistics (views, likes, comments, reach, watch time) for that video, and deleting a video at your request. We do not share, transfer, or disclose this data to any third party, except our hosting and database provider (Supabase), which processes it solely on our behalf, under confidentiality obligations, to operate the service. It is never used for advertising, never sold, and never used to train AI models. Vidcica's use and transfer of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements. Your Google account itself is governed by Google's own privacy policy: https://policies.google.com/privacy.",
     },
     {
-      h: "5. Retention",
+      h: "5. Audience measurement and cookies",
+      p: "The site uses an audience measurement tool (PostHog, hosted in the European Union) to understand which pages are viewed and improve the service. It loads only after your explicit agreement: until you accept, no measurement cookie is set and no data is sent. You can decline without losing access to anything, and change your mind by clearing the site data in your browser. No session is recorded: the content of your videos, your scripts and your account is never sent to this tool.",
+    },
+    {
+      h: "6. Retention",
       p: "Videos are kept for 12 months after their last publication. Account data is kept as long as your account is active, then deleted within 30 days of closure.",
     },
     {
-      h: "6. Your rights",
+      h: "7. Your rights",
       p: "You have the right to access, rectify, erase and port your data. To exercise these rights, contact us from Help → Contact us.",
     },
     {
-      h: "7. Security",
+      h: "8. Security",
       p: "Your data is encrypted in transit (TLS 1.3) and at rest (AES-256). Our providers are located in the European Union and are GDPR-compliant.",
     },
   ],

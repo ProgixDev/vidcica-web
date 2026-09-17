@@ -21,6 +21,13 @@ const clientEnvSchema = z.object({
   // the browser needs to subscribe). Empty when push isn't configured — the client
   // treats "no key" as "push unavailable" and hides the enable control.
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().default(""),
+  // PostHog project key. PUBLIC by design (it only allows sending events, never
+  // reading them). Empty = analytics disabled: no script loads and the consent
+  // banner never appears, so a deploy without a key behaves exactly as before.
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().default(""),
+  // EU cloud by default — the audience is French, and keeping event data in the
+  // EU is what the privacy policy promises.
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().default("https://eu.i.posthog.com"),
 });
 
 // NEXT_PUBLIC_* must be referenced statically for Next.js to inline them.
@@ -29,4 +36,6 @@ export const clientEnv = clientEnvSchema.parse({
   NEXT_PUBLIC_SUPABASE_ANON_KEY:
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "public-anon-key-placeholder",
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
+  NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY ?? "",
+  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com",
 });

@@ -852,6 +852,14 @@ export const fr = {
   "page.useCases.otherTitle": "Autres métiers",
   "page.useCases.howTitle": "Comment ça marche",
 
+  // --- Bandeau de consentement analytics ---
+  "consent.title": "Mesure d’audience",
+  "consent.body":
+    "On aimerait mesurer comment le site est utilisé, pour l’améliorer. Rien n’est envoyé sans ton accord, et aucune vidéo ni aucun contenu de ton compte n’est concerné.",
+  "consent.accept": "Accepter",
+  "consent.decline": "Refuser",
+  "consent.learnMore": "Politique de confidentialité",
+
   "useCase.restaurant.metaTitle": "Vidéos pour restaurants",
   "useCase.restaurant.metaDescription":
     "Crée des vidéos de tes plats et publie-les sur TikTok, YouTube Shorts et LinkedIn. Menus du jour, coulisses, nouveautés — sans caméra ni montage.",
@@ -2199,6 +2207,14 @@ export const en: Partial<Record<MessageKey, string>> = {
   "page.useCases.ideasTitle": "Video ideas, ready to generate",
   "page.useCases.otherTitle": "Other industries",
   "page.useCases.howTitle": "How it works",
+
+  // --- Analytics consent banner ---
+  "consent.title": "Audience measurement",
+  "consent.body":
+    "We would like to measure how the site is used, to improve it. Nothing is sent without your agreement, and none of your videos or account content is involved.",
+  "consent.accept": "Accept",
+  "consent.decline": "Decline",
+  "consent.learnMore": "Privacy policy",
 
   "useCase.restaurant.metaTitle": "Videos for restaurants",
   "useCase.restaurant.metaDescription":

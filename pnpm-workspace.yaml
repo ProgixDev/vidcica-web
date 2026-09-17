@@ -1,5 +1,7 @@
 # pnpm config (single-app repo — this file carries pnpm settings, not workspaces).
 # Build scripts are opt-in by design (supply-chain hygiene): only the deps below may run them.
 allowBuilds:
+  # core-js postinstall only prints a funding banner — nothing to run.
+  core-js: false
   sharp: true
   unrs-resolver: true
