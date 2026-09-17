@@ -6,6 +6,9 @@ import { DEFAULT_LOCALE, LOCALES } from "@/lib/i18n/config";
 /** Add a row per public, indexable route. Keep auth/account/api out. */
 const ROUTES = [
   "/",
+  "/fonctionnalites",
+  "/tarifs",
+  "/faq",
   "/sign-in",
   "/privacy",
   "/terms",

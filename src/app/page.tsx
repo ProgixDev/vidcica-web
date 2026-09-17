@@ -11,7 +11,11 @@ import { PricingCards } from "@/components/pricing-cards";
 import { Reveal } from "@/components/reveal";
 import { ShowcaseVideo } from "@/components/showcase-video";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { getT } from "@/lib/i18n/server";
+import { getLocale, getT } from "@/lib/i18n/server";
+import { FAQ_ITEMS } from "@/lib/marketing/faq";
+import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
+import { FEATURES } from "@/lib/marketing/features";
+import { FeatureIcon } from "@/components/marketing/feature-icon";
 import type { MessageKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -138,95 +142,6 @@ const STEPS: { n: string; title: MessageKey; body: MessageKey }[] = [
   },
 ];
 
-function FeatureIcon({ path, circles }: { path?: string; circles?: [number, number, number][] }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="size-4.5"
-      aria-hidden
-    >
-      {path ? <path d={path} /> : null}
-      {circles?.map(([cx, cy, r]) => (
-        <circle key={`${cx}-${cy}-${r}`} cx={cx} cy={cy} r={r} />
-      ))}
-    </svg>
-  );
-}
-
-const FEATURES: {
-  title: MessageKey;
-  body: MessageKey;
-  icon: { path?: string; circles?: [number, number, number][] };
-}[] = [
-  {
-    title: "landing.feature.script.title",
-    body: "landing.feature.script.body",
-    icon: { path: "M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" },
-  },
-  {
-    title: "landing.feature.voice.title",
-    body: "landing.feature.voice.body",
-    icon: {
-      path: "M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3ZM19 10v1a7 7 0 0 1-14 0v-1M12 18v4",
-    },
-  },
-  {
-    title: "landing.feature.subtitles.title",
-    body: "landing.feature.subtitles.body",
-    icon: {
-      path: "M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1ZM7 15h4m2 0h4M7 11h2m2 0h6",
-    },
-  },
-  {
-    title: "landing.feature.music.title",
-    body: "landing.feature.music.body",
-    icon: {
-      path: "M9 18V5l12-2v13",
-      circles: [
-        [6, 18, 3],
-        [18, 16, 3],
-      ],
-    },
-  },
-  {
-    title: "landing.feature.publish.title",
-    body: "landing.feature.publish.body",
-    icon: {
-      path: "m8.6 13.4 6.8 3.9M15.4 6.7l-6.8 3.9",
-      circles: [
-        [18, 5, 3],
-        [6, 12, 3],
-        [18, 19, 3],
-      ],
-    },
-  },
-  {
-    title: "landing.feature.campaigns.title",
-    body: "landing.feature.campaigns.body",
-    icon: {
-      circles: [
-        [12, 12, 9],
-        [12, 12, 5],
-        [12, 12, 1],
-      ],
-    },
-  },
-];
-
-const FAQ: { q: MessageKey; a: MessageKey }[] = [
-  { q: "landing.faq.credits.q", a: "landing.faq.credits.a" },
-  { q: "landing.faq.ownership.q", a: "landing.faq.ownership.a" },
-  { q: "landing.faq.royaltyFree.q", a: "landing.faq.royaltyFree.a" },
-  { q: "landing.faq.networks.q", a: "landing.faq.networks.a" },
-  { q: "landing.faq.voiceLangs.q", a: "landing.faq.voiceLangs.a" },
-  { q: "landing.faq.billing.q", a: "landing.faq.billing.a" },
-];
-
 function GlassChip({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <span
@@ -252,60 +167,13 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 
 export default async function Home() {
   const t = await getT();
-  const faqItems = FAQ.map((f) => ({ q: t(f.q), a: t(f.a) }));
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqItems.map((f) => ({
-      "@type": "Question",
-      name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
-    })),
-  };
+  const locale = await getLocale();
+  const faqItems = FAQ_ITEMS.map((f) => ({ q: t(f.q), a: t(f.a) }));
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-x-clip">
       <LandingAmbience />
-      <script
-        type="application/ld+json"
-        // Static, app-controlled data — safe to inline.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
-      <header className="border-border/60 bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
-          <Link href="/" aria-label={t("landing.nav.homeAria")}>
-            <BrandLockup />
-          </Link>
-          <nav className="text-muted-foreground hidden items-center gap-6 text-sm md:flex">
-            <a href="#exemples" className="hover:text-foreground transition-colors">
-              {t("landing.nav.examples")}
-            </a>
-            <a href="#fonctionnalites" className="hover:text-foreground transition-colors">
-              {t("landing.nav.features")}
-            </a>
-            <a href="#tarifs" className="hover:text-foreground transition-colors">
-              {t("landing.nav.pricing")}
-            </a>
-            <a href="#faq" className="hover:text-foreground transition-colors">
-              FAQ
-            </a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <LanguageToggle />
-            <ThemeToggle />
-            <Link
-              href="/sign-in"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "hidden rounded-full sm:inline-flex",
-              )}
-            >
-              {t("landing.nav.signIn")}
-            </Link>
-            <HeaderCta />
-          </div>
-        </div>
-      </header>
+      <MarketingHeader t={t} locale={locale} />
 
       <main className="flex-1">
         {/* ---------- Hero ---------- */}
@@ -655,69 +523,7 @@ export default async function Home() {
         </section>
       </main>
 
-      <footer className="border-t">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12">
-          <div className="flex flex-wrap items-start justify-between gap-10">
-            <div className="flex max-w-xs flex-col gap-3">
-              <BrandLockup />
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {t("landing.footer.tagline")}
-              </p>
-            </div>
-            <nav
-              className="flex flex-wrap gap-x-16 gap-y-8 text-sm"
-              aria-label={t("landing.footer.aria")}
-            >
-              <div className="flex flex-col gap-3">
-                <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                  {t("landing.footer.product")}
-                </span>
-                <a href="#exemples" className="hover:text-foreground text-muted-foreground">
-                  {t("landing.nav.examples")}
-                </a>
-                <a href="#tarifs" className="hover:text-foreground text-muted-foreground">
-                  {t("landing.nav.pricing")}
-                </a>
-                <a href="#faq" className="hover:text-foreground text-muted-foreground">
-                  FAQ
-                </a>
-                <Link href="/sign-in" className="hover:text-foreground text-muted-foreground">
-                  {t("landing.nav.signIn")}
-                </Link>
-              </div>
-              <div className="flex flex-col gap-3">
-                <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                  {t("landing.footer.legal")}
-                </span>
-                <Link href="/privacy" className="hover:text-foreground text-muted-foreground">
-                  {t("landing.footer.privacy")}
-                </Link>
-                <Link href="/terms" className="hover:text-foreground text-muted-foreground">
-                  {t("landing.footer.terms")}
-                </Link>
-                <Link
-                  href="/mentions-legales"
-                  className="hover:text-foreground text-muted-foreground"
-                >
-                  {t("landing.footer.legalNotice")}
-                </Link>
-              </div>
-              <div className="flex flex-col gap-3">
-                <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                  {t("landing.footer.contact")}
-                </span>
-                <a
-                  href="mailto:support@vidcica.com"
-                  className="hover:text-foreground text-muted-foreground"
-                >
-                  support@vidcica.com
-                </a>
-              </div>
-            </nav>
-          </div>
-          <p className="text-muted-foreground/70 text-xs">{t("landing.footer.copyright")}</p>
-        </div>
-      </footer>
+      <MarketingFooter t={t} locale={locale} />
     </div>
   );
 }

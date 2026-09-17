@@ -28,6 +28,15 @@ describe("sitemap", () => {
     expect(bySlug.get("/privacy")!.alternates).toBeUndefined();
   });
 
+  it("lists the dedicated marketing pages in both languages", () => {
+    // Each keyword cluster needs its own indexable URL — that is the point of
+    // splitting them out of the landing page.
+    for (const route of ["/fonctionnalites", "/tarifs", "/faq"]) {
+      expect(urls()).toContain(route);
+      expect(urls()).toContain(`/en${route}`);
+    }
+  });
+
   it("keeps private routes out", () => {
     const priv = urls().filter((u) => /dashboard|account|videos|billing|api/.test(u));
     expect(priv).toEqual([]);

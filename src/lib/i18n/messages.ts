@@ -815,6 +815,32 @@ export const fr = {
   "landing.footer.legalNotice": "Mentions légales",
   "landing.footer.contact": "Contact",
   "landing.footer.copyright": "© 2026 Vidcica. Tous droits réservés.",
+
+  // --- Dedicated marketing pages (/tarifs, /faq, /fonctionnalites) ---
+  "page.pricing.metaTitle": "Tarifs et crédits",
+  "page.pricing.metaDescription":
+    "Les offres Vidcica : générateur de vidéo IA avec voix off, sous-titres et publication automatique. Offre gratuite, puis 25 à 99 € par mois.",
+  "page.pricing.h1": "Tarifs du générateur de vidéos IA",
+  "page.pricing.intro":
+    "Une offre gratuite pour essayer, puis des crédits mensuels selon le volume de vidéos que tu publies. Sans engagement : change d’offre ou arrête quand tu veux.",
+  "page.pricing.creditsTitle": "Comment fonctionnent les crédits",
+  "page.pricing.faqTitle": "Questions sur la facturation",
+  "page.pricing.ctaTitle": "Prêt à créer ta première vidéo ?",
+  "page.faq.metaTitle": "Questions fréquentes",
+  "page.faq.metaDescription":
+    "Crédits, droits sur les vidéos, réseaux disponibles, langues de la voix off, facturation : les réponses aux questions les plus posées sur Vidcica.",
+  "page.faq.h1": "Questions fréquentes",
+  "page.faq.intro":
+    "Tout ce qu’on nous demande le plus souvent sur la création de vidéos par IA, la publication et la facturation.",
+  "page.faq.stillTitle": "Une autre question ?",
+  "page.faq.stillBody": "Écris-nous, on répond sous 24 h ouvrées.",
+  "page.features.metaTitle": "Fonctionnalités",
+  "page.features.metaDescription":
+    "Script écrit par IA, voix off naturelle, sous-titres animés, musique, publication multi-réseaux et campagnes : tout ce que fait Vidcica.",
+  "page.features.h1": "Tout ce que Vidcica fait à ta place",
+  "page.features.intro":
+    "De l’idée à la vidéo publiée : chaque étape de la création est automatisée, et tu gardes la main sur le résultat.",
+
   "ads.title": "Publicités",
   "ads.subtitle":
     "Transformez vos vidéos en campagnes Facebook et Instagram et suivez leurs performances.",
@@ -2086,6 +2112,32 @@ export const en: Partial<Record<MessageKey, string>> = {
   "landing.footer.legalNotice": "Legal notice",
   "landing.footer.contact": "Contact",
   "landing.footer.copyright": "© 2026 Vidcica. All rights reserved.",
+
+  // --- Dedicated marketing pages (/tarifs, /faq, /fonctionnalites) ---
+  "page.pricing.metaTitle": "Pricing and credits",
+  "page.pricing.metaDescription":
+    "Vidcica plans: an AI video generator with voiceover, subtitles and automatic publishing. Free tier, then EUR 25 to 99 per month.",
+  "page.pricing.h1": "AI video generator pricing",
+  "page.pricing.intro":
+    "A free tier to try it, then monthly credits scaled to how much you publish. No lock-in: change plan or stop whenever you like.",
+  "page.pricing.creditsTitle": "How credits work",
+  "page.pricing.faqTitle": "Billing questions",
+  "page.pricing.ctaTitle": "Ready to make your first video?",
+  "page.faq.metaTitle": "Frequently asked questions",
+  "page.faq.metaDescription":
+    "Credits, who owns the videos, available networks, voiceover languages, billing: answers to the questions we get asked most about Vidcica.",
+  "page.faq.h1": "Frequently asked questions",
+  "page.faq.intro":
+    "The things people ask us most about AI video creation, publishing and billing.",
+  "page.faq.stillTitle": "Another question?",
+  "page.faq.stillBody": "Write to us — we answer within one working day.",
+  "page.features.metaTitle": "Features",
+  "page.features.metaDescription":
+    "AI-written script, natural voiceover, animated subtitles, music, multi-network publishing and campaigns: everything Vidcica does.",
+  "page.features.h1": "Everything Vidcica does for you",
+  "page.features.intro":
+    "From idea to published video: every step of creation is automated, and you keep control of the result.",
+
   "ads.title": "Ads",
   "ads.subtitle":
     "Turn your videos into Facebook and Instagram campaigns and track their performance.",
