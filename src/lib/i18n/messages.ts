@@ -663,7 +663,7 @@ export const fr = {
   "landing.hero.chipSubtitles": "Sous-titres auto",
   "landing.stat.1.value": "≈ 3 min",
   "landing.stat.1.label": "de l’idée à la vidéo finale",
-  "landing.stat.2.value": "6 réseaux",
+  "landing.stat.2.value": "3 réseaux",
   "landing.stat.2.label": "publiés en un seul clic",
   "landing.stat.3.value": "9:16",
   "landing.stat.3.label": "format vertical natif",
@@ -796,7 +796,7 @@ export const fr = {
     "Oui. Le catalogue musical est composé de titres libres de droits sélectionnés pour l’usage sur les réseaux sociaux, et les séquences proviennent de banques licenciées ou de modèles d’IA générative.",
   "landing.faq.networks.q": "Sur quels réseaux puis-je publier ?",
   "landing.faq.networks.a":
-    "Instagram, TikTok, YouTube Shorts, Facebook, LinkedIn et Threads. Tu connectes tes comptes une fois, puis chaque vidéo se publie en un clic.",
+    "TikTok, YouTube Shorts et LinkedIn. Tu connectes tes comptes une fois, puis chaque vidéo se publie en un clic. Instagram, Facebook et Threads arrivent prochainement.",
   "landing.faq.voiceLangs.q": "La voix off existe-t-elle en plusieurs langues ?",
   "landing.faq.voiceLangs.a":
     "Oui — français et anglais aujourd’hui, avec des voix naturelles générées par IA. D’autres langues arriveront ensuite.",
@@ -1937,7 +1937,7 @@ export const en: Partial<Record<MessageKey, string>> = {
   "landing.hero.chipSubtitles": "Auto subtitles",
   "landing.stat.1.value": "≈ 3 min",
   "landing.stat.1.label": "from idea to finished video",
-  "landing.stat.2.value": "6 networks",
+  "landing.stat.2.value": "3 networks",
   "landing.stat.2.label": "published in a single click",
   "landing.stat.3.value": "9:16",
   "landing.stat.3.label": "native vertical format",
@@ -2069,7 +2069,7 @@ export const en: Partial<Record<MessageKey, string>> = {
     "Yes. The music catalog is made up of royalty-free tracks selected for use on social media, and the footage comes from licensed libraries or generative AI models.",
   "landing.faq.networks.q": "Which networks can I publish to?",
   "landing.faq.networks.a":
-    "Instagram, TikTok, YouTube Shorts, Facebook, LinkedIn and Threads. You connect your accounts once, then each video publishes in one click.",
+    "TikTok, YouTube Shorts and LinkedIn. You connect your accounts once, then each video publishes in one click. Instagram, Facebook and Threads are coming soon.",
   "landing.faq.voiceLangs.q": "Is the voiceover available in several languages?",
   "landing.faq.voiceLangs.a":
     "Yes — French and English today, with natural AI-generated voices. More languages will follow.",

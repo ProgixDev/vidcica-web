@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { startNetworkOAuth } from "@/lib/vidcica/oauth";
 import {
+  connectablePlatforms,
   networkStatus,
-  PLATFORMS,
   type Network,
   type NetworkStatus,
   type PlatformId,
@@ -226,8 +226,9 @@ function NetworkCard({ platform, net }: { platform: PlatformMeta; net?: Network 
  */
 export function NetworkList({ initial }: { initial: Network[] }) {
   const byPlatform = new Map(initial.map((n) => [n.platform, n]));
-  // X is dropped (paid API, provider === null) — don't surface it at all.
-  const platforms = PLATFORMS.filter((p) => p.provider !== null);
+  // X is dropped (paid API, provider === null), and Instagram/Facebook/Threads
+  // are held back until Meta approves — see PUBLISHING_PLATFORMS.
+  const platforms = connectablePlatforms();
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="network-list">
       {platforms.map((p) => (

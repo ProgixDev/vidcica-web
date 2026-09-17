@@ -67,6 +67,41 @@ export const PLATFORMS: ReadonlyArray<PlatformMeta> = [
   { id: "x", label: "X", provider: null }, // paid API — not offered
 ];
 
+/**
+ * Platforms a PUBLIC user can actually connect and publish to today.
+ *
+ * Mirrors `PUBLISHING_PLATFORMS` in the mobile app (`src/lib/features.ts`,
+ * commit `f32f55e`) — keep the two in sync. The catalog above stays complete:
+ * this is availability, not existence.
+ *
+ * Status as of 2026-09-17 — move a platform up ONLY when its gate clears:
+ *
+ *  ENABLED
+ *   - tiktok    App details Live (20 Aug) + Content Posting API audited.
+ *   - linkedin  No review exists — `w_member_social` is self-serve, no user cap.
+ *   - youtube   OAuth verification approved 2026-08-25.
+ *
+ *  HELD BACK
+ *   - instagram Meta app is in Dev Mode — only people holding a role on the app
+ *   - facebook  can connect; public users fail. Blocked on Meta Business
+ *               Verification, itself blocked on the company NEQ.
+ *   - threads   Same Meta app; its permissions were never submitted for review.
+ *   - x         Dropped for good (paid API) — `provider: null` already hides it.
+ *
+ * Without this gate the Networks page renders a Connecter button that cannot
+ * succeed, and the publish picker offers a platform the backend will reject.
+ */
+export const PUBLISHING_PLATFORMS: readonly PlatformId[] = ["tiktok", "linkedin", "youtube"];
+
+/** True when a public user may connect/publish to this platform today. */
+export function isPublishingPlatformEnabled(platform: PlatformId): boolean {
+  return PUBLISHING_PLATFORMS.includes(platform);
+}
+
+/** The platforms to render in a connect/publish surface (catalog minus gates). */
+export const connectablePlatforms = (): PlatformMeta[] =>
+  PLATFORMS.filter((p) => p.provider !== null && isPublishingPlatformEnabled(p.id));
+
 export function platformToProvider(id: PlatformId): OAuthProvider | null {
   return PLATFORMS.find((p) => p.id === id)?.provider ?? null;
 }
@@ -76,6 +111,9 @@ export type NetworkStatus = "connected" | "needs_reconnect" | "disconnected" | "
 /** Presentation status for a platform given its (optional) row. */
 export function networkStatus(platform: PlatformMeta, net: Network | undefined): NetworkStatus {
   if (!platform.provider) return "unavailable"; // e.g. X
+  // Held back behind a platform approval (see PUBLISHING_PLATFORMS) — never
+  // offer a connect affordance that cannot complete.
+  if (!isPublishingPlatformEnabled(platform.id)) return "unavailable";
   if (!net || !net.connected) return "disconnected";
   return net.needsReconnect ? "needs_reconnect" : "connected";
 }

@@ -3,6 +3,8 @@ import {
   networkStatus,
   platformToProvider,
   PLATFORMS,
+  connectablePlatforms,
+  isPublishingPlatformEnabled,
   rowToNetwork,
   type Network,
   type NetworkRow,
@@ -46,6 +48,27 @@ describe("platformToProvider (AC-2/AC-4 mapping)", () => {
   });
 });
 
+describe("isPublishingPlatformEnabled", () => {
+  it("allows only the platforms whose review has cleared", () => {
+    expect(isPublishingPlatformEnabled("tiktok")).toBe(true);
+    expect(isPublishingPlatformEnabled("linkedin")).toBe(true);
+    expect(isPublishingPlatformEnabled("youtube")).toBe(true);
+  });
+  it("holds back the platforms still waiting on Meta", () => {
+    // Meta app is in Dev Mode (business verification outstanding); Threads was
+    // never submitted. Offering these ships a button that cannot succeed.
+    expect(isPublishingPlatformEnabled("instagram")).toBe(false);
+    expect(isPublishingPlatformEnabled("facebook")).toBe(false);
+    expect(isPublishingPlatformEnabled("threads")).toBe(false);
+  });
+});
+
+describe("connectablePlatforms", () => {
+  it("drops X and every platform still held back", () => {
+    expect(connectablePlatforms().map((p) => p.id)).toEqual(["youtube", "linkedin", "tiktok"]);
+  });
+});
+
 describe("networkStatus", () => {
   const meta = PLATFORMS.find((p) => p.id === "youtube")!;
   const x = PLATFORMS.find((p) => p.id === "x")!;
@@ -65,5 +88,13 @@ describe("networkStatus", () => {
     expect(networkStatus(meta, net({ connected: false }))).toBe("disconnected");
     expect(networkStatus(meta, undefined)).toBe("disconnected");
     expect(networkStatus(x, undefined)).toBe("unavailable");
+  });
+
+  it("reports a held-back platform as unavailable even when a row exists", () => {
+    // A row can exist from before the gate (or from a dev-mode connect): the UI
+    // must still not present it as connected/publishable.
+    const instagram = PLATFORMS.find((p) => p.id === "instagram")!;
+    expect(networkStatus(instagram, net({ platform: "instagram" }))).toBe("unavailable");
+    expect(networkStatus(instagram, undefined)).toBe("unavailable");
   });
 });

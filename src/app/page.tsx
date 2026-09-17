@@ -36,7 +36,10 @@ const bucketClip = (name: string) => ({
 
 const HERO_CLIP = clip("hero");
 
-const PLATFORMS = ["Instagram", "TikTok", "YouTube Shorts", "Facebook", "LinkedIn", "Threads"];
+// Only what a public user can actually publish to today — keep in sync with
+// PUBLISHING_PLATFORMS in lib/vidcica/network.ts. Instagram/Facebook/Threads
+// return here once Meta approves.
+const PLATFORMS = ["TikTok", "YouTube Shorts", "LinkedIn"];
 
 /**
  * The first three cards are REAL Vidcica renders pulled from the production
