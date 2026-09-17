@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
+import { TrackedLink } from "@/components/tracked-link";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { localizedPath } from "@/lib/i18n/routing";
 import { USE_CASES, findUseCase } from "@/lib/marketing/use-cases";
@@ -105,12 +106,13 @@ export default async function UseCasePage({ params }: Params) {
           </ul>
 
           <div className="mt-10 flex flex-wrap gap-3">
-            <Link
+            <TrackedLink
               href={localizedPath("/sign-in", locale)}
+              location={`use-case:${useCase.slug}`}
               className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
             >
               {t("landing.pricing.startFree")}
-            </Link>
+            </TrackedLink>
             <Link
               href={localizedPath("/tarifs", locale)}
               className={cn(

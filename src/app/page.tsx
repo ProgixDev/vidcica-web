@@ -11,6 +11,7 @@ import { getLocale, getT } from "@/lib/i18n/server";
 import { localizedPath } from "@/lib/i18n/routing";
 import { FAQ_ITEMS } from "@/lib/marketing/faq";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
+import { TrackedLink } from "@/components/tracked-link";
 import { FEATURES } from "@/lib/marketing/features";
 import { USE_CASES } from "@/lib/marketing/use-cases";
 import { FeatureIcon } from "@/components/marketing/feature-icon";
@@ -177,12 +178,13 @@ export default async function Home() {
               </Reveal>
               <Reveal onMount delay={0.24}>
                 <div className="flex flex-wrap items-center gap-4 pt-1">
-                  <Link
+                  <TrackedLink
                     href="/sign-in"
+                    location="hero"
                     className={cn(buttonVariants({ size: "lg" }), "rounded-full px-7")}
                   >
                     {t("landing.hero.cta")}
-                  </Link>
+                  </TrackedLink>
                   <a
                     href="#exemples"
                     className="text-muted-foreground hover:text-foreground text-sm"
@@ -490,12 +492,13 @@ export default async function Home() {
                 {t("landing.ctaBand.subtitle")}
               </p>
               <div className="mt-7 flex justify-center">
-                <Link
+                <TrackedLink
                   href="/sign-in"
+                  location="cta-band"
                   className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
                 >
                   {t("landing.pricing.startFree")}
-                </Link>
+                </TrackedLink>
               </div>
             </div>
           </Reveal>

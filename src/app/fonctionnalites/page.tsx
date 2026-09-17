@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
+import { TrackedLink } from "@/components/tracked-link";
 import { FeatureIcon } from "@/components/marketing/feature-icon";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { localizedPath } from "@/lib/i18n/routing";
@@ -49,12 +50,13 @@ export default async function FeaturesPage() {
           <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-6 py-16 text-center">
             <h2 className="text-2xl font-semibold tracking-tight">{t("page.pricing.ctaTitle")}</h2>
             <div className="flex flex-wrap justify-center gap-3">
-              <Link
+              <TrackedLink
                 href={localizedPath("/sign-in", locale)}
+                location="features"
                 className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
               >
                 {t("landing.pricing.startFree")}
-              </Link>
+              </TrackedLink>
               <Link
                 href={localizedPath("/tarifs", locale)}
                 className={cn(

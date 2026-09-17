@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { safeRedirectPath } from "@/lib/redirect";
 import { useT } from "@/lib/i18n/provider";
+import { useAnalytics } from "@/lib/analytics/provider";
 import { CredentialsSchema, SignupEnrichmentSchema } from "../schema";
 
 /**
@@ -25,6 +26,7 @@ import { CredentialsSchema, SignupEnrichmentSchema } from "../schema";
  */
 export function SignInForm() {
   const t = useT();
+  const { capture } = useAnalytics();
   const router = useRouter();
   const next = safeRedirectPath(useSearchParams().get("next"), "/dashboard");
   const [email, setEmail] = useState("");
@@ -69,6 +71,7 @@ export function SignInForm() {
         setError(authError.message);
         return;
       }
+      capture("signed_in");
       router.replace(next);
       router.refresh();
       return;
@@ -93,6 +96,11 @@ export function SignInForm() {
     if (data.session && data.user) {
       await persistEnrichment(supabase, data.user.id, meta);
     }
+    // The conversion the marketing pages are trying to produce. `confirmed`
+    // separates accounts that are usable immediately from the ones still waiting
+    // on a confirmation email — a drop-off that would otherwise look like
+    // successful sign-ups that never come back.
+    capture("signed_up", { confirmed: Boolean(data.session) });
     setPending(false);
     router.replace(next);
     router.refresh();

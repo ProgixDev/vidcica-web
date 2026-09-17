@@ -4,6 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { PricingCards } from "@/components/pricing-cards";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
+import { TrackedLink } from "@/components/tracked-link";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { localizedPath } from "@/lib/i18n/routing";
 import { ORDERED_TIERS, TIERS } from "@/lib/vidcica/tiers";
@@ -96,12 +97,13 @@ export default async function PricingPage() {
         <section className="mx-auto w-full max-w-6xl px-6 pb-20 text-center">
           <h2 className="text-2xl font-semibold tracking-tight">{t("page.pricing.ctaTitle")}</h2>
           <div className="mt-6 flex justify-center">
-            <Link
+            <TrackedLink
               href={localizedPath("/sign-in", locale)}
+              location="pricing-page"
               className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
             >
               {t("landing.pricing.startFree")}
-            </Link>
+            </TrackedLink>
           </div>
         </section>
       </main>

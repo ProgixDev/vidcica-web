@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrackedLink } from "@/components/tracked-link";
 import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import type { TFunction } from "@/lib/i18n";
@@ -162,8 +163,9 @@ function PlanCard({ id, index, t }: { id: Plan; index: number; t: TFunction }) {
         ))}
       </ul>
 
-      <Link
+      <TrackedLink
         href="/sign-in"
+        location={`pricing:${tier.id}`}
         className={cn(
           buttonVariants({ variant: popular ? "default" : "outline", size: "sm" }),
           "rounded-full",
@@ -172,7 +174,7 @@ function PlanCard({ id, index, t }: { id: Plan; index: number; t: TFunction }) {
         {tier.priceEUR === 0
           ? t("landing.pricing.startFree")
           : t("landing.pricing.choose", { plan: t(tier.labelKey) })}
-      </Link>
+      </TrackedLink>
     </Reveal>
   );
 }
