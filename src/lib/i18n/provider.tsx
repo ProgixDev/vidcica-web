@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext, useMemo, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { makeT, DEFAULT_LOCALE, LOCALE_COOKIE, type Locale, type TFunction } from "./index";
+import { localizedPath, splitLocalePath } from "./routing";
 
 type I18nValue = {
   locale: Locale;
@@ -25,6 +26,7 @@ function writeLocaleCookie(next: Locale) {
  *  `isSwitching` state. */
 export function I18nProvider({ locale, children }: { locale: Locale; children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isSwitching, startTransition] = useTransition();
   const value = useMemo<I18nValue>(
     () => ({
@@ -33,13 +35,17 @@ export function I18nProvider({ locale, children }: { locale: Locale; children: R
       isSwitching,
       switchLocale: (next: Locale) => {
         if (next === locale) return;
+        // Remembered for any request that bypasses middleware; the URL is what
+        // actually decides the language (see lib/i18n/routing.ts).
         writeLocaleCookie(next);
-        // Re-render Server Components in the new language; `isSwitching` stays
-        // true until that lands, driving the crossfade.
-        startTransition(() => router.refresh());
+        // Navigate to the same page in the other language — French at the root,
+        // English under /en — so the choice is shareable and indexable.
+        const target = localizedPath(splitLocalePath(pathname).path, next);
+        // `isSwitching` stays true until the new page lands, driving the crossfade.
+        startTransition(() => router.push(target));
       },
     }),
-    [locale, isSwitching, router],
+    [locale, isSwitching, router, pathname],
   );
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

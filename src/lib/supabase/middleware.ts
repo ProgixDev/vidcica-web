@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { clientEnv } from "@/core/env.client";
+import { localizedPath } from "@/lib/i18n/routing";
+import type { Locale } from "@/lib/i18n/config";
 
 /** Routes that require an authenticated session. Edit per app. */
 const PROTECTED_PREFIXES = [
@@ -18,11 +20,11 @@ const PROTECTED_PREFIXES = [
 
 /**
  * Refreshes the Supabase auth session on every request (tokens are short-lived)
- * and gates protected routes. Must run in `src/middleware.ts`. Following the
+ * and gates protected routes. Takes the locale-stripped route from the caller. Must run in `src/middleware.ts`. Following the
  * official @supabase/ssr pattern: always return the `supabaseResponse` object so
  * cookies stay in sync. See docs/architecture/backend.md.
  */
-export async function updateSession(request: NextRequest) {
+export async function updateSession(request: NextRequest, route: { path: string; locale: Locale }) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -51,12 +53,15 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
+  // `route.path` is the URL with any locale prefix stripped, so /en/dashboard
+  // gates exactly like /dashboard.
+  const { path, locale } = route;
   const isProtected = PROTECTED_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/sign-in";
-    url.searchParams.set("next", path);
+    url.pathname = localizedPath("/sign-in", locale);
+    // Keep the visitor in their language after signing in.
+    url.searchParams.set("next", localizedPath(path, locale));
     return NextResponse.redirect(url);
   }
 
