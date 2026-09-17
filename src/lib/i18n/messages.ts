@@ -2198,12 +2198,12 @@ export const en: Partial<Record<MessageKey, string>> = {
     "From idea to published video: every step of creation is automated, and you keep control of the result.",
 
   // --- Use-case pages (/cas-usage/...) ---
-  "page.useCases.metaTitle": "Use cases by industry",
+  "page.useCases.metaTitle": "Video marketing by industry",
   "page.useCases.metaDescription":
-    "Restaurants, real estate, coaches, e-commerce: how Vidcica creates and publishes short videos for each line of work.",
-  "page.useCases.h1": "Videos built for your line of work",
+    "Restaurants, real estate, personal trainers, e-commerce: how Vidcica makes and posts short social videos for each industry.",
+  "page.useCases.h1": "Video marketing built for your industry",
   "page.useCases.intro":
-    "One tool, different uses. Pick your industry to see what to publish, and how often.",
+    "One tool, different playbooks. Pick your industry to see what to post, and how often.",
   "page.useCases.ideasTitle": "Video ideas, ready to generate",
   "page.useCases.otherTitle": "Other industries",
   "page.useCases.howTitle": "How it works",
@@ -2216,42 +2216,42 @@ export const en: Partial<Record<MessageKey, string>> = {
   "consent.decline": "Decline",
   "consent.learnMore": "Privacy policy",
 
-  "useCase.restaurant.metaTitle": "Videos for restaurants",
+  "useCase.restaurant.metaTitle": "Social media videos for restaurants",
   "useCase.restaurant.metaDescription":
-    "Create videos of your dishes and publish them to TikTok, YouTube Shorts and LinkedIn. Daily menus, behind the scenes, new dishes — no camera, no editing.",
-  "useCase.restaurant.h1": "Videos that fill your dining room",
+    "Make social media videos for your restaurant with AI — dishes, daily menus, behind the scenes — and post them to TikTok, YouTube Shorts and LinkedIn without filming or editing.",
+  "useCase.restaurant.h1": "Social media videos for restaurants, without a camera",
   "useCase.restaurant.intro":
-    "Your customers decide where to eat on their phone. Post a dish, a new item or the kitchen at work every week — no gear, no editor, no evenings lost to it.",
-  "useCase.restaurant.idea1": "Today’s menu, told in 20 seconds",
-  "useCase.restaurant.idea2": "Behind the scenes and the chef at work",
+    "Diners pick where to eat on their phone. Vidcica turns a dish or a daily menu into a short video — script, voiceover, captions and music — then posts it to your accounts while you run service.",
+  "useCase.restaurant.idea1": "Content idea: today’s menu in 20 seconds",
+  "useCase.restaurant.idea2": "Behind the scenes in the kitchen",
   "useCase.restaurant.idea3": "Your signature dish, told as a story",
 
-  "useCase.immobilier.metaTitle": "Videos for real estate",
+  "useCase.immobilier.metaTitle": "Real estate video marketing",
   "useCase.immobilier.metaDescription":
-    "Turn every listing into a video tour published to your networks. Listings, neighbourhoods, buying advice — AI-generated and published automatically.",
-  "useCase.immobilier.h1": "Every listing becomes a video tour",
+    "A listing video maker for real estate agents: turn each property into a short video tour with voiceover and captions, posted automatically to your social accounts.",
+  "useCase.immobilier.h1": "Real estate video marketing, one listing at a time",
   "useCase.immobilier.intro":
-    "A listing with video travels far further than a photo gallery. Generate the tour, the voiceover and the subtitles, then publish while you prepare the next viewing.",
-  "useCase.immobilier.idea1": "The guided tour, room by room",
-  "useCase.immobilier.idea2": "The neighbourhood: shops, schools, transport",
+    "A listing with video travels far further than a photo gallery. Vidcica writes the script, adds the voiceover and captions, and publishes the tour while you prepare the next viewing.",
+  "useCase.immobilier.idea1": "A listing video tour, room by room",
+  "useCase.immobilier.idea2": "The neighbourhood: shops, schools, transit",
   "useCase.immobilier.idea3": "This week’s advice for buyers and sellers",
 
-  "useCase.coach.metaTitle": "Videos for coaches and gyms",
+  "useCase.coach.metaTitle": "Social media for personal trainers",
   "useCase.coach.metaDescription":
-    "Publish tips, sessions and transformations as short videos. Voiceover, subtitles and automatic publishing to TikTok and Shorts.",
-  "useCase.coach.h1": "A regular video appointment with your audience",
+    "Content ideas and AI-made videos for personal trainers and gyms: tips, sessions and client transformations, posted to TikTok and YouTube Shorts on a schedule.",
+  "useCase.coach.h1": "Social media for personal trainers, on autopilot",
   "useCase.coach.intro":
-    "In coaching, consistency builds the audience. Prepare a run of videos in one sitting, schedule them, and let publishing run while you are with clients.",
-  "useCase.coach.idea1": "This week’s exercise, explained properly",
-  "useCase.coach.idea2": "Three mistakes to avoid in training",
+    "In coaching, consistency builds the audience. Batch a week of videos in one sitting, schedule them, and let publishing run while you are on the gym floor with clients.",
+  "useCase.coach.idea1": "Content idea: this week’s exercise, explained properly",
+  "useCase.coach.idea2": "Three training mistakes to avoid",
   "useCase.coach.idea3": "A client’s transformation, told as a story",
 
-  "useCase.ecommerce.metaTitle": "Videos for e-commerce",
+  "useCase.ecommerce.metaTitle": "Product video maker for e-commerce",
   "useCase.ecommerce.metaDescription":
-    "One video per product, AI-generated and published to your networks. Built for product pages, new arrivals and ad campaigns.",
-  "useCase.ecommerce.h1": "One video per product, without a studio",
+    "Turn product pages into short video ads with AI. A product video maker for Shopify and e-commerce stores — voiceover, captions, and posting to TikTok and Shorts.",
+  "useCase.ecommerce.h1": "A product video maker for your online store",
   "useCase.ecommerce.intro":
-    "Filming every item is expensive. Generate a video per product from its description, publish it to your networks, and turn the best performers into ads.",
+    "Filming every SKU is expensive. Generate a video from each product description, post it to your social accounts, and turn the best performers into ecommerce video ads.",
   "useCase.ecommerce.idea1": "This week’s new arrival in 15 seconds",
   "useCase.ecommerce.idea2": "The product in use, with its benefits",
   "useCase.ecommerce.idea3": "A customer review turned into a video",
