@@ -852,6 +852,15 @@ export const fr = {
   "page.useCases.otherTitle": "Autres métiers",
   "page.useCases.howTitle": "Comment ça marche",
 
+  // --- Blog ---
+  "page.blog.metaTitle": "Blog",
+  "page.blog.metaDescription":
+    "Conseils pratiques sur la vidéo courte : écrire un script, publier sans se filmer, gagner des vues sur TikTok et YouTube Shorts.",
+  "page.blog.h1": "Le blog",
+  "page.blog.intro":
+    "Des réponses concrètes aux questions qu'on nous pose le plus sur la vidéo courte et les réseaux sociaux.",
+  "landing.nav.blog": "Blog",
+
   // --- Bandeau de consentement analytics ---
   "consent.title": "Mesure d’audience",
   "consent.body":
@@ -2207,6 +2216,15 @@ export const en: Partial<Record<MessageKey, string>> = {
   "page.useCases.ideasTitle": "Video ideas, ready to generate",
   "page.useCases.otherTitle": "Other industries",
   "page.useCases.howTitle": "How it works",
+
+  // --- Blog ---
+  "page.blog.metaTitle": "Blog",
+  "page.blog.metaDescription":
+    "Practical advice on short video: writing a script, publishing without filming yourself, getting views on TikTok and YouTube Shorts.",
+  "page.blog.h1": "The blog",
+  "page.blog.intro":
+    "Straight answers to the questions we get asked most about short video and social media.",
+  "landing.nav.blog": "Blog",
 
   // --- Analytics consent banner ---
   "consent.title": "Audience measurement",

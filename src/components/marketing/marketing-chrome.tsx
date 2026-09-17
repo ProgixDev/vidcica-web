@@ -28,6 +28,7 @@ function navLinks(t: TFunction, locale: Locale) {
     { href: localizedPath("/fonctionnalites", locale), label: t("landing.nav.features") },
     { href: localizedPath("/tarifs", locale), label: t("landing.nav.pricing") },
     { href: localizedPath("/faq", locale), label: "FAQ" },
+    { href: localizedPath("/blog", locale), label: t("landing.nav.blog") },
   ];
 }
 
@@ -101,6 +102,9 @@ export function MarketingFooter({ t, locale }: ChromeProps) {
               </Link>
               <Link href={link("/faq")} className="hover:text-foreground text-muted-foreground">
                 FAQ
+              </Link>
+              <Link href={link("/blog")} className="hover:text-foreground text-muted-foreground">
+                {t("landing.nav.blog")}
               </Link>
               <Link href={link("/sign-in")} className="hover:text-foreground text-muted-foreground">
                 {t("landing.nav.signIn")}
