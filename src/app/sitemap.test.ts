@@ -37,6 +37,13 @@ describe("sitemap", () => {
     }
   });
 
+  it("lists every trade page in both languages", () => {
+    for (const path of ["/cas-usage", "/cas-usage/restaurant", "/cas-usage/e-commerce"]) {
+      expect(urls()).toContain(path);
+      expect(urls()).toContain(`/en${path}`);
+    }
+  });
+
   it("keeps private routes out", () => {
     const priv = urls().filter((u) => /dashboard|account|videos|billing|api/.test(u));
     expect(priv).toEqual([]);

@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { site } from "@/core/site";
 import { isBilingualDocumentPath, localizedPath } from "@/lib/i18n/routing";
 import { DEFAULT_LOCALE, LOCALES } from "@/lib/i18n/config";
+import { listUseCasePaths } from "@/lib/marketing/use-cases";
 
 /** Add a row per public, indexable route. Keep auth/account/api out. */
 const ROUTES = [
@@ -9,6 +10,8 @@ const ROUTES = [
   "/fonctionnalites",
   "/tarifs",
   "/faq",
+  "/cas-usage",
+  ...listUseCasePaths(),
   "/sign-in",
   "/privacy",
   "/terms",

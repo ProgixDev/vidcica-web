@@ -8,9 +8,11 @@ import { PricingCards } from "@/components/pricing-cards";
 import { Reveal } from "@/components/reveal";
 import { ShowcaseVideo } from "@/components/showcase-video";
 import { getLocale, getT } from "@/lib/i18n/server";
+import { localizedPath } from "@/lib/i18n/routing";
 import { FAQ_ITEMS } from "@/lib/marketing/faq";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
 import { FEATURES } from "@/lib/marketing/features";
+import { USE_CASES } from "@/lib/marketing/use-cases";
 import { FeatureIcon } from "@/components/marketing/feature-icon";
 import type { MessageKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -87,29 +89,6 @@ const SHOWCASE: {
     clip: bucketClip("welcome-3"),
     chip: "landing.showcase.6.chip",
     caption: "landing.showcase.6.caption",
-  },
-];
-
-const USE_CASES: { img: string; title: MessageKey; body: MessageKey }[] = [
-  {
-    img: "/media/use-restaurant.jpg",
-    title: "landing.useCase.restaurant.title",
-    body: "landing.useCase.restaurant.body",
-  },
-  {
-    img: "/media/use-immo.jpg",
-    title: "landing.useCase.immo.title",
-    body: "landing.useCase.immo.body",
-  },
-  {
-    img: "/media/use-coach.jpg",
-    title: "landing.useCase.coach.title",
-    body: "landing.useCase.coach.body",
-  },
-  {
-    img: "/media/use-ecom.jpg",
-    title: "landing.useCase.ecom.title",
-    body: "landing.useCase.ecom.body",
   },
 ];
 
@@ -381,24 +360,28 @@ export default async function Home() {
           </Reveal>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {USE_CASES.map((u, i) => (
-              <li key={u.title} className="min-w-0">
-                <Reveal
-                  delay={(i % 4) * 0.07}
-                  className="group border-border bg-card h-full overflow-hidden rounded-md border transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
-                >
-                  <div className="relative aspect-4/3 overflow-hidden">
-                    <Image
-                      src={u.img}
-                      alt={t(u.title)}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5 p-4">
-                    <h3 className="text-sm font-medium">{t(u.title)}</h3>
-                    <p className="text-muted-foreground text-xs leading-relaxed">{t(u.body)}</p>
-                  </div>
+              <li key={u.slug} className="min-w-0">
+                <Reveal delay={(i % 4) * 0.07} className="h-full">
+                  <Link
+                    href={localizedPath(`/cas-usage/${u.slug}`, locale)}
+                    className="group border-border bg-card block h-full overflow-hidden rounded-md border transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
+                  >
+                    <div className="relative aspect-4/3 overflow-hidden">
+                      <Image
+                        src={u.img}
+                        alt={t(u.cardTitle)}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5 p-4">
+                      <h3 className="text-sm font-medium">{t(u.cardTitle)}</h3>
+                      <p className="text-muted-foreground text-xs leading-relaxed">
+                        {t(u.cardBody)}
+                      </p>
+                    </div>
+                  </Link>
                 </Reveal>
               </li>
             ))}

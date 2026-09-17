@@ -841,6 +841,57 @@ export const fr = {
   "page.features.intro":
     "De l’idée à la vidéo publiée : chaque étape de la création est automatisée, et tu gardes la main sur le résultat.",
 
+  // --- Use-case pages (/cas-usage/...) ---
+  "page.useCases.metaTitle": "Cas d’usage par métier",
+  "page.useCases.metaDescription":
+    "Restaurants, immobilier, coachs, e-commerce : comment Vidcica crée et publie des vidéos courtes pour chaque métier.",
+  "page.useCases.h1": "Des vidéos pensées pour ton métier",
+  "page.useCases.intro":
+    "Le même outil, des usages différents. Choisis ton métier pour voir quoi publier, et à quel rythme.",
+  "page.useCases.ideasTitle": "Des idées de vidéos, prêtes à générer",
+  "page.useCases.otherTitle": "Autres métiers",
+  "page.useCases.howTitle": "Comment ça marche",
+
+  "useCase.restaurant.metaTitle": "Vidéos pour restaurants",
+  "useCase.restaurant.metaDescription":
+    "Crée des vidéos de tes plats et publie-les sur TikTok, YouTube Shorts et LinkedIn. Menus du jour, coulisses, nouveautés — sans caméra ni montage.",
+  "useCase.restaurant.h1": "Des vidéos qui remplissent ta salle",
+  "useCase.restaurant.intro":
+    "Tes clients cherchent où manger sur leur téléphone. Publie chaque semaine un plat, une nouveauté ou les coulisses du service — sans matériel, sans monteur, sans y passer tes soirées.",
+  "useCase.restaurant.idea1": "Le menu du jour, raconté en 20 secondes",
+  "useCase.restaurant.idea2": "Les coulisses du service et le geste du chef",
+  "useCase.restaurant.idea3": "Le plat signature, raconté comme une histoire",
+
+  "useCase.immobilier.metaTitle": "Vidéos pour l’immobilier",
+  "useCase.immobilier.metaDescription":
+    "Transforme chaque bien en visite vidéo publiée sur tes réseaux. Annonces, quartiers, conseils d’achat — générés par IA et publiés automatiquement.",
+  "useCase.immobilier.h1": "Chaque bien devient une visite vidéo",
+  "useCase.immobilier.intro":
+    "Une annonce avec vidéo se partage bien mieux qu’une galerie de photos. Génère la visite, la voix off et les sous-titres, puis publie sur tes réseaux pendant que tu prépares la visite suivante.",
+  "useCase.immobilier.idea1": "La visite guidée du bien, pièce par pièce",
+  "useCase.immobilier.idea2": "Le quartier : commerces, écoles, transports",
+  "useCase.immobilier.idea3": "Le conseil de la semaine pour acheter ou vendre",
+
+  "useCase.coach.metaTitle": "Vidéos pour coachs et salles de sport",
+  "useCase.coach.metaDescription":
+    "Publie des conseils, des séances et des transformations en vidéo courte. Voix off, sous-titres et publication automatique sur TikTok et Shorts.",
+  "useCase.coach.h1": "Un rendez-vous vidéo régulier avec ton audience",
+  "useCase.coach.intro":
+    "En coaching, la régularité fait l’audience. Prépare une série de vidéos en une fois, programme-les, et laisse la publication tourner pendant que tu es avec tes clients.",
+  "useCase.coach.idea1": "L’exercice de la semaine, expliqué proprement",
+  "useCase.coach.idea2": "Trois erreurs à éviter à l’entraînement",
+  "useCase.coach.idea3": "La transformation d’un client, racontée",
+
+  "useCase.ecommerce.metaTitle": "Vidéos pour e-commerce",
+  "useCase.ecommerce.metaDescription":
+    "Une vidéo par produit, générée par IA et publiée sur tes réseaux. Idéal pour les fiches produit, les nouveautés et les campagnes publicitaires.",
+  "useCase.ecommerce.h1": "Une vidéo par produit, sans studio",
+  "useCase.ecommerce.intro":
+    "Filmer chaque référence coûte cher. Génère une vidéo par produit à partir de ta fiche, publie-la sur tes réseaux, et transforme les meilleures en publicités.",
+  "useCase.ecommerce.idea1": "La nouveauté de la semaine en 15 secondes",
+  "useCase.ecommerce.idea2": "Le produit en situation, avec ses bénéfices",
+  "useCase.ecommerce.idea3": "L’avis client transformé en vidéo",
+
   "ads.title": "Publicités",
   "ads.subtitle":
     "Transformez vos vidéos en campagnes Facebook et Instagram et suivez leurs performances.",
@@ -2137,6 +2188,57 @@ export const en: Partial<Record<MessageKey, string>> = {
   "page.features.h1": "Everything Vidcica does for you",
   "page.features.intro":
     "From idea to published video: every step of creation is automated, and you keep control of the result.",
+
+  // --- Use-case pages (/cas-usage/...) ---
+  "page.useCases.metaTitle": "Use cases by industry",
+  "page.useCases.metaDescription":
+    "Restaurants, real estate, coaches, e-commerce: how Vidcica creates and publishes short videos for each line of work.",
+  "page.useCases.h1": "Videos built for your line of work",
+  "page.useCases.intro":
+    "One tool, different uses. Pick your industry to see what to publish, and how often.",
+  "page.useCases.ideasTitle": "Video ideas, ready to generate",
+  "page.useCases.otherTitle": "Other industries",
+  "page.useCases.howTitle": "How it works",
+
+  "useCase.restaurant.metaTitle": "Videos for restaurants",
+  "useCase.restaurant.metaDescription":
+    "Create videos of your dishes and publish them to TikTok, YouTube Shorts and LinkedIn. Daily menus, behind the scenes, new dishes — no camera, no editing.",
+  "useCase.restaurant.h1": "Videos that fill your dining room",
+  "useCase.restaurant.intro":
+    "Your customers decide where to eat on their phone. Post a dish, a new item or the kitchen at work every week — no gear, no editor, no evenings lost to it.",
+  "useCase.restaurant.idea1": "Today’s menu, told in 20 seconds",
+  "useCase.restaurant.idea2": "Behind the scenes and the chef at work",
+  "useCase.restaurant.idea3": "Your signature dish, told as a story",
+
+  "useCase.immobilier.metaTitle": "Videos for real estate",
+  "useCase.immobilier.metaDescription":
+    "Turn every listing into a video tour published to your networks. Listings, neighbourhoods, buying advice — AI-generated and published automatically.",
+  "useCase.immobilier.h1": "Every listing becomes a video tour",
+  "useCase.immobilier.intro":
+    "A listing with video travels far further than a photo gallery. Generate the tour, the voiceover and the subtitles, then publish while you prepare the next viewing.",
+  "useCase.immobilier.idea1": "The guided tour, room by room",
+  "useCase.immobilier.idea2": "The neighbourhood: shops, schools, transport",
+  "useCase.immobilier.idea3": "This week’s advice for buyers and sellers",
+
+  "useCase.coach.metaTitle": "Videos for coaches and gyms",
+  "useCase.coach.metaDescription":
+    "Publish tips, sessions and transformations as short videos. Voiceover, subtitles and automatic publishing to TikTok and Shorts.",
+  "useCase.coach.h1": "A regular video appointment with your audience",
+  "useCase.coach.intro":
+    "In coaching, consistency builds the audience. Prepare a run of videos in one sitting, schedule them, and let publishing run while you are with clients.",
+  "useCase.coach.idea1": "This week’s exercise, explained properly",
+  "useCase.coach.idea2": "Three mistakes to avoid in training",
+  "useCase.coach.idea3": "A client’s transformation, told as a story",
+
+  "useCase.ecommerce.metaTitle": "Videos for e-commerce",
+  "useCase.ecommerce.metaDescription":
+    "One video per product, AI-generated and published to your networks. Built for product pages, new arrivals and ad campaigns.",
+  "useCase.ecommerce.h1": "One video per product, without a studio",
+  "useCase.ecommerce.intro":
+    "Filming every item is expensive. Generate a video per product from its description, publish it to your networks, and turn the best performers into ads.",
+  "useCase.ecommerce.idea1": "This week’s new arrival in 15 seconds",
+  "useCase.ecommerce.idea2": "The product in use, with its benefits",
+  "useCase.ecommerce.idea3": "A customer review turned into a video",
 
   "ads.title": "Ads",
   "ads.subtitle":
