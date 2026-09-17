@@ -63,6 +63,14 @@ function ensurePostHog(): Promise<PostHog> {
       // screens, which is not what they consented to.
       disable_session_recording: true,
       persistence: "localStorage+cookie",
+      // Error tracking rides on the same SDK, project and consent — no second
+      // vendor, and nothing captured from someone who declined.
+      capture_exceptions: {
+        capture_unhandled_errors: true,
+        capture_unhandled_rejections: true,
+        // Console noise is not an error signal; it would bury the real ones.
+        capture_console_errors: false,
+      },
     });
     sdk = posthog;
     return posthog;
@@ -87,6 +95,8 @@ type AnalyticsValue = {
   setConsent: (value: Consent) => void;
   /** Record a product event. A no-op unless analytics is allowed. */
   capture: (event: string, properties?: Record<string, unknown>) => void;
+  /** Report a caught error (the boundaries use this). */
+  captureException: (error: unknown) => void;
 };
 
 const AnalyticsContext = createContext<AnalyticsValue | null>(null);
@@ -124,6 +134,14 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
     [allowed],
   );
 
+  const captureException = useCallback(
+    (error: unknown) => {
+      if (!allowed) return;
+      void ensurePostHog().then((posthog) => posthog.captureException(error));
+    },
+    [allowed],
+  );
+
   const value = useMemo<AnalyticsValue>(
     () => ({
       consent,
@@ -132,8 +150,9 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
       askConsent: hydrated && shouldAskConsent(isConfigured(), consent),
       setConsent,
       capture,
+      captureException,
     }),
-    [consent, hydrated, setConsent, capture],
+    [consent, hydrated, setConsent, capture, captureException],
   );
 
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>;
@@ -147,6 +166,7 @@ export function useAnalytics(): AnalyticsValue {
       askConsent: false,
       setConsent: () => {},
       capture: () => {},
+      captureException: () => {},
     }
   );
 }

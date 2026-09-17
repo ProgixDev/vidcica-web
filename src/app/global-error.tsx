@@ -1,9 +1,12 @@
 "use client";
 
+import { ErrorReporter } from "@/components/error-reporter";
+
 /**
  * Root error boundary — catches errors in the root layout itself, so it must
- * render its own <html>/<body>. Keep it dependency-light. Wire your error
- * tracker's capture here (e.g. Sentry.captureException(error)).
+ * render its own <html>/<body>. Kept dependency-light on purpose: this runs
+ * when the layout has already failed, so the reporting lives in
+ * <ErrorReporter/>, which no-ops when the analytics provider is not mounted.
  */
 export default function GlobalError({
   error,
@@ -15,6 +18,7 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body className="font-sans antialiased">
+        <ErrorReporter error={error} />
         <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col items-center justify-center gap-4 px-6 text-center">
           <h1 className="text-3xl font-semibold tracking-tight">Something went wrong.</h1>
           <p className="text-muted-foreground max-w-prose">
