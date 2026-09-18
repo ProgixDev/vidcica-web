@@ -19,9 +19,10 @@ const statements = JSON.parse(
 const PLAY_APP_SIGNING =
   "73:76:09:52:4C:8D:31:D0:A5:B7:8F:50:23:2F:24:90:55:A0:91:10:50:1D:3A:0E:CC:24:94:74:60:CF:FA:A8";
 
-describe("assetlinks.json", () => {
-  const [statement] = statements;
+const statement = statements[0];
+if (!statement) throw new Error("assetlinks.json holds no statement");
 
+describe("assetlinks.json", () => {
   it("delegates link handling to the Vidcica app", () => {
     expect(statements).toHaveLength(1);
     expect(statement.relation).toEqual(["delegate_permission/common.handle_all_urls"]);
