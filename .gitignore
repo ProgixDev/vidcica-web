@@ -38,5 +38,5 @@ docs/reports/*.pdf
 .claude/settings.local.json
 CLAUDE.local.md
 
-# Client-dispute documents: private, never committed (see a72cbe2).
+# Client documents: private, never committed.
 docs/reports/journal-realisation-*
