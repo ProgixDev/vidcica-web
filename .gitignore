@@ -37,3 +37,6 @@ docs/reports/*.pdf
 # local agent scratch
 .claude/settings.local.json
 CLAUDE.local.md
+
+# Client-dispute documents: private, never committed (see a72cbe2).
+docs/reports/journal-realisation-*
