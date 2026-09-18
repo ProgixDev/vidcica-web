@@ -101,6 +101,14 @@ export function SignInForm() {
       );
       return;
     }
+    // The address already belongs to a confirmed account: Supabase answers
+    // "OK", sends nothing, and returns a user with no identities. Say so, or
+    // the user waits for a confirmation email that never comes.
+    if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      setPending(false);
+      setError(t("auth.errEmailExists"));
+      return;
+    }
     if (data.session && data.user) {
       await persistEnrichment(supabase, data.user.id, meta);
     }

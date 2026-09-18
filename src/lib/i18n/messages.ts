@@ -485,6 +485,8 @@ export const fr = {
     "8 caractères minimum, dont une minuscule, une majuscule, un chiffre et un symbole.",
   "auth.errWeakPassword":
     "Mot de passe trop faible : il faut une minuscule, une majuscule, un chiffre et un symbole.",
+  "auth.errEmailExists":
+    "Un compte existe déjà avec cette adresse. Connecte-toi, ou utilise « Mot de passe oublié » si besoin.",
   "auth.confirmed.title": "Adresse confirmée",
   "auth.confirmed.body":
     "Ton compte est prêt. Retourne dans l’app Vidcica et connecte-toi avec ton e-mail et ton mot de passe.",
@@ -1866,6 +1868,8 @@ export const en: Partial<Record<MessageKey, string>> = {
     "At least 8 characters, including a lowercase letter, an uppercase letter, a number and a symbol.",
   "auth.errWeakPassword":
     "Password too weak: it needs a lowercase letter, an uppercase letter, a number and a symbol.",
+  "auth.errEmailExists":
+    "An account already exists with this email. Sign in, or use “Forgot password” if needed.",
   "auth.confirmed.title": "Email confirmed",
   "auth.confirmed.body":
     "Your account is ready. Go back to the Vidcica app and sign in with your email and password.",
