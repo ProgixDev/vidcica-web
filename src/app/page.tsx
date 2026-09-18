@@ -15,6 +15,7 @@ import { TrackedLink } from "@/components/tracked-link";
 import { FEATURES } from "@/lib/marketing/features";
 import { USE_CASES } from "@/lib/marketing/use-cases";
 import { FeatureIcon } from "@/components/marketing/feature-icon";
+import type { Metadata, ResolvingMetadata } from "next";
 import type { MessageKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -139,6 +140,28 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
       {children}
     </span>
   );
+}
+
+/**
+ * The homepage carries the head keywords (docs/marketing/mots-cles.md §A,
+ * keywords-en.md §A). Without its own metadata it fell back to the layout's
+ * bare "Vidcica" title and French description, including on /en. Social tags
+ * keep the layout's type, URL and locale; only the wording changes.
+ */
+export async function generateMetadata(
+  _props: unknown,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const t = await getT();
+  const title = t("landing.meta.title");
+  const description = t("landing.meta.description");
+  const { openGraph, twitter } = await parent;
+  return {
+    title: { absolute: title },
+    description,
+    openGraph: { ...(openGraph as Metadata["openGraph"]), title, description },
+    twitter: { ...(twitter as Metadata["twitter"]), title, description },
+  };
 }
 
 export default async function Home() {

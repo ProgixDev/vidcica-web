@@ -669,6 +669,9 @@ export const fr = {
   "landing.nav.pricing": "Tarifs",
   "landing.nav.signIn": "Se connecter",
   "landing.hero.badge": "Studio vidéo IA",
+  "landing.meta.title": "Générateur de vidéo IA gratuit : texte en vidéo · Vidcica",
+  "landing.meta.description":
+    "Transformez un texte en vidéo courte avec l’IA : script, voix off, sous-titres, musique. Publiez sur TikTok, YouTube Shorts et LinkedIn. Essai gratuit.",
   "landing.hero.title": "Transformez un script en vidéo courte — publiée partout, automatiquement.",
   "landing.hero.subtitle":
     "Vidcica génère des vidéos verticales à partir de vos idées — voix, sous-titres, musique — puis les publie sur vos réseaux pendant que vous préparez la suivante.",
@@ -2051,6 +2054,9 @@ export const en: Partial<Record<MessageKey, string>> = {
   "landing.nav.pricing": "Pricing",
   "landing.nav.signIn": "Sign in",
   "landing.hero.badge": "AI video studio",
+  "landing.meta.title": "Faceless AI Video Generator for Short-Form Videos · Vidcica",
+  "landing.meta.description":
+    "Turn text into short videos with AI: script, voiceover, subtitles, music. Publish to TikTok, YouTube Shorts and LinkedIn. No filming. Free to start.",
   "landing.hero.title": "Turn a script into a short video — published everywhere, automatically.",
   "landing.hero.subtitle":
     "Vidcica generates vertical videos from your ideas — voice, subtitles, music — then publishes them to your networks while you prepare the next one.",
