@@ -485,6 +485,15 @@ export const fr = {
     "8 caractères minimum, dont une minuscule, une majuscule, un chiffre et un symbole.",
   "auth.errWeakPassword":
     "Mot de passe trop faible : il faut une minuscule, une majuscule, un chiffre et un symbole.",
+  "auth.confirmed.title": "Adresse confirmée",
+  "auth.confirmed.body":
+    "Ton compte est prêt. Retourne dans l’app Vidcica et connecte-toi avec ton e-mail et ton mot de passe.",
+  "auth.confirmed.openApp": "Ouvrir l’app Vidcica",
+  "auth.confirmed.continueWeb": "Continuer sur le site",
+  "auth.confirmed.invalidTitle": "Ce lien ne fonctionne plus",
+  "auth.confirmed.invalidBody":
+    "Il a déjà été utilisé ou il a expiré. Si ton adresse est déjà confirmée, connecte-toi simplement ; sinon, demande un nouvel e-mail depuis l’app.",
+  "auth.confirmed.signIn": "Se connecter",
   "auth.signingIn": "Connexion…",
   "auth.signInAction": "Se connecter",
   "auth.signingUp": "Création…",
@@ -1857,6 +1866,15 @@ export const en: Partial<Record<MessageKey, string>> = {
     "At least 8 characters, including a lowercase letter, an uppercase letter, a number and a symbol.",
   "auth.errWeakPassword":
     "Password too weak: it needs a lowercase letter, an uppercase letter, a number and a symbol.",
+  "auth.confirmed.title": "Email confirmed",
+  "auth.confirmed.body":
+    "Your account is ready. Go back to the Vidcica app and sign in with your email and password.",
+  "auth.confirmed.openApp": "Open the Vidcica app",
+  "auth.confirmed.continueWeb": "Continue on the website",
+  "auth.confirmed.invalidTitle": "This link no longer works",
+  "auth.confirmed.invalidBody":
+    "It was already used or it has expired. If your email is already confirmed, just sign in; otherwise request a new email from the app.",
+  "auth.confirmed.signIn": "Sign in",
   "auth.signingIn": "Signing in…",
   "auth.signInAction": "Sign in",
   "auth.signingUp": "Creating…",

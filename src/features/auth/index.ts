@@ -18,3 +18,4 @@ export {
   SignupEnrichmentSchema,
   type SignupEnrichmentInput,
 } from "./schema";
+export { confirmDestination, isAppSignup, parseConfirmType } from "./confirm";
