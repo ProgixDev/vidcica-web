@@ -481,6 +481,10 @@ export const fr = {
   "auth.emailPlaceholder": "toi@exemple.com",
   "auth.passwordLabel": "Mot de passe",
   "auth.passwordPlaceholder": "Minimum 8 caractères",
+  "auth.passwordRules":
+    "8 caractères minimum, dont une minuscule, une majuscule, un chiffre et un symbole.",
+  "auth.errWeakPassword":
+    "Mot de passe trop faible : il faut une minuscule, une majuscule, un chiffre et un symbole.",
   "auth.signingIn": "Connexion…",
   "auth.signInAction": "Se connecter",
   "auth.signingUp": "Création…",
@@ -1848,6 +1852,10 @@ export const en: Partial<Record<MessageKey, string>> = {
   "auth.emailPlaceholder": "you@example.com",
   "auth.passwordLabel": "Password",
   "auth.passwordPlaceholder": "At least 8 characters",
+  "auth.passwordRules":
+    "At least 8 characters, including a lowercase letter, an uppercase letter, a number and a symbol.",
+  "auth.errWeakPassword":
+    "Password too weak: it needs a lowercase letter, an uppercase letter, a number and a symbol.",
   "auth.signingIn": "Signing in…",
   "auth.signInAction": "Sign in",
   "auth.signingUp": "Creating…",

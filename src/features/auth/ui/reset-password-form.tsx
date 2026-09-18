@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { useT } from "@/lib/i18n/provider";
-import { ResetPasswordSchema } from "../schema";
+import { ResetPasswordSchema, isWeakPasswordError } from "../schema";
 
 type Phase = "checking" | "ready" | "invalid" | "done";
 
@@ -83,7 +83,9 @@ export function ResetPasswordForm() {
     });
     setPending(false);
     if (updateError) {
-      setError(updateError.message);
+      setError(
+        isWeakPasswordError(updateError.message) ? t("auth.errWeakPassword") : updateError.message,
+      );
       return;
     }
     setPhase("done");

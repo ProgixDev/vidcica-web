@@ -11,7 +11,12 @@ import { createClient } from "@/lib/supabase/client";
 import { safeRedirectPath } from "@/lib/redirect";
 import { useT } from "@/lib/i18n/provider";
 import { useAnalytics } from "@/lib/analytics/provider";
-import { CredentialsSchema, SignupEnrichmentSchema } from "../schema";
+import {
+  CredentialsSchema,
+  SignUpCredentialsSchema,
+  SignupEnrichmentSchema,
+  isWeakPasswordError,
+} from "../schema";
 
 /**
  * Email + password sign-in / sign-up. Copy mirrors the mobile app's auth
@@ -55,7 +60,8 @@ export function SignInForm() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    const parsed = CredentialsSchema.safeParse({ email, password });
+    const schema = mode === "sign-in" ? CredentialsSchema : SignUpCredentialsSchema;
+    const parsed = schema.safeParse({ email, password });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? t("auth.errCredentialsRequired"));
       return;
@@ -90,7 +96,9 @@ export function SignInForm() {
     });
     if (authError) {
       setPending(false);
-      setError(authError.message);
+      setError(
+        isWeakPasswordError(authError.message) ? t("auth.errWeakPassword") : authError.message,
+      );
       return;
     }
     if (data.session && data.user) {
@@ -152,6 +160,11 @@ export function SignInForm() {
           className="bg-foreground/5 h-10"
           data-testid="sign-in-password"
         />
+        {mode === "sign-up" ? (
+          <p className="text-muted-foreground text-[11px]" data-testid="sign-up-password-rules">
+            {t("auth.passwordRules")}
+          </p>
+        ) : null}
       </div>
 
       {/* Sign-up only: lightweight profile capture (optional). */}
