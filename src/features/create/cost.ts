@@ -5,7 +5,9 @@ import { modelById } from "./options";
  * (ClipFlow/src/lib/credits.ts) and the server worker; the server
  * (enqueue-generation) remains authoritative and re-computes on enqueue.
  */
-export const STOCK_RENDER_COST = 1;
+/** Stock (Pexels) renders are free: the footage costs nothing. Mirrors
+ *  app_config `generation_cost_credits_free` = 0; the daily cap still applies. */
+export const STOCK_RENDER_COST = 0;
 export const AI_CREDITS_PER_SEC = 0.8;
 export const AI_MIN_COST = 12;
 

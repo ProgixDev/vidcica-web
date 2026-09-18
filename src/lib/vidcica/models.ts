@@ -86,9 +86,9 @@ export const modelsAvailableTo = (plan: Plan): ReadonlyArray<ModelOption> =>
 /**
  * Credit cost of one render — mirror of ClipFlow/src/lib/credits.ts, which
  * itself mirrors the authoritative charge in `enqueue-generation`.
- * Stock footage is a flat near-zero cost; AI footage is billed per second.
+ * Stock footage is free; AI footage is billed per second.
  */
-export const STOCK_RENDER_COST = 1;
+export const STOCK_RENDER_COST = 0;
 export const AI_CREDITS_PER_SEC = 0.8;
 export const AI_MIN_COST = 12;
 

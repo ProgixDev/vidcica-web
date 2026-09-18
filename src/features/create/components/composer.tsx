@@ -112,7 +112,9 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
             <circle cx="9" cy="9" r="6.5" />
             <path d="M14.8 6.6a6.5 6.5 0 1 1-8.2 8.2" />
           </svg>
-          {cost.affordable ? (
+          {cost.total === 0 ? (
+            t("create.costFree")
+          ) : cost.affordable ? (
             <>
               {t("create.costAffordable", {
                 total: cost.total,
