@@ -43,7 +43,15 @@ const nextConfig: NextConfig = {
   // Don't advertise the framework version.
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // iOS reads this file (no extension) to trust the app's universal links
+      // and expects JSON; without this it would go out as octet-stream.
+      {
+        source: "/.well-known/apple-app-site-association",
+        headers: [{ key: "Content-Type", value: "application/json" }],
+      },
+    ];
   },
 };
 

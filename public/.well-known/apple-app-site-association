@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["89884BGNZR.com.progix.vidcica"],
+        "components": [
+          {
+            "/": "/auth/confirm",
+            "comment": "Sign-up confirmation email: the app redeems the token (see src/app/auth/confirm)."
+          }
+        ]
+      }
+    ]
+  }
+}
