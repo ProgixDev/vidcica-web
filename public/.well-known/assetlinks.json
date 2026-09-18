@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.progix.vidcica",
+      "sha256_cert_fingerprints": [
+        "73:76:09:52:4C:8D:31:D0:A5:B7:8F:50:23:2F:24:90:55:A0:91:10:50:1D:3A:0E:CC:24:94:74:60:CF:FA:A8",
+        "BF:74:5D:50:7E:42:90:7B:BA:F5:F5:CE:CB:B3:4C:D6:4E:C7:FF:B3:B5:18:90:91:3D:77:5D:F0:28:84:4C:6D"
+      ]
+    }
+  }
+]

@@ -11,7 +11,9 @@ import { LOCALE_HEADER, PATH_HEADER, splitLocalePath } from "@/lib/i18n/routing"
  * route tree therefore holds one copy of every page, and the URL — not a cookie
  * — decides the language, which is what makes each language indexable.
  *
- * The matcher skips static assets and images for performance.
+ * The matcher skips static assets and images for performance, and `/.well-known/`:
+ * those files are read by machines (Android App Links verification), must come
+ * back byte-for-byte with no redirect, and have no session to refresh.
  */
 export async function middleware(request: NextRequest) {
   const { locale, path, prefixed } = splitLocalePath(request.nextUrl.pathname);
@@ -44,5 +46,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.well-known/|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };
