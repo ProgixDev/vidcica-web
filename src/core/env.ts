@@ -13,6 +13,17 @@ const serverEnvSchema = z.object({
   // browser. The Supabase service_role key bypasses RLS; use it only in trusted
   // server code (e.g. the account-deletion route). Optional until you wire it up.
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20).optional(),
+  /**
+   * Meta App Review allowlist: comma-separated addresses that may connect and
+   * publish to Instagram/Facebook while those platforms are still held back
+   * (see PUBLISHING_PLATFORMS in lib/vidcica/network.ts). Without it nobody can
+   * reach the flow — not even to record the screencast Meta requires.
+   *
+   * Server-only on purpose: NEXT_PUBLIC_ would ship the reviewer's address to
+   * every visitor. Unset means nobody, so production is closed by default.
+   * Remove once Meta grants Advanced Access.
+   */
+  META_REVIEW_EMAILS: z.string().optional(),
   // Add real server vars here, mirrored in .env.example, e.g.:
   // DATABASE_URL: z.string().url(),
 });

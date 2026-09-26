@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { listMyNetworks } from "@/lib/vidcica/networks-queries";
 import { hasMetaReviewAccess } from "@/lib/vidcica/network";
+import { env } from "@/core/env";
 import { NetworkList } from "@/features/networks";
 import { PageHeader } from "@/components/app-shell";
 import { getT } from "@/lib/i18n/server";
@@ -18,7 +19,7 @@ export default async function NetworksPage() {
 
   const [networks, t] = await Promise.all([listMyNetworks(), getT()]);
   // Read server-side only: META_REVIEW_EMAILS must never reach the browser.
-  const reviewAccess = hasMetaReviewAccess(user.email, process.env.META_REVIEW_EMAILS);
+  const reviewAccess = hasMetaReviewAccess(user.email, env.META_REVIEW_EMAILS);
 
   return (
     <>

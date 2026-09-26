@@ -5,6 +5,7 @@ import { getMyVideo } from "@/lib/vidcica/queries";
 import { listMyNetworks } from "@/lib/vidcica/networks-queries";
 import { hasRenderedVideo } from "@/lib/vidcica/video";
 import { connectablePlatforms, hasMetaReviewAccess, networkStatus } from "@/lib/vidcica/network";
+import { env } from "@/core/env";
 import { PublishStoreProvider, PublishFlow, type PublishablePlatform } from "@/features/publish";
 import { PageHeader } from "@/components/app-shell";
 import { getT } from "@/lib/i18n/server";
@@ -39,7 +40,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
   // vanishing from the picker. Platforms awaiting a review are excluded outright.
   // Server-side only (see the networks page): the allowlist never ships to the
   // browser. Without it the reviewer connects Instagram and then cannot pick it.
-  const reviewAccess = hasMetaReviewAccess(user.email, process.env.META_REVIEW_EMAILS);
+  const reviewAccess = hasMetaReviewAccess(user.email, env.META_REVIEW_EMAILS);
   const platforms: PublishablePlatform[] = connectablePlatforms(reviewAccess).map((p) => {
     const net = byPlatform.get(p.id);
     return {
