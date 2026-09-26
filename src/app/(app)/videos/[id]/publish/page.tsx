@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getMyVideo } from "@/lib/vidcica/queries";
 import { listMyNetworks } from "@/lib/vidcica/networks-queries";
 import { hasRenderedVideo } from "@/lib/vidcica/video";
-import { connectablePlatforms, networkStatus } from "@/lib/vidcica/network";
+import { connectablePlatforms, hasMetaReviewAccess, networkStatus } from "@/lib/vidcica/network";
 import { PublishStoreProvider, PublishFlow, type PublishablePlatform } from "@/features/publish";
 import { PageHeader } from "@/components/app-shell";
 import { getT } from "@/lib/i18n/server";
@@ -37,12 +37,15 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
   // Every *available* platform is shown, each with its connection state, so an
   // unconnected YouTube still appears (with a "Connecter" affordance) instead of
   // vanishing from the picker. Platforms awaiting a review are excluded outright.
-  const platforms: PublishablePlatform[] = connectablePlatforms().map((p) => {
+  // Server-side only (see the networks page): the allowlist never ships to the
+  // browser. Without it the reviewer connects Instagram and then cannot pick it.
+  const reviewAccess = hasMetaReviewAccess(user.email, process.env.META_REVIEW_EMAILS);
+  const platforms: PublishablePlatform[] = connectablePlatforms(reviewAccess).map((p) => {
     const net = byPlatform.get(p.id);
     return {
       id: p.id,
       label: p.label,
-      status: networkStatus(p, net),
+      status: networkStatus(p, net, reviewAccess),
       handle: net?.handle,
     };
   });

@@ -47,14 +47,22 @@ const TAGLINE_KEY: Record<PlatformId, MessageKey> = {
   x: "common.comingSoon", // filtered out of the list anyway
 };
 
-function NetworkCard({ platform, net }: { platform: PlatformMeta; net?: Network }) {
+function NetworkCard({
+  platform,
+  net,
+  reviewAccess = false,
+}: {
+  platform: PlatformMeta;
+  net?: Network;
+  reviewAccess?: boolean;
+}) {
   const t = useT();
   const locale = useLocale();
   const numberFmt = new Intl.NumberFormat(locale === "en" ? "en-US" : "fr-FR");
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const status = networkStatus(platform, net);
+  const status = networkStatus(platform, net, reviewAccess);
   const connected = status === "connected";
 
   // Optimistic publish-toggle state so the switch flips instantly (a server
@@ -224,15 +232,27 @@ function NetworkCard({ platform, net }: { platform: PlatformMeta; net?: Network 
  * `networks` realtime channel because it would stream token-ciphertext columns
  * to the browser (RLS gates rows, not columns).
  */
-export function NetworkList({ initial }: { initial: Network[] }) {
+export function NetworkList({
+  initial,
+  reviewAccess = false,
+}: {
+  initial: Network[];
+  reviewAccess?: boolean;
+}) {
   const byPlatform = new Map(initial.map((n) => [n.platform, n]));
   // X is dropped (paid API, provider === null), and Instagram/Facebook/Threads
-  // are held back until Meta approves — see PUBLISHING_PLATFORMS.
-  const platforms = connectablePlatforms();
+  // are held back until Meta approves — see PUBLISHING_PLATFORMS. `reviewAccess`
+  // opens Instagram/Facebook for the App Review allowlist only.
+  const platforms = connectablePlatforms(reviewAccess);
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="network-list">
       {platforms.map((p) => (
-        <NetworkCard key={p.id} platform={p} net={byPlatform.get(p.id)} />
+        <NetworkCard
+          key={p.id}
+          platform={p}
+          net={byPlatform.get(p.id)}
+          reviewAccess={reviewAccess}
+        />
       ))}
     </div>
   );

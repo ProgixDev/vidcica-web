@@ -4,6 +4,7 @@ import {
   platformToProvider,
   PLATFORMS,
   connectablePlatforms,
+  hasMetaReviewAccess,
   isPublishingPlatformEnabled,
   rowToNetwork,
   type Network,
@@ -96,5 +97,47 @@ describe("networkStatus", () => {
     const instagram = PLATFORMS.find((p) => p.id === "instagram")!;
     expect(networkStatus(instagram, net({ platform: "instagram" }))).toBe("unavailable");
     expect(networkStatus(instagram, undefined)).toBe("unavailable");
+  });
+
+  it("opens Instagram/Facebook for a Meta App Review account", () => {
+    const instagram = PLATFORMS.find((p) => p.id === "instagram")!;
+    const facebook = PLATFORMS.find((p) => p.id === "facebook")!;
+    expect(networkStatus(instagram, undefined, true)).toBe("disconnected");
+    expect(networkStatus(facebook, undefined, true)).toBe("disconnected");
+    expect(networkStatus(instagram, net({ platform: "instagram" }), true)).toBe("connected");
+  });
+
+  it("never opens Threads or X, even for a review account", () => {
+    // Threads sits on the same Meta app but was never submitted, and X is gone
+    // for good. Review access must not widen past what is being reviewed.
+    const threads = PLATFORMS.find((p) => p.id === "threads")!;
+    expect(networkStatus(threads, undefined, true)).toBe("unavailable");
+    expect(networkStatus(x, undefined, true)).toBe("unavailable");
+  });
+});
+
+describe("hasMetaReviewAccess", () => {
+  it("is closed by default — no allowlist, no access", () => {
+    expect(hasMetaReviewAccess("someone@example.com", undefined)).toBe(false);
+    expect(hasMetaReviewAccess("someone@example.com", "")).toBe(false);
+  });
+
+  it("matches an allowlisted address regardless of case and padding", () => {
+    const list = " Reviewer@Example.com , second@example.com ";
+    expect(hasMetaReviewAccess("reviewer@example.com", list)).toBe(true);
+    expect(hasMetaReviewAccess("  SECOND@EXAMPLE.COM  ", list)).toBe(true);
+  });
+
+  it("rejects anyone not on the list, and a missing address", () => {
+    const list = "reviewer@example.com";
+    expect(hasMetaReviewAccess("someone.else@example.com", list)).toBe(false);
+    expect(hasMetaReviewAccess(null, list)).toBe(false);
+    expect(hasMetaReviewAccess(undefined, list)).toBe(false);
+    expect(hasMetaReviewAccess("   ", list)).toBe(false);
+  });
+
+  it("does not let an empty allowlist entry match an empty address", () => {
+    // A trailing comma yields an empty entry; it must not become a wildcard.
+    expect(hasMetaReviewAccess("", "reviewer@example.com,")).toBe(false);
   });
 });

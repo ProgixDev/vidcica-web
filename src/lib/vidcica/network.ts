@@ -93,14 +93,54 @@ export const PLATFORMS: ReadonlyArray<PlatformMeta> = [
  */
 export const PUBLISHING_PLATFORMS: readonly PlatformId[] = ["tiktok", "linkedin", "youtube"];
 
-/** True when a public user may connect/publish to this platform today. */
-export function isPublishingPlatformEnabled(platform: PlatformId): boolean {
-  return PUBLISHING_PLATFORMS.includes(platform);
+/**
+ * Platforms un-gated for Meta App Review, per account.
+ *
+ * Meta will not approve `instagram_content_publish` without seeing the connect
+ * flow work, and the gate above hides the button from EVERYONE — including an
+ * app Admin who can actually complete the flow in Dev Mode. So today the
+ * screencast App Review requires cannot even be filmed: the reviewer's own
+ * step "click Connect on Facebook / Instagram" has no button to click.
+ *
+ * Opening it per-account breaks that circle without putting a dead affordance
+ * in front of the public, who still cannot finish the flow while the Meta app
+ * is in Dev Mode.
+ *
+ * DELETE THIS, and move the two platforms into PUBLISHING_PLATFORMS, as soon as
+ * Meta grants Advanced Access.
+ */
+export const META_REVIEW_PLATFORMS: readonly PlatformId[] = ["instagram", "facebook"];
+
+/**
+ * Whether this signed-in address is on the Meta App Review allowlist.
+ *
+ * Pure on purpose — the caller supplies the raw allowlist so it can be unit
+ * tested, and so the value is read from a SERVER-only env var. It must never
+ * become NEXT_PUBLIC: that would ship the reviewer's address to every visitor.
+ */
+export function hasMetaReviewAccess(
+  email: string | null | undefined,
+  allowlist: string | undefined,
+): boolean {
+  if (!email) return false;
+  const needle = email.trim().toLowerCase();
+  if (!needle) return false;
+  return (allowlist ?? "")
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(needle);
+}
+
+/** True when this user may connect/publish to this platform today. */
+export function isPublishingPlatformEnabled(platform: PlatformId, reviewAccess = false): boolean {
+  if (PUBLISHING_PLATFORMS.includes(platform)) return true;
+  return reviewAccess && META_REVIEW_PLATFORMS.includes(platform);
 }
 
 /** The platforms to render in a connect/publish surface (catalog minus gates). */
-export const connectablePlatforms = (): PlatformMeta[] =>
-  PLATFORMS.filter((p) => p.provider !== null && isPublishingPlatformEnabled(p.id));
+export const connectablePlatforms = (reviewAccess = false): PlatformMeta[] =>
+  PLATFORMS.filter((p) => p.provider !== null && isPublishingPlatformEnabled(p.id, reviewAccess));
 
 export function platformToProvider(id: PlatformId): OAuthProvider | null {
   return PLATFORMS.find((p) => p.id === id)?.provider ?? null;
@@ -109,11 +149,15 @@ export function platformToProvider(id: PlatformId): OAuthProvider | null {
 export type NetworkStatus = "connected" | "needs_reconnect" | "disconnected" | "unavailable";
 
 /** Presentation status for a platform given its (optional) row. */
-export function networkStatus(platform: PlatformMeta, net: Network | undefined): NetworkStatus {
+export function networkStatus(
+  platform: PlatformMeta,
+  net: Network | undefined,
+  reviewAccess = false,
+): NetworkStatus {
   if (!platform.provider) return "unavailable"; // e.g. X
   // Held back behind a platform approval (see PUBLISHING_PLATFORMS) — never
   // offer a connect affordance that cannot complete.
-  if (!isPublishingPlatformEnabled(platform.id)) return "unavailable";
+  if (!isPublishingPlatformEnabled(platform.id, reviewAccess)) return "unavailable";
   if (!net || !net.connected) return "disconnected";
   return net.needsReconnect ? "needs_reconnect" : "connected";
 }
