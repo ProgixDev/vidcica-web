@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getMyCampaign } from "@/lib/vidcica/ads-queries";
+import { getMyAdAccountCurrency, getMyCampaign } from "@/lib/vidcica/ads-queries";
 import { CampaignDetail } from "@/features/ads";
 import { getT } from "@/lib/i18n/server";
 
@@ -16,7 +16,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   } = await supabase.auth.getUser();
   if (!user) redirect(`/sign-in?next=/ads/${id}`);
 
-  const campaign = await getMyCampaign(id);
+  const [campaign, currency] = await Promise.all([getMyCampaign(id), getMyAdAccountCurrency()]);
   if (!campaign) notFound();
 
   return (
@@ -24,7 +24,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
       <Link href="/ads" className="text-muted-foreground hover:text-foreground text-sm">
         ← {t("ads.myAds")}
       </Link>
-      <CampaignDetail campaign={campaign} />
+      <CampaignDetail campaign={campaign} currency={currency} />
     </div>
   );
 }

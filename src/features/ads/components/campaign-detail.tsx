@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
   budgetText,
+  formatAdMoney,
   objectiveLabel,
   CAMPAIGN_OBJECTIVE_KEY,
   CAMPAIGN_STATUS_KEY,
@@ -17,21 +18,39 @@ import { ActivatePauseControls } from "./activate-pause-controls";
 import { CampaignManageControls } from "./campaign-manage";
 
 type NumericMetric = Exclude<keyof Campaign["metrics"], "updatedAt">;
-const METRICS: { key: NumericMetric; label: MessageKey; fmt: (n: number) => string }[] = [
-  { key: "budgetSpent", label: "ads.metric.spent", fmt: (n) => `${n.toFixed(2)} €` },
+/** Money is in the AD ACCOUNT's currency (Meta denominates spend, CPC and CPM
+ *  there), so the money formatters take it; counts and rates ignore it. */
+const METRICS: {
+  key: NumericMetric;
+  label: MessageKey;
+  fmt: (n: number, currency: string) => string;
+}[] = [
+  {
+    key: "budgetSpent",
+    label: "ads.metric.spent",
+    fmt: (n, currency) => formatAdMoney(n, currency),
+  },
   { key: "reach", label: "ads.metric.reach", fmt: (n) => n.toLocaleString("fr-FR") },
   { key: "impressions", label: "ads.metric.impressions", fmt: (n) => n.toLocaleString("fr-FR") },
   { key: "clicks", label: "ads.metric.clicks", fmt: (n) => n.toLocaleString("fr-FR") },
   { key: "ctr", label: "ads.metric.ctr", fmt: (n) => `${n.toFixed(2)} %` },
-  { key: "cpc", label: "ads.metric.cpc", fmt: (n) => `${n.toFixed(2)} €` },
-  { key: "cpm", label: "ads.metric.cpm", fmt: (n) => `${n.toFixed(2)} €` },
+  { key: "cpc", label: "ads.metric.cpc", fmt: (n, currency) => formatAdMoney(n, currency) },
+  { key: "cpm", label: "ads.metric.cpm", fmt: (n, currency) => formatAdMoney(n, currency) },
   { key: "conversions", label: "ads.metric.conversions", fmt: (n) => n.toLocaleString("fr-FR") },
   { key: "leads", label: "ads.metric.leads", fmt: (n) => n.toLocaleString("fr-FR") },
 ];
 
 /** Campaign detail: summary + live metric grid (honest zeros until the cron fills
  *  them) + activate/pause. Server-rendered; the controls are a client leaf. */
-export function CampaignDetail({ campaign }: { campaign: Campaign }) {
+export function CampaignDetail({
+  campaign,
+  currency = "EUR",
+}: {
+  campaign: Campaign;
+  /** The ad account's currency (see getMyAdAccountCurrency). A CAD account spends
+   *  CAD; showing "€" would misstate what the campaign cost. */
+  currency?: string;
+}) {
   const t = useT();
   const meta = STATUS_META[campaign.status];
   const noData = !campaign.metrics.updatedAt;
@@ -44,7 +63,7 @@ export function CampaignDetail({ campaign }: { campaign: Campaign }) {
           <h1 className="text-lg font-semibold tracking-tight">{campaign.name}</h1>
           <p className="text-muted-foreground text-sm">
             {objectiveKey ? t(objectiveKey) : objectiveLabel(campaign.objective)} ·{" "}
-            {budgetText(t, campaign)}
+            {budgetText(t, campaign, currency)}
           </p>
         </div>
         <Badge variant={meta.variant} data-testid="detail-status">
@@ -72,7 +91,7 @@ export function CampaignDetail({ campaign }: { campaign: Campaign }) {
         <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {METRICS.map((m) => (
             <div key={m.key} className="flex flex-col">
-              <dd className="text-lg font-semibold">{m.fmt(campaign.metrics[m.key])}</dd>
+              <dd className="text-lg font-semibold">{m.fmt(campaign.metrics[m.key], currency)}</dd>
               <dt className="text-muted-foreground text-xs">{t(m.label)}</dt>
             </div>
           ))}

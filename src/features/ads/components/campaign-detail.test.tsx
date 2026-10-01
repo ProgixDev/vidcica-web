@@ -56,4 +56,29 @@ describe("<CampaignDetail /> (AC-7)", () => {
     expect(screen.getByText(/Mis à jour/)).toBeInTheDocument();
     expect(screen.getByText("3 120")).toBeInTheDocument();
   });
+
+  it("shows money in the ad account's currency, never an assumed euro", () => {
+    // A Canadian ad account spends CAD. Meta denominates spend, CPC and CPM in the
+    // account currency, so a hardcoded "€" misstated what the campaign cost.
+    render(
+      <CampaignDetail
+        currency="CAD"
+        campaign={{
+          ...base,
+          metrics: {
+            ...base.metrics,
+            budgetSpent: 12.5,
+            cpc: 0.4,
+            cpm: 3,
+            updatedAt: "2026-07-13T09:00:00Z",
+          },
+        }}
+      />,
+    );
+    const detail = screen.getByTestId("campaign-detail");
+    expect(detail).not.toHaveTextContent("€");
+    // Intl puts a no-break space before "$CA"; toHaveTextContent normalises it.
+    expect(detail).toHaveTextContent("12,50 $CA"); // spent
+    expect(detail).toHaveTextContent("25 $CA"); // the daily budget line
+  });
 });
