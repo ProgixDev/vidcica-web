@@ -6,6 +6,7 @@
 import "server-only";
 import type { PlatformId } from "@/lib/vidcica/network";
 import { createClient } from "@/lib/supabase/server";
+import { entityId } from "@/lib/vidcica/id";
 import { rowToVideo, type Video } from "@/lib/vidcica/video";
 import type { GenerationJobStatus } from "@/lib/vidcica/video";
 
@@ -45,6 +46,41 @@ export async function getMyVideo(id: string): Promise<Video | null> {
     .maybeSingle();
   if (error || !data) return null;
   return rowToVideo(data as Parameters<typeof rowToVideo>[0]);
+}
+
+/** What a draft needs to be shown and resumed: its script and its shape. */
+export type DraftSource = {
+  id: string;
+  title: string;
+  script: string;
+  format: string;
+  durationSec: number;
+};
+
+/**
+ * One of the caller's drafts — a video planned but never rendered — or null.
+ * Read separately from VIDEO_COLUMNS so the library list never ships every
+ * script. A draft the mobile app saved before its render started carries its
+ * script but no segments, so resuming it means planning that script again.
+ */
+export async function getMyDraft(id: string): Promise<DraftSource | null> {
+  const parsed = entityId.safeParse(id);
+  if (!parsed.success) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("videos")
+    .select("id, title, script, format, duration_sec, status")
+    .eq("id", parsed.data)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (error || !data || data.status !== "brouillon") return null;
+  return {
+    id: data.id,
+    title: data.title,
+    script: data.script ?? "",
+    format: data.format,
+    durationSec: data.duration_sec,
+  };
 }
 
 /** The most recent generation job for a video (drives the render-progress view). */

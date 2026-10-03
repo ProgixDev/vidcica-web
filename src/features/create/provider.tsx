@@ -9,18 +9,27 @@ import type { ComposerInput } from "./schema";
 const CreateStoreContext = createContext<CreateStore | null>(null);
 
 /** One store per mount, wired to the real server actions (SSR-request safe).
- *  `deps` is an optional injection seam for tests/harnesses; production omits it. */
+ *  `deps` is an optional injection seam for tests/harnesses; production omits it.
+ *  `draftId` continues an existing draft: the render reuses its row. */
 export function CreateStoreProvider({
   children,
   initial,
   deps,
+  draftId,
 }: {
   children: React.ReactNode;
   initial?: Partial<ComposerInput>;
   deps?: CreateDeps;
+  draftId?: string;
 }) {
   const [store] = useState<CreateStore>(() =>
-    createCreateStore(deps ?? { plan: planAction, enqueue: enqueueAction }, initial),
+    createCreateStore(
+      deps ?? {
+        plan: planAction,
+        enqueue: (input, plan) => enqueueAction(input, plan, draftId),
+      },
+      initial,
+    ),
   );
   return <CreateStoreContext.Provider value={store}>{children}</CreateStoreContext.Provider>;
 }

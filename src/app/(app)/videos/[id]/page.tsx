@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getMyVideo, getLatestJob, getPublishTargets } from "@/lib/vidcica/queries";
+import { getMyDraft, getMyVideo, getLatestJob, getPublishTargets } from "@/lib/vidcica/queries";
 import { hasRenderedVideo } from "@/lib/vidcica/video";
-import { RenderProgress, VideoDetail } from "@/features/videos";
+import { DraftCard, RenderProgress, VideoDetail } from "@/features/videos";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/app-shell";
@@ -28,6 +28,8 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
   // Where it is live right now, with the post ids needed to link out. Only
   // fetched for a finished video — a draft or a render in progress has none.
   const targets = hasRenderedVideo(video) ? await getPublishTargets(id) : [];
+  // A draft with no render job yet: show its script and let it be continued.
+  const draft = !hasRenderedVideo(video) && !job ? await getMyDraft(id) : null;
 
   return (
     <>
@@ -49,6 +51,8 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
         <div className="w-full max-w-2xl">
           {job ? (
             <RenderProgress videoId={video.id} jobId={job.jobId} initialStatus={job.status} />
+          ) : draft ? (
+            <DraftCard draft={draft} />
           ) : (
             <div className="bg-card flex flex-col gap-5 rounded-lg p-6">
               <p className="text-subtle-foreground text-[15px] leading-relaxed">
