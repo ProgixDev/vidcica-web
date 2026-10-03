@@ -317,6 +317,10 @@ export const fr = {
   "videos.renderFailedBody":
     "Un problème est survenu pendant la génération. Vos crédits ont été recrédités — vous pouvez relancer une création.",
   "videos.newVideo": "Nouvelle vidéo",
+  "videos.renderTooLongTitle": "Script trop long",
+  "videos.renderTooLongBody":
+    "La voix off dure {seconds} s, au-delà des 60 s maximum. Raccourcissez le script puis relancez : vos crédits ont été recrédités.",
+  "videos.shortenScript": "Raccourcir le script",
   "chrome.creditsCount": "{count} crédits",
   "chrome.creditsLabel": "Crédits",
   "chrome.lowBalance": "Solde faible — recharger",
@@ -554,6 +558,8 @@ export const fr = {
   "create.videoPlural": "vidéos",
   "create.costInsufficient": "≈ {total} cr · solde insuffisant —",
   "create.costFree": "Gratuit · séquences libres de droits",
+  "create.scriptLength": "{words} mots · ≈ {seconds} s de voix",
+  "create.scriptTooLong": "Trop long pour une vidéo de {max} s : visez environ {words} mots.",
   "create.recharge": "recharger",
   "create.optDuration": "Durée",
   "create.optFormat": "Format",
@@ -575,6 +581,8 @@ export const fr = {
   "create.blockInProgress": "Un rendu est déjà en cours pour cette vidéo.",
   "create.blockNoPlan": "Le plan est invalide. Revenez en arrière et régénérez-le.",
   "create.blockImageNotSupported": "Ce modèle ne prend pas en charge l’image de départ.",
+  "create.blockScriptTooLong":
+    "Ce script est trop long pour une vidéo de 60 s. Raccourcissez-le puis relancez : rien n’a été débité.",
   "create.blockUnauthenticated": "Votre session a expiré. Reconnectez-vous.",
   "create.blockError": "Une erreur est survenue. Réessayez.",
   "create.enqueuing": "Lancement…",
@@ -1710,6 +1718,10 @@ export const en: Partial<Record<MessageKey, string>> = {
   "videos.renderFailedBody":
     "Something went wrong during generation. Your credits have been refunded — you can start a new creation.",
   "videos.newVideo": "New video",
+  "videos.renderTooLongTitle": "Script too long",
+  "videos.renderTooLongBody":
+    "The voiceover runs {seconds} s, past the 60 s maximum. Shorten the script and try again: your credits were refunded.",
+  "videos.shortenScript": "Shorten the script",
   "chrome.creditsCount": "{count} credits",
   "chrome.creditsLabel": "Credits",
   "chrome.lowBalance": "Low balance — top up",
@@ -1944,6 +1956,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "create.videoPlural": "videos",
   "create.costInsufficient": "≈ {total} cr · balance too low —",
   "create.costFree": "Free · stock footage",
+  "create.scriptLength": "{words} words · ≈ {seconds} s of voice",
+  "create.scriptTooLong": "Too long for a {max}-second video: aim for about {words} words.",
   "create.recharge": "top up",
   "create.optDuration": "Duration",
   "create.optFormat": "Format",
@@ -1965,6 +1979,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "create.blockInProgress": "A render is already in progress for this video.",
   "create.blockNoPlan": "The plan is invalid. Go back and regenerate it.",
   "create.blockImageNotSupported": "This model doesn’t support a starting image.",
+  "create.blockScriptTooLong":
+    "This script is too long for a 60-second video. Shorten it and try again: nothing was charged.",
   "create.blockUnauthenticated": "Your session has expired. Please sign in again.",
   "create.blockError": "Something went wrong. Try again.",
   "create.enqueuing": "Launching…",

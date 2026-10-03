@@ -22,6 +22,7 @@ function BlockedNotice({ reason }: { reason: EnqueueGenerationFailReason }) {
       in_progress: { msgKey: "create.blockInProgress" },
       no_plan: { msgKey: "create.blockNoPlan" },
       image_not_supported: { msgKey: "create.blockImageNotSupported" },
+      script_too_long: { msgKey: "create.blockScriptTooLong" },
       unauthenticated: { msgKey: "create.blockUnauthenticated" },
       error: { msgKey: "create.blockError" },
     };

@@ -50,7 +50,12 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
       ) : (
         <div className="w-full max-w-2xl">
           {job ? (
-            <RenderProgress videoId={video.id} jobId={job.jobId} initialStatus={job.status} />
+            <RenderProgress
+              videoId={video.id}
+              jobId={job.jobId}
+              initialStatus={job.status}
+              initialLastError={job.lastError}
+            />
           ) : draft ? (
             <DraftCard draft={draft} />
           ) : (

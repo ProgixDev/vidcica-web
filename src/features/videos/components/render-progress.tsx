@@ -18,16 +18,20 @@ import { useT } from "@/lib/i18n/provider";
  * shows a plain message noting the refund (AC-13).
  */
 export function RenderProgress({
+  videoId,
   jobId,
   initialStatus,
+  initialLastError = null,
 }: {
   videoId: string;
   jobId: string;
   initialStatus: GenerationJobStatus;
+  initialLastError?: string | null;
 }) {
   const t = useT();
   const router = useRouter();
   const [status, setStatus] = useState<GenerationJobStatus>(initialStatus);
+  const [lastError, setLastError] = useState<string | null>(initialLastError);
 
   useEffect(() => {
     if (status === "succeeded") {
@@ -42,6 +46,7 @@ export function RenderProgress({
       const job = await fetchGenerationJob(supabase, jobId);
       if (!active || !job) return;
       setStatus(job.status);
+      setLastError(job.lastError);
     }, 4000);
     return () => {
       active = false;
@@ -50,6 +55,30 @@ export function RenderProgress({
   }, [status, jobId, router]);
 
   const view = stageView(status);
+  // The worker stops a voiceover longer than the video can be ("script_too_long:72")
+  // before ordering footage. Say so, and reopen the script to shorten it.
+  const tooLong = view.failed ? /^script_too_long:(\d+)/.exec(lastError ?? "") : null;
+
+  if (tooLong) {
+    return (
+      <div role="alert" className="bg-destructive-subtle flex flex-col gap-5 rounded-lg p-6">
+        <div className="flex flex-col gap-1.5">
+          <h2 className="text-destructive text-[17px] font-semibold">
+            {t("videos.renderTooLongTitle")}
+          </h2>
+          <p className="text-subtle-foreground text-[13px] leading-relaxed">
+            {t("videos.renderTooLongBody", { seconds: tooLong[1] ?? "" })}
+          </p>
+        </div>
+        <Button
+          onClick={() => router.push(`/create?draft=${encodeURIComponent(videoId)}`)}
+          className="self-start"
+        >
+          {t("videos.shortenScript")}
+        </Button>
+      </div>
+    );
+  }
 
   if (view.failed) {
     return (

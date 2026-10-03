@@ -14,6 +14,8 @@ describe("mapEnqueueReason", () => {
     expect(mapEnqueueReason("too_many_segments")).toBe("no_plan");
     expect(mapEnqueueReason("image_not_supported")).toBe("image_not_supported");
     expect(mapEnqueueReason("generation_disabled")).toBe("disabled");
+    // A script too long for 60 s: refused before the charge, with its own message.
+    expect(mapEnqueueReason("script_too_long")).toBe("script_too_long");
   });
 
   it("falls back to 'error' for unknown / undefined", () => {

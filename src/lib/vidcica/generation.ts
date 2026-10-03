@@ -114,6 +114,7 @@ export type EnqueueGenerationFailReason =
   | "no_plan"
   | "model_locked"
   | "image_not_supported"
+  | "script_too_long"
   | "error";
 
 export type EnqueueGenerationOutcome =
@@ -171,6 +172,8 @@ export function mapEnqueueReason(error: string | undefined): EnqueueGenerationFa
       return "model_locked";
     case "image_not_supported":
       return "image_not_supported";
+    case "script_too_long":
+      return "script_too_long";
     default:
       return "error";
   }

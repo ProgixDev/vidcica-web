@@ -9,6 +9,7 @@ import type { Plan } from "@/lib/vidcica/tiers";
 import { useCreateStore } from "../provider";
 import { estimateCost } from "../cost";
 import { LENGTHS, MUSIC_MOODS, RATIOS, VOICES } from "../options";
+import { MAX_SCRIPT_WORDS, MAX_VIDEO_SEC, narrationEstimate } from "../script-length";
 import { ModelMenu } from "./model-menu";
 
 /** Clickable starter ideas — kills the blank-page freeze on first visit. */
@@ -96,6 +97,14 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
           className="placeholder:text-muted-foreground min-h-40 w-full resize-y bg-transparent px-6 pt-6 pb-3 text-[17px] leading-relaxed outline-none"
           data-testid="composer-prompt"
         />
+
+        {/* Only a voiced video stretches to fit its script; stock renders are always silent. */}
+        {input.kind === "script" &&
+        input.voiceover &&
+        input.model !== "pexels" &&
+        input.prompt.trim() ? (
+          <ScriptLength text={input.prompt} />
+        ) : null}
 
         {/* Cost line */}
         <p
@@ -239,6 +248,26 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
         </div>
       ) : null}
     </form>
+  );
+}
+
+/** A pasted script's length and roughly how long the voice takes to say it. */
+function ScriptLength({ text }: { text: string }) {
+  const t = useT();
+  const { words, seconds, tooLong } = narrationEstimate(text);
+  return (
+    <p
+      className={cn(
+        "px-6 pb-2 text-[13px] tabular-nums",
+        tooLong ? "text-destructive" : "text-muted-foreground",
+      )}
+      data-testid="composer-script-length"
+    >
+      {t("create.scriptLength", { words, seconds })}
+      {tooLong
+        ? ` ${t("create.scriptTooLong", { max: MAX_VIDEO_SEC, words: MAX_SCRIPT_WORDS })}`
+        : null}
+    </p>
   );
 }
 
