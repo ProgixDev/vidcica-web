@@ -8,10 +8,16 @@ const enqueueGeneration = vi.fn(async (_s: unknown, _i: { videoId: string }) => 
   jobId: "job-1",
   charged: 0,
 }));
+const generatePlan = vi.fn(async (_s: unknown, _i: Record<string, unknown>) => ({
+  ok: false as const,
+  reason: "error" as const,
+}));
 vi.mock("@/lib/vidcica/generation", () => ({
   enqueueGeneration: (s: unknown, i: { videoId: string }) => enqueueGeneration(s, i),
-  generatePlan: vi.fn(),
+  generatePlan: (s: unknown, i: Record<string, unknown>) => generatePlan(s, i),
 }));
+// The visitor's language comes from the request cookie; stub the reader.
+vi.mock("@/lib/i18n/server", () => ({ getLocale: async () => "en" }));
 
 type Filter = [string, string, unknown];
 function fakeSupabase(updatedRows: Array<{ id: string }>) {
@@ -44,7 +50,7 @@ function fakeSupabase(updatedRows: Array<{ id: string }>) {
 let fake = fakeSupabase([]);
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => fake.client }));
 
-import { enqueueAction } from "./actions";
+import { enqueueAction, planAction } from "./actions";
 
 const input = { ...DEFAULT_COMPOSER_INPUT, prompt: "Three tips to get better reviews fast" };
 const plan: VideoPlan = {
@@ -100,5 +106,15 @@ describe("enqueueAction — continuing a draft", () => {
 
     expect(fake.calls.update).toHaveLength(0);
     expect(fake.calls.insert).toHaveLength(1);
+  });
+});
+
+describe("planAction — output language", () => {
+  // Regression: the web never sent a language, so generate-plan wrote every
+  // idea (and every script's title) in French, even for English visitors.
+  it("plans in the visitor's language", async () => {
+    fake = fakeSupabase([]);
+    await planAction(input);
+    expect(generatePlan.mock.calls[0]?.[1]).toMatchObject({ language: "en" });
   });
 });

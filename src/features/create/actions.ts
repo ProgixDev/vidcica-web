@@ -9,6 +9,7 @@ import {
 } from "@/lib/vidcica/generation";
 import type { Json } from "@/lib/supabase/database.types";
 import { entityId } from "@/lib/vidcica/id";
+import { getLocale } from "@/lib/i18n/server";
 import { ComposerSchema, VideoPlanSchema, type ComposerInput } from "./schema";
 import type { EnqueueResult } from "./store";
 
@@ -22,11 +23,15 @@ export async function planAction(input: ComposerInput): Promise<GeneratePlanOutc
     return { ok: false, reason: "error", message: parsed.error.issues[0]?.message };
   }
   const supabase = await createClient();
+  // Without the app language, generate-plan wrote every idea in French, even
+  // for English visitors — the mobile app has always sent it.
+  const language = await getLocale();
   return generatePlan(supabase, {
     prompt: parsed.data.prompt,
     kind: parsed.data.kind,
     length: parsed.data.length,
     ratio: parsed.data.ratio,
+    language,
   });
 }
 

@@ -49,6 +49,9 @@ export type GeneratePlanInput = {
   length?: number;
   ratio?: string;
   secondsPerScene?: number;
+  /** The app's language: what the AI writes an idea in. A supplied script
+   *  keeps its own language (generate-plan detects it). Absent → French. */
+  language?: "fr" | "en";
 };
 
 export type GeneratePlanOutcome =
