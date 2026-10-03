@@ -98,6 +98,10 @@ export type EnqueueGenerationInput = {
   voiceover?: boolean;
   captions?: boolean;
   imagePath?: string;
+  /** The app language. Captions come from the script's timed words; this is
+   *  the language JSON2Video transcribes in when those timings are missing.
+   *  Absent → French. */
+  language?: "fr" | "en";
 };
 
 export type EnqueueGenerationFailReason =

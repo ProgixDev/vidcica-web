@@ -109,6 +109,16 @@ describe("enqueueAction — continuing a draft", () => {
   });
 });
 
+describe("enqueueAction — caption language", () => {
+  // Regression: the web never sent a language to enqueue-generation, so its
+  // caption fallback transcribed English voiceovers as French.
+  it("tells the render the visitor's language", async () => {
+    fake = fakeSupabase([]);
+    await enqueueAction(input, plan);
+    expect(enqueueGeneration.mock.calls[0]?.[1]).toMatchObject({ language: "en" });
+  });
+});
+
 describe("planAction — output language", () => {
   // Regression: the web never sent a language, so generate-plan wrote every
   // idea (and every script's title) in French, even for English visitors.

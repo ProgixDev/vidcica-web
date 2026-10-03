@@ -121,6 +121,9 @@ export async function enqueueAction(
     voiceover: opts.voiceover,
     captions: opts.captions,
     musicMood: opts.music === "none" ? null : opts.music,
+    // The caption fallback transcribes in this language. The mobile app always
+    // sent it; the web never did, so that fallback captioned web renders in French.
+    language: await getLocale(),
   });
 
   if (outcome.ok) {
