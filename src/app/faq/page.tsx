@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
 import { getLocale, getT } from "@/lib/i18n/server";
@@ -40,34 +41,42 @@ export default async function FaqPage() {
       />
       <MarketingHeader t={t} locale={locale} />
       <main className="flex-1">
-        <section className="mx-auto w-full max-w-3xl px-6 py-16" aria-labelledby="faq-h">
-          <h1 id="faq-h" className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            {t("page.faq.h1")}
-          </h1>
-          <p className="text-muted-foreground mt-3 leading-relaxed">{t("page.faq.intro")}</p>
-          <div className="mt-10">
-            <FaqAccordion items={items} />
+        <section
+          className="mx-auto grid w-full max-w-6xl gap-x-12 gap-y-12 px-6 py-20 sm:py-28 lg:grid-cols-[1fr_1.5fr]"
+          aria-labelledby="faq-h"
+        >
+          <div className="flex flex-col gap-5 lg:sticky lg:top-28 lg:self-start">
+            <h1 id="faq-h" className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+              {t("page.faq.h1")}
+            </h1>
+            <p className="text-muted-foreground max-w-md text-[17px] leading-relaxed">
+              {t("page.faq.intro")}
+            </p>
           </div>
+          <FaqAccordion items={items} />
         </section>
 
-        <section className="mx-auto w-full max-w-3xl px-6 pb-20">
-          <div className="border-border rounded-lg border p-6">
-            <h2 className="text-lg font-semibold tracking-tight">{t("page.faq.stillTitle")}</h2>
-            <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-              {t("page.faq.stillBody")}
-            </p>
-            <p className="mt-4 text-sm">
-              <a href="mailto:support@vidcica.com" className="hover:text-foreground underline">
+        <section className="mx-auto w-full max-w-6xl px-6 pb-20 sm:pb-28">
+          <div className="bg-card flex flex-col gap-6 rounded-lg p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
+            <div className="flex flex-col gap-2">
+              <h2 className="text-2xl font-semibold tracking-[-0.02em]">
+                {t("page.faq.stillTitle")}
+              </h2>
+              <p className="text-muted-foreground text-[15px] leading-relaxed">
+                {t("page.faq.stillBody")}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <a href="mailto:support@vidcica.com" className={buttonVariants()}>
                 support@vidcica.com
               </a>
-              <span className="text-muted-foreground"> · </span>
               <Link
                 href={localizedPath("/tarifs", locale)}
-                className="hover:text-foreground underline"
+                className={buttonVariants({ variant: "ghost" })}
               >
                 {t("landing.nav.pricing")}
               </Link>
-            </p>
+            </div>
           </div>
         </section>
       </main>

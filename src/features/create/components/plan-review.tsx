@@ -27,10 +27,13 @@ function BlockedNotice({ reason }: { reason: EnqueueGenerationFailReason }) {
     };
   const { msgKey, action } = map[reason];
   return (
-    <div role="alert" className="border-destructive/40 flex flex-col gap-3 rounded-lg border p-4">
-      <p className="text-sm">{t(msgKey)}</p>
+    <div role="alert" className="bg-destructive-subtle flex flex-col gap-4 rounded-lg p-5">
+      <p className="text-destructive text-[15px] leading-relaxed font-medium">{t(msgKey)}</p>
       {action ? (
-        <Link href={action.href} className={buttonVariants({ variant: "default" })}>
+        <Link
+          href={action.href}
+          className={buttonVariants({ variant: "default", className: "self-start" })}
+        >
           {t(action.labelKey)}
         </Link>
       ) : null}
@@ -50,14 +53,16 @@ export function PlanReview() {
   const enqueuing = phase === "enqueuing";
 
   return (
-    <div className="flex w-full flex-col gap-5" data-testid="plan-review">
+    <div className="flex w-full flex-col gap-6" data-testid="plan-review">
       <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-semibold tracking-tight">{plan.title}</h2>
-        <p className="text-muted-foreground text-sm">{plan.description}</p>
+        <h2 className="text-2xl font-semibold tracking-[-0.03em]">{plan.title}</h2>
+        <p className="text-muted-foreground max-w-2xl text-[15px] leading-relaxed">
+          {plan.description}
+        </p>
         {plan.hashtags.length ? (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="mt-2 flex flex-wrap gap-2">
             {plan.hashtags.map((h) => (
-              <Badge key={h} variant="outline">
+              <Badge key={h} variant="muted">
                 {h}
               </Badge>
             ))}
@@ -65,20 +70,20 @@ export function PlanReview() {
         ) : null}
       </div>
 
-      <ol className="flex flex-col gap-2">
+      <ol className="bg-card divide-border flex flex-col divide-y rounded-lg px-6 py-2">
         {plan.segments.map((seg) => (
-          <li key={seg.index} className="bg-card flex gap-3 rounded-lg border p-3 text-sm">
-            <span className="text-muted-foreground shrink-0 font-mono text-xs">
+          <li key={seg.index} className="flex items-baseline gap-4 py-4">
+            <span className="text-muted-foreground shrink-0 text-[13px] tabular-nums">
               {String(seg.index + 1).padStart(2, "0")}
             </span>
-            <span>{seg.narration_fr}</span>
+            <span className="text-[15px] leading-relaxed">{seg.narration_fr}</span>
           </li>
         ))}
       </ol>
 
       {phase === "blocked" && blockedReason ? <BlockedNotice reason={blockedReason} /> : null}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           onClick={() => void confirmEnqueue()}
           disabled={enqueuing}

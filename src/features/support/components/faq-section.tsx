@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,7 @@ export function FaqSection({ onContact }: { onContact: () => void }) {
   }, [query, active, t]);
 
   return (
-    <div className="flex flex-col gap-4" data-testid="faq-section">
+    <div className="flex flex-col gap-5" data-testid="faq-section">
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -38,7 +39,7 @@ export function FaqSection({ onContact }: { onContact: () => void }) {
         data-testid="faq-search"
       />
 
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("help.faq.filterLabel")}>
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t("help.faq.filterLabel")}>
         {(["all", ...FAQ_CATEGORIES.map((c) => c.id)] as Filter[]).map((id) => {
           const label =
             id === "all"
@@ -52,10 +53,10 @@ export function FaqSection({ onContact }: { onContact: () => void }) {
               aria-pressed={active === id}
               data-testid={`faq-chip-${id}`}
               className={cn(
-                "focus-visible:ring-ring rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none",
+                "focus-visible:ring-ring focus-visible:ring-offset-background h-9 rounded-full px-4 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                 active === id
-                  ? "bg-primary text-primary-foreground border-transparent"
-                  : "border-input text-muted-foreground hover:text-foreground",
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-foreground hover:bg-accent",
               )}
             >
               {label}
@@ -70,18 +71,13 @@ export function FaqSection({ onContact }: { onContact: () => void }) {
           title={t("help.faq.empty.title")}
           description={t("help.faq.empty.body")}
           action={
-            <button
-              type="button"
-              onClick={onContact}
-              data-testid="faq-empty-contact"
-              className="bg-primary text-primary-foreground rounded-full px-4 py-2 text-sm font-medium"
-            >
+            <Button onClick={onContact} data-testid="faq-empty-contact">
               {t("help.faq.empty.cta")}
-            </button>
+            </Button>
           }
         />
       ) : (
-        <div className="bg-card divide-border/60 flex flex-col divide-y rounded-2xl border">
+        <div className="divide-border flex flex-col divide-y">
           {filtered.map((item) => {
             const isOpen = open === item.id;
             return (
@@ -91,12 +87,14 @@ export function FaqSection({ onContact }: { onContact: () => void }) {
                   onClick={() => setOpen(isOpen ? null : item.id)}
                   aria-expanded={isOpen}
                   data-testid={`faq-row-${item.id}`}
-                  className="hover:bg-muted/60 flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors first:rounded-t-2xl last:rounded-b-2xl"
+                  className="focus-visible:ring-ring flex min-h-14 w-full items-center gap-4 rounded-sm py-4 text-left outline-none focus-visible:ring-2"
                 >
-                  <span className="flex-1 text-sm font-medium">{t(item.questionKey)}</span>
+                  <span className="flex-1 text-[15px] leading-snug font-semibold">
+                    {t(item.questionKey)}
+                  </span>
                   <svg
-                    width="16"
-                    height="16"
+                    width="18"
+                    height="18"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -104,7 +102,7 @@ export function FaqSection({ onContact }: { onContact: () => void }) {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className={cn(
-                      "text-muted-foreground/70 shrink-0 transition-transform",
+                      "text-muted-foreground shrink-0 transition-transform",
                       isOpen && "rotate-180",
                     )}
                     aria-hidden
@@ -113,7 +111,7 @@ export function FaqSection({ onContact }: { onContact: () => void }) {
                   </svg>
                 </button>
                 {isOpen ? (
-                  <p className="text-muted-foreground px-4 pb-4 text-sm leading-relaxed">
+                  <p className="text-muted-foreground max-w-prose pr-8 pb-5 text-[15px] leading-relaxed">
                     {t(item.answerKey)}
                   </p>
                 ) : null}

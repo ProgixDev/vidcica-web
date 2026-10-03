@@ -10,8 +10,7 @@ export function ExportButton({ ids, disabled }: { ids: string[]; disabled?: bool
   const exportLeads = useLeadsStore((s) => s.exportLeads);
   return (
     <Button
-      variant="outline"
-      size="sm"
+      variant="secondary"
       onClick={() => exportLeads(ids)}
       disabled={disabled || ids.length === 0}
       data-testid="export-leads"

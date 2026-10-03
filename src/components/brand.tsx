@@ -1,30 +1,25 @@
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /**
- * Vidcica brand lockup. The mark is the real app logo (the orange V-G
- * monogram from ClipFlow/src/assets/branding/logo-mark.png — also the mobile
- * splash icon), trimmed to its content box and self-hosted in /public/brand.
+ * Vidcica mark — identity 01 “Rémanence”: two offset flat exposures forming an
+ * asymmetric V (vidcica/docs/brand/identity-01/IDENTITY.md §1). Two filled paths,
+ * no stroke, no radius, no gradient. It paints in `currentColor`, so it is ink on
+ * a light ground and paper on a dark one without a second asset.
  */
 export function LogoMark({ className }: { className?: string }) {
   return (
-    <Image
-      src="/brand/logo-mark.png"
-      alt=""
-      width={512}
-      height={512}
-      aria-hidden="true"
-      className={className}
-    />
+    <svg viewBox="0 0 96 96" fill="currentColor" aria-hidden="true" className={className}>
+      <path d="M0 16H24L40 64L28 96Z M72 0H96L64 96H40Z" />
+    </svg>
   );
 }
 
-/** Logo mark + name — the standard header/footer lockup. */
+/** Mark + name — the standard header/footer lockup (Manrope 600, tight tracking). */
 export function BrandLockup({ className }: { className?: string }) {
   return (
-    <span className={cn("flex items-center gap-2 font-semibold tracking-tight", className)}>
-      <LogoMark className="size-7 shrink-0 object-contain" />
-      <span className="text-base">Vidcica</span>
+    <span className={cn("flex items-center gap-2.5 font-semibold", className)}>
+      <LogoMark className="size-5 shrink-0" />
+      <span className="text-[17px] tracking-[-0.03em]">Vidcica</span>
     </span>
   );
 }

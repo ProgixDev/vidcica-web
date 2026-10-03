@@ -42,7 +42,10 @@ export default async function BoostPage({
       <PageHeader
         title={t("ads.boostVideo")}
         actions={
-          <Link href="/ads" className="text-muted-foreground hover:text-foreground text-sm">
+          <Link
+            href="/ads"
+            className="text-muted-foreground hover:text-foreground focus-visible:ring-ring focus-visible:ring-offset-background self-start rounded-full text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          >
             ← {t("ads.myAds")}
           </Link>
         }

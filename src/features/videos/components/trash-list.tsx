@@ -24,20 +24,20 @@ function TrashRow({ video }: { video: TrashedVideo }) {
   };
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3" data-testid="trash-row">
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-sm font-medium">{video.title}</span>
-        <span className="text-muted-foreground truncate text-xs">
+    <div className="flex min-h-16 items-center gap-4 py-3" data-testid="trash-row">
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate text-[15px] font-semibold">{video.title}</span>
+        <span className="text-muted-foreground truncate text-[13px]">
           {t("library.trash.deletedOn", { date: formatDate(new Date(video.deletedAt)) })}
         </span>
       </span>
       <Button
-        variant="outline"
+        variant="secondary"
         size="sm"
         onClick={runRestore}
         disabled={pending}
         data-testid="trash-restore"
-        className="shrink-0 rounded-full"
+        className="shrink-0"
       >
         {pending ? t("common.loading") : t("library.trash.restore")}
       </Button>
@@ -61,7 +61,7 @@ export function TrashList({ initial }: { initial: TrashedVideo[] }) {
         title={t("library.trash.emptyTitle")}
         description={t("library.trash.emptyDescription")}
         action={
-          <Link href="/videos" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/videos" className={buttonVariants({ variant: "secondary" })}>
             {t("videos.title")}
           </Link>
         }
@@ -70,7 +70,7 @@ export function TrashList({ initial }: { initial: TrashedVideo[] }) {
   }
 
   return (
-    <div className="bg-card divide-border/60 flex flex-col divide-y rounded-2xl border">
+    <div className="bg-card divide-border flex flex-col divide-y rounded-lg px-5 py-2">
       {videos.map((v) => (
         <TrashRow key={v.id} video={v} />
       ))}

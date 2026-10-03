@@ -6,72 +6,111 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Vidcica design tokens — Tailwind v4 CSS-first config (docs/conventions/styling.md).
- * Ported from the mobile source of truth: ClipFlow/src/theme/{palette,tokens,typography}.ts.
- * Hierarchy comes from a single warm accent + a 9-step warm-neutral tonal scale
- * (no tri-stop brand gradient — that was killed in the mobile tokens; gradients are
- * reserved for ~2 surfaces, e.g. logo + upgrade hero). shadcn/ui role names kept so
- * `pnpm dlx shadcn add <component>` still drops in cleanly.
+ * Vidcica design tokens — identity 01 “Rémanence” (docs/design/redesign-rules.md).
+ * Ported from the mobile source of truth (vidcica/docs/brand/identity-01): a 12-step
+ * warm mineral neutral scale, ONE citron accent, Manrope. Dark is the primary scheme;
+ * light is its token-symmetric twin.
  *
- * Warm-neutral scale (OKLCH ← hex): 0 #0A0807 · 1 #110E0C · 2 #1A1613 · 3 #2A2421 ·
- * 4 #3C3530 · 5 #6B5F58 · 6 #9C8E85 · 7 #D6CCC2 · 8 #F5EFE8 · 9 #FFFBF6.
- * Accent: #FF7A2E (default) · #E5621C (pressed). Never pure black/white.
- * Contrast verified AA: deep-on-primary 7.7:1, fg-on-dark 12.6:1, muted-on-light 6:1.
+ * Role names stay shadcn-compatible, but their meaning follows the app:
+ *   primary   = INK (the main action is an ink pill, not a coloured one)
+ *   secondary = pale pill / pale field, one step off its ground
+ *   card      = pale borderless surface, one step off the canvas
+ *   accent    = neutral hover/active tint (shadcn's meaning — NOT the brand colour)
+ *   brand     = the citron accent — at most one element per viewport
+ *
+ * Neutral scale: 0 #111210 · 1 #191A17 · 2 #232420 · 3 #30312C · 4 #42443D ·
+ * 5 #5A5D53 · 6 #777A70 · 7 #989B90 · 8 #B8BBAF · 9 #D6D8CD · 10 #E9EBE2 · 11 #F5F5EE.
+ * Every text pair below clears WCAG AA (lowest 5.19:1 — identity-01 contrast.json).
  */
 
 /* ---------- Light ---------- */
 :root {
-  --background: oklch(0.9898 0.0079 73.746); /* warm.9 #FFFBF6 */
-  --foreground: oklch(0.1367 0.0046 51.051); /* warm.0 #0A0807 */
-  --card: oklch(0.9898 0.0079 73.746); /* warm.9 — border-separated */
-  --card-foreground: oklch(0.1367 0.0046 51.051);
-  --popover: oklch(0.9898 0.0079 73.746);
-  --popover-foreground: oklch(0.1367 0.0046 51.051);
-  --primary: oklch(0.7247 0.1824 46.212); /* accent #FF7A2E */
-  --primary-foreground: oklch(0.1367 0.0046 51.051); /* deep — 7.7:1 on orange (near-white fails) */
-  --secondary: oklch(0.9549 0.0114 71.898); /* warm.8 #F5EFE8 fill */
-  --secondary-foreground: oklch(0.1367 0.0046 51.051);
-  --muted: oklch(0.9549 0.0114 71.898); /* warm.8 */
-  --muted-foreground: oklch(0.4948 0.019 52.283); /* warm.5 #6B5F58 — 6:1 on bg */
-  --accent: oklch(0.9475 0.0322 58.396); /* accent.subtleL #FFE9D9 — orange-tinted hover */
-  --accent-foreground: oklch(0.1367 0.0046 51.051);
-  --destructive: oklch(0.5315 0.1659 35.262); /* #B83C1B — darkened for AA as text on light */
-  --destructive-foreground: oklch(0.9898 0.0079 73.746);
-  --success: oklch(0.6417 0.1396 155.652); /* #2EA567 */
-  --success-foreground: oklch(0.1367 0.0046 51.051);
-  --warning: oklch(0.751 0.1443 77.758); /* #E0A12B */
-  --warning-foreground: oklch(0.1367 0.0046 51.051);
-  --border: oklch(0.9047 0.0178 73.064); /* subtle warm hairline */
-  --input: oklch(0.8747 0.0197 72.553); /* a touch darker so field outlines are visible */
-  --ring: oklch(0.6519 0.1793 43.647); /* accent.pressed #E5621C — visible focus on light */
-  --radius: 1rem; /* 16px — the canonical md default */
+  --background: #f5f5ee; /* canvas — neutral 11 */
+  --foreground: #111210; /* text — neutral 0 */
+  --card: #e9ebe2; /* surface — neutral 10 */
+  --card-foreground: #111210;
+  --popover: #f5f5ee; /* raised — neutral 11 */
+  --popover-foreground: #111210;
+  --primary: #111210; /* ink pill */
+  --primary-foreground: #f5f5ee;
+  --secondary: #e9ebe2; /* pale pill / field */
+  --secondary-foreground: #111210;
+  --muted: #e9ebe2;
+  --on-card: #f5f5ee; /* a field/pill sitting ON a card steps back to canvas */
+  --on-popover: #e9ebe2; /* pale step on a raised surface */
+  --on-popover-hover: #d6d8cd;
+  --muted-foreground: #5a5d53; /* neutral 5 — 6.14:1 on canvas */
+  --subtle-foreground: #42443d; /* secondary text — neutral 4 */
+  --accent: #d6d8cd; /* neutral hover step — neutral 9 */
+  --accent-foreground: #111210;
+  --brand: #596322; /* citron (olive on light) */
+  --brand-pressed: #444d18;
+  --brand-subtle: #e9edcd;
+  --brand-foreground: #f5f5ee;
+  --destructive: #90493f;
+  --destructive-subtle: #f1e2dd;
+  --destructive-foreground: #f5f5ee;
+  --success: #3d6444;
+  --success-subtle: #e2ebdd;
+  --success-foreground: #f5f5ee;
+  --warning: #745b27;
+  --warning-subtle: #f0e8d3;
+  --warning-foreground: #f5f5ee;
+  --border: #d6d8cd; /* divider — decorative only */
+  --input: #777a70; /* control border — only where a boundary is required */
+  --ring: #111210; /* neutral focus outline */
+  --scrim: rgb(17 18 16 / 0.55); /* modal backdrop + photo scrim */
+  --grain-opacity: 0.08;
+  /* Gradient fields (identity §5) — atmosphere only, never UI chrome. */
+  --field-aube: linear-gradient(145deg, #e7e3d8 0%, #e8d9c5 42%, #efd8b9 73%, #f5f5ee 100%);
+  --field-contre-jour: linear-gradient(35deg, #d5d9cd 0%, #e3e2cd 44%, #f0ead2 80%, #f5f5ee 100%);
+  --field-papier: linear-gradient(115deg, #e5e3d7 0%, #eae5d8 40%, #f0ebdd 76%, #f5f5ee 100%);
+  --field-apres-image: linear-gradient(160deg, #e0d5d1 0%, #e8dad0 38%, #eddfc9 74%, #f5f5ee 100%);
+  --radius: 1rem;
 }
 
-/* ---------- Dark (designed independently — warm base, no inverted hex) ---------- */
+/* ---------- Dark (primary scheme) ---------- */
 .dark {
-  --background: oklch(0.1367 0.0046 51.051); /* warm.0 #0A0807 */
-  --foreground: oklch(0.8505 0.0177 67.587); /* warm.7 #D6CCC2 — warm, never pure white */
-  --card: oklch(0.2038 0.0087 59.137); /* warm.2 #1A1613 */
-  --card-foreground: oklch(0.8505 0.0177 67.587);
-  --popover: oklch(0.2038 0.0087 59.137);
-  --popover-foreground: oklch(0.8505 0.0177 67.587);
-  --primary: oklch(0.7247 0.1824 46.212); /* accent #FF7A2E (same brand both modes) */
-  --primary-foreground: oklch(0.1367 0.0046 51.051); /* deep — 7.7:1 on orange */
-  --secondary: oklch(0.266 0.0106 48.3); /* warm.3 #2A2421 */
-  --secondary-foreground: oklch(0.8505 0.0177 67.587);
-  --muted: oklch(0.266 0.0106 48.3); /* warm.3 */
-  --muted-foreground: oklch(0.6564 0.0214 54.984); /* warm.6 #9C8E85 — 6.3:1 on bg */
-  --accent: oklch(0.2361 0.0296 47.408); /* accent.subtle #2A1A12 — orange-tinted active row */
-  --accent-foreground: oklch(0.7247 0.1824 46.212); /* orange text on the tint (5:1) */
-  --destructive: oklch(0.6096 0.1777 35.05); /* #D8502E — 4.9:1 on dark bg */
-  --destructive-foreground: oklch(0.9898 0.0079 73.746);
-  --success: oklch(0.6417 0.1396 155.652);
-  --success-foreground: oklch(0.1367 0.0046 51.051);
-  --warning: oklch(0.751 0.1443 77.758);
-  --warning-foreground: oklch(0.1367 0.0046 51.051);
-  --border: oklch(0.3346 0.0132 57.812); /* warm.4 #3C3530 */
-  --input: oklch(0.3346 0.0132 57.812);
-  --ring: oklch(0.7247 0.1824 46.212); /* accent #FF7A2E — 7.7:1 on dark bg */
+  --background: #111210; /* canvas — neutral 0 */
+  --foreground: #f5f5ee; /* text — neutral 11 */
+  --card: #191a17; /* surface — neutral 1 */
+  --card-foreground: #f5f5ee;
+  --popover: #232420; /* raised / sheets — neutral 2 */
+  --popover-foreground: #f5f5ee;
+  --primary: #f5f5ee; /* ink pill (paper on dark) */
+  --primary-foreground: #111210;
+  --secondary: #232420; /* pale pill / field — neutral 2 */
+  --secondary-foreground: #f5f5ee;
+  --muted: #232420;
+  --on-card: #232420;
+  --on-popover: #30312c;
+  --on-popover-hover: #42443d;
+  --muted-foreground: #989b90; /* neutral 7 — 6.64:1 on canvas */
+  --subtle-foreground: #b8bbaf; /* secondary text — neutral 8 */
+  --accent: #30312c; /* neutral hover step — neutral 3 */
+  --accent-foreground: #f5f5ee;
+  --brand: #d6dd92; /* citron */
+  --brand-pressed: #bbc575;
+  --brand-subtle: #2c301e;
+  --brand-foreground: #111210;
+  --destructive: #dbada7;
+  --destructive-subtle: #362522;
+  --destructive-foreground: #111210;
+  --success: #a8c5a6;
+  --success-subtle: #202e24;
+  --success-foreground: #111210;
+  --warning: #dcc28b;
+  --warning-subtle: #332d20;
+  --warning-foreground: #111210;
+  --border: #30312c; /* divider — neutral 3 */
+  --input: #777a70;
+  --ring: #f5f5ee;
+  --scrim: rgb(17 18 16 / 0.7);
+  --grain-opacity: 0.12;
+  --field-aube: linear-gradient(145deg, #171916 0%, #4b4640 42%, #aa8d73 73%, #dac7a7 100%);
+  --field-contre-jour: linear-gradient(35deg, #111210 0%, #343c35 44%, #9c987b 80%, #d6cfac 100%);
+  --field-papier: linear-gradient(115deg, #191a17 0%, #49483e 40%, #9f9983 76%, #cfc8b3 100%);
+  --field-apres-image: linear-gradient(160deg, #111210 0%, #443a3c 38%, #9e7c74 74%, #c8b09a 100%);
 }
 
 @theme inline {
@@ -87,36 +126,103 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-brand: var(--brand);
+  --color-brand-pressed: var(--brand-pressed);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-brand-foreground: var(--brand-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-subtle: var(--destructive-subtle);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
   --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  /* Radii — sm 10 / md 16 / lg 28 (from mobile tokens.radius). `rounded-full`
-     (Tailwind built-in 9999px) is reserved for circular avatars/icon buttons/chips. */
-  --radius-sm: 10px;
+  --color-scrim: var(--scrim);
+  /* Radii — sm 12 / md 16 / lg 24 (mobile tokens.radius). Buttons, chips and
+     badges are always `rounded-full`. */
+  --radius-sm: 12px;
   --radius-md: 16px;
-  --radius-lg: 28px;
-  --radius-xl: 28px;
-  --font-sans: var(--font-outfit);
+  --radius-lg: 24px;
+  --radius-xl: 24px;
+  --radius-2xl: 24px;
+  --radius-3xl: 24px;
+  --font-sans: var(--font-manrope);
   --font-mono: var(--font-geist-mono);
+}
+
+/* One atmospheric field per view (hero, auth side, paywall header, CTA band).
+   The grain is the identity's 256px soft-light tile; text and controls sit above it. */
+@utility field-aube {
+  background-image: var(--field-aube);
+}
+@utility field-contre-jour {
+  background-image: var(--field-contre-jour);
+}
+@utility field-papier {
+  background-image: var(--field-papier);
+}
+@utility field-apres-image {
+  background-image: var(--field-apres-image);
+}
+@utility grain {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: inherit;
+    background-image: url("/brand/grain-256.png");
+    background-size: 256px 256px;
+    mix-blend-mode: soft-light;
+    opacity: var(--grain-opacity);
+  }
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
-    outline-color: color-mix(in oklab, var(--color-ring) 50%, transparent);
+    outline-color: var(--color-ring);
   }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-feature-settings: "ss01", "cv11";
   }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+  }
+}
+
+/* A pale field or pale pill placed on a card must stay one step off ITS ground,
+   so anything painted `bg-card` re-points the pale step for its descendants.
+   (Light: card is neutral 10, so fields step to 11. Dark: unchanged.) */
+.bg-card {
+  --secondary: var(--on-card);
+  --muted: var(--on-card);
+}
+
+/* Raised surfaces (menus, dialogs, toasts) float over content, so they get the
+   same re-pointing plus a divider-tone hairline: in light the raised tone equals
+   the canvas, and without an edge a menu would dissolve into the page. This is
+   the only sanctioned outline in the system. */
+.bg-popover {
+  --secondary: var(--on-popover);
+  --muted: var(--on-popover);
+  --accent: var(--on-popover-hover);
+  box-shadow: 0 0 0 1px var(--border);
 }
 
 /* Chrome/Safari paint autofilled inputs pale blue — repaint with our tokens.
@@ -130,6 +236,6 @@ input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-text-fill-color: var(--color-foreground) !important;
   caret-color: var(--color-foreground);
-  box-shadow: 0 0 0 1000px var(--color-background) inset !important;
+  box-shadow: 0 0 0 1000px var(--color-secondary) inset !important;
   transition: background-color 9999s ease-in-out 0s;
 }

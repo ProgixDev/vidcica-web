@@ -41,12 +41,13 @@ export default async function AnalyticsAudiencePage() {
 
   if (connected.length === 0) {
     return (
-      <div className="bg-card rounded-2xl border p-8">
+      <div>
         <EmptyState
+          className="py-16"
           title={t("analytics.audience.empty.title")}
           description={t("analytics.audience.empty.body")}
           action={
-            <Link href="/networks" className={buttonVariants({ className: "rounded-full" })}>
+            <Link href="/networks" className={buttonVariants()}>
               {t("analytics.audience.empty.cta")}
             </Link>
           }
@@ -69,9 +70,9 @@ export default async function AnalyticsAudiencePage() {
   }));
 
   return (
-    <div className="flex flex-col gap-5">
-      <section className="flex flex-col gap-2">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
+    <div className="flex flex-col gap-10">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">
           {t("analytics.audience.followers.title")}
         </h2>
         <PlatformShareList rows={shareRows} />
@@ -82,29 +83,29 @@ export default async function AnalyticsAudiencePage() {
         body={t("analytics.noData.collection")}
       />
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">
           {t("analytics.audience.gender.title")}
         </h2>
-        <div className="bg-card rounded-2xl border p-4">
+        <div className="bg-card rounded-lg p-6">
           <GenderSplit t={t} female={0} male={0} />
         </div>
       </section>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">
           {t("analytics.audience.age.title")}
         </h2>
-        <div className="bg-card rounded-2xl border p-4">
+        <div className="bg-card rounded-lg p-6">
           <BarBreakdown items={AGE_BUCKETS.map((label) => ({ label, share: 0 }))} />
         </div>
       </section>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">
           {t("analytics.audience.hours.title")}
         </h2>
-        <div className="bg-card rounded-2xl border p-4">
+        <div className="bg-card rounded-lg p-6">
           <HeatmapHours t={t} cells={[]} />
         </div>
       </section>

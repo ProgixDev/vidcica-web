@@ -6,7 +6,7 @@ export function Label({ className, ...props }: LabelProps) {
   return (
     <label
       className={cn(
-        "text-foreground text-sm font-medium select-none",
+        "text-foreground text-[13px] font-semibold select-none",
         "peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
         className,
       )}

@@ -17,7 +17,7 @@ export function LanguageToggle({ className }: { className?: string }) {
       role="group"
       aria-label="Langue / Language"
       className={cn(
-        "border-border/70 inline-flex items-center rounded-full border p-0.5 text-xs font-semibold",
+        "bg-secondary inline-flex h-10 items-center rounded-full p-1 text-xs font-semibold",
         isSwitching && "opacity-70",
         className,
       )}
@@ -31,7 +31,7 @@ export function LanguageToggle({ className }: { className?: string }) {
             onClick={() => switchLocale(l)}
             aria-pressed={active}
             className={cn(
-              "rounded-full px-2 py-0.5 uppercase transition-colors",
+              "flex h-8 items-center rounded-full px-2.5 uppercase transition-colors",
               active
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground",

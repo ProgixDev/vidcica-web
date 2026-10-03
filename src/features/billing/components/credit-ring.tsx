@@ -11,7 +11,7 @@ type CreditRingProps = {
   children?: React.ReactNode;
 };
 
-export function CreditRing({ progress, size = 96, stroke = 9, children }: CreditRingProps) {
+export function CreditRing({ progress, size = 96, stroke = 8, children }: CreditRingProps) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const p = Math.max(0, Math.min(1, progress));
@@ -28,7 +28,7 @@ export function CreditRing({ progress, size = 96, stroke = 9, children }: Credit
           r={r}
           fill="none"
           strokeWidth={stroke}
-          className="stroke-border"
+          className="stroke-secondary"
         />
         <circle
           cx={center}
@@ -40,7 +40,7 @@ export function CreditRing({ progress, size = 96, stroke = 9, children }: Credit
           strokeDasharray={c}
           strokeDashoffset={c * (1 - p)}
           transform={`rotate(-90 ${center} ${center})`}
-          className="stroke-primary transition-[stroke-dashoffset] duration-500"
+          className="stroke-foreground transition-[stroke-dashoffset] duration-500"
         />
       </svg>
       <div className="relative flex flex-col items-center">{children}</div>

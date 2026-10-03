@@ -1,5 +1,10 @@
 # Styling Conventions
 
+> **Brand rules live in [`docs/design/redesign-rules.md`](../design/redesign-rules.md)** (identity 01
+> “Rémanence”): what each role token means, the accent budget, and the anti-patterns. Read it
+> before styling anything — in particular `primary` is **ink**, not a colour, and cards, fields
+> and buttons carry no border or shadow.
+
 ## Tailwind CSS v4
 
 - Config is **CSS-first**: design tokens live in `src/app/globals.css` under `@theme` (colors, radii, fonts). There is no `tailwind.config` for tokens — edit the CSS.
@@ -24,7 +29,7 @@
 
 ## Quality bar (what reviewers look for)
 
-- No visual drift: same radius, shadow, and spacing tokens as sibling UI.
+- No visual drift: same radius and spacing tokens as sibling UI; no borders or shadows on surfaces.
 - Interactive states are designed: hover, focus-visible, active, disabled — all of them.
 - Empty, loading, and error states styled, not afterthoughts.
 - Screenshot evidence: any visual change shows up in `/verify-ui` shots — look at them before declaring done.

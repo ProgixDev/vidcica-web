@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { PlatformIcon, PLATFORM_ACCENT } from "@/components/platform-icon";
+import { PlatformIcon } from "@/components/platform-icon";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { startNetworkOAuth } from "@/lib/vidcica/oauth";
@@ -19,14 +20,6 @@ import {
 import { useT, useLocale } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
 import { disconnectNetwork, setNetworkPublish } from "../actions";
-
-/** Status-dot colour class (a small pulse-free indicator beside the label). */
-const STATUS_DOT: Record<NetworkStatus, string> = {
-  connected: "bg-success",
-  needs_reconnect: "bg-warning",
-  disconnected: "bg-muted-foreground/40",
-  unavailable: "bg-muted-foreground/40",
-};
 
 /** Status label i18n key per connection state. */
 const STATUS_KEY: Record<NetworkStatus, MessageKey> = {
@@ -51,10 +44,14 @@ function NetworkCard({
   platform,
   net,
   reviewAccess = false,
+  soleAction = false,
 }: {
   platform: PlatformMeta;
   net?: Network;
   reviewAccess?: boolean;
+  /** True when this row holds the only connect/reconnect action in the list —
+   *  it then gets the ink pill; several side by side stay pale. */
+  soleAction?: boolean;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -134,94 +131,77 @@ function NetworkCard({
   }
 
   const unavailable = status === "unavailable";
-  const accent = PLATFORM_ACCENT[platform.id];
+  const actionVariant = soleAction ? "default" : "secondary";
 
   return (
-    <div
-      style={{ "--accent": accent } as React.CSSProperties}
-      className={cn(
-        "group bg-card relative flex flex-col overflow-hidden rounded-2xl border p-5 transition-all duration-300",
-        !unavailable &&
-          "hover:-translate-y-1 hover:border-[var(--accent)] hover:shadow-[0_18px_44px_-18px_var(--accent)]",
-      )}
+    <li
+      className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4"
       data-testid={`network-${platform.id}`}
     >
-      {/* Soft brand glow — intensifies on hover for depth. */}
-      <div
-        aria-hidden
-        style={{ background: "var(--accent)" }}
-        className={cn(
-          "pointer-events-none absolute -top-14 -right-10 size-36 rounded-full opacity-10 blur-2xl transition-opacity duration-300",
-          !unavailable && "group-hover:opacity-25",
-        )}
-      />
-
-      <div className="relative flex items-start gap-3.5">
-        <PlatformIcon platform={platform.id} size={48} muted={unavailable} />
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="leading-tight font-semibold">{platform.label}</h3>
-            <span
-              className="text-muted-foreground bg-muted/70 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium"
-              data-testid={`network-status-${platform.id}`}
-            >
-              <span className={cn("size-1.5 rounded-full", STATUS_DOT[status])} />
-              {t(STATUS_KEY[status])}
-            </span>
-          </div>
-          <p className="text-muted-foreground mt-1 truncate text-xs">
-            {connected && net?.handle
-              ? `${net.handle}${
-                  typeof net.followers === "number"
-                    ? ` · ${t("networks.followers", { count: numberFmt.format(net.followers) })}`
-                    : ""
-                }`
-              : t(TAGLINE_KEY[platform.id])}
-          </p>
-        </div>
-      </div>
-
-      <div className="relative mt-5 flex items-center gap-3">
-        {connected ? (
-          <>
-            <label className="text-muted-foreground flex flex-1 items-center gap-2 text-xs font-medium">
-              <Switch
-                checked={pub}
-                onChange={toggle}
-                aria-label={t("networks.autoLabel", { platform: platform.label })}
-              />
-              {t("networks.publishAuto")}
-            </label>
-            <Button variant="ghost" size="sm" onClick={disconnect} disabled={pending}>
-              {pending ? t("networks.disconnecting") : t("common.disconnect")}
-            </Button>
-          </>
-        ) : status === "needs_reconnect" ? (
-          <Button className="w-full rounded-full" onClick={connect} disabled={pending}>
-            {pending ? "…" : t("common.reconnect")}
-          </Button>
-        ) : status === "disconnected" ? (
-          <Button
-            className="w-full rounded-full"
-            onClick={connect}
-            disabled={pending}
-            data-testid={`connect-${platform.id}`}
+      <PlatformIcon platform={platform.id} size={40} muted={unavailable} />
+      <div className="flex min-w-0 flex-1 basis-48 flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <h3
+            className={cn(
+              "text-[15px] leading-tight font-semibold",
+              unavailable && "text-muted-foreground",
+            )}
           >
-            {pending ? t("networks.connecting") : t("common.connect")}
-          </Button>
-        ) : (
-          <span className="text-muted-foreground bg-muted/50 w-full rounded-full py-2 text-center text-sm font-medium">
-            {t("common.comingSoon")}
-          </span>
-        )}
+            {platform.label}
+          </h3>
+          <Badge
+            variant={status === "needs_reconnect" ? "warning" : "muted"}
+            data-testid={`network-status-${platform.id}`}
+          >
+            {t(STATUS_KEY[status])}
+          </Badge>
+        </div>
+        <p className="text-muted-foreground truncate text-[13px]">
+          {connected && net?.handle
+            ? `${net.handle}${
+                typeof net.followers === "number"
+                  ? ` · ${t("networks.followers", { count: numberFmt.format(net.followers) })}`
+                  : ""
+              }`
+            : t(TAGLINE_KEY[platform.id])}
+        </p>
+        {connected ? (
+          <label className="text-subtle-foreground mt-2 flex w-fit items-center gap-2.5 text-[13px] font-medium">
+            <Switch
+              checked={pub}
+              onChange={toggle}
+              aria-label={t("networks.autoLabel", { platform: platform.label })}
+            />
+            {t("networks.publishAuto")}
+          </label>
+        ) : null}
+        {message ? (
+          <p role="alert" className="text-destructive mt-1 text-[13px]">
+            {message}
+          </p>
+        ) : null}
       </div>
 
-      {message ? (
-        <p role="alert" className="text-destructive relative mt-2 text-xs">
-          {message}
-        </p>
+      {connected ? (
+        <Button variant="ghost" size="sm" onClick={disconnect} disabled={pending}>
+          {pending ? t("networks.disconnecting") : t("common.disconnect")}
+        </Button>
+      ) : status === "needs_reconnect" ? (
+        <Button variant={actionVariant} size="sm" onClick={connect} disabled={pending}>
+          {pending ? "…" : t("common.reconnect")}
+        </Button>
+      ) : status === "disconnected" ? (
+        <Button
+          variant={actionVariant}
+          size="sm"
+          onClick={connect}
+          disabled={pending}
+          data-testid={`connect-${platform.id}`}
+        >
+          {pending ? t("networks.connecting") : t("common.connect")}
+        </Button>
       ) : null}
-    </div>
+    </li>
   );
 }
 
@@ -244,16 +224,22 @@ export function NetworkList({
   // are held back until Meta approves — see PUBLISHING_PLATFORMS. `reviewAccess`
   // opens Instagram/Facebook for the App Review allowlist only.
   const platforms = connectablePlatforms(reviewAccess);
+  // One filled action per group: the ink pill only when a single row can act.
+  const actionable = platforms.filter((p) => {
+    const st = networkStatus(p, byPlatform.get(p.id), reviewAccess);
+    return st === "disconnected" || st === "needs_reconnect";
+  }).length;
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="network-list">
+    <ul className="bg-card flex flex-col rounded-lg py-2" data-testid="network-list">
       {platforms.map((p) => (
         <NetworkCard
           key={p.id}
           platform={p}
           net={byPlatform.get(p.id)}
           reviewAccess={reviewAccess}
+          soleAction={actionable === 1}
         />
       ))}
-    </div>
+    </ul>
   );
 }

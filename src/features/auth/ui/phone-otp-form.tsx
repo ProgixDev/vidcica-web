@@ -119,7 +119,7 @@ export function PhoneOtpForm() {
 
   if (state.step === "phone") {
     return (
-      <form onSubmit={requestCode} className="flex w-full max-w-sm flex-col gap-4">
+      <form onSubmit={requestCode} className="flex w-full max-w-sm flex-col gap-5">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="otp-phone">{t("auth.phoneLabel")}</Label>
           <div className="flex gap-2">
@@ -128,7 +128,7 @@ export function PhoneOtpForm() {
               onChange={(e) => setDial(e.target.value)}
               aria-label={t("auth.countryLabel")}
               data-testid="otp-country"
-              className="h-10 w-auto max-w-[10rem] flex-none"
+              className="w-auto max-w-[10rem] flex-none"
             >
               {COUNTRIES.map((c) => (
                 <option key={c.id} value={c.dial}>
@@ -146,16 +146,23 @@ export function PhoneOtpForm() {
               onChange={(e) => setNational(e.target.value)}
               aria-label={t("auth.phoneLabel")}
               data-testid="otp-phone"
-              className="bg-foreground/5 h-10 flex-1"
+              className="flex-1"
             />
           </div>
         </div>
         {state.error ? (
-          <p role="alert" className="text-destructive text-sm">
+          <p role="alert" className="text-destructive text-[13px]">
             {state.error}
           </p>
         ) : null}
-        <Button type="submit" disabled={state.pending} data-testid="otp-request">
+        <Button
+          type="submit"
+          variant="brand"
+          size="lg"
+          className="w-full"
+          disabled={state.pending}
+          data-testid="otp-request"
+        >
           {state.pending ? t("auth.sendingCode") : t("auth.requestCode")}
         </Button>
       </form>
@@ -163,12 +170,12 @@ export function PhoneOtpForm() {
   }
 
   return (
-    <form onSubmit={verifyCode} className="flex w-full max-w-sm flex-col gap-4">
-      <p className="text-muted-foreground text-sm">
+    <form onSubmit={verifyCode} className="flex w-full max-w-sm flex-col gap-5">
+      <p className="text-muted-foreground text-[15px] leading-relaxed">
         {t("auth.codeSentTo", { phone: state.phone })}{" "}
         <button
           type="button"
-          className="text-foreground underline underline-offset-2"
+          className="text-foreground font-medium underline underline-offset-2"
           onClick={() => dispatch({ type: "editPhone" })}
           data-testid="otp-edit-phone"
         >
@@ -187,20 +194,27 @@ export function PhoneOtpForm() {
           onChange={(e) => setCode(e.target.value)}
           aria-label={t("auth.codeLabel")}
           data-testid="otp-code"
-          className="bg-foreground/5 h-10"
+          className="h-14 text-center text-xl font-semibold tracking-[0.4em] placeholder:font-normal"
         />
       </div>
       {state.error ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {state.error}
         </p>
       ) : null}
-      <Button type="submit" disabled={state.pending} data-testid="otp-verify">
+      <Button
+        type="submit"
+        variant="brand"
+        size="lg"
+        className="w-full"
+        disabled={state.pending}
+        data-testid="otp-verify"
+      >
         {state.pending ? t("auth.verifying") : t("auth.signInAction")}
       </Button>
       <button
         type="button"
-        className="text-muted-foreground hover:text-foreground text-sm underline underline-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-70"
+        className="text-muted-foreground hover:text-foreground text-[13px] underline underline-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-70"
         onClick={resendCode}
         disabled={cooldown > 0 || resending}
         data-testid="otp-resend"

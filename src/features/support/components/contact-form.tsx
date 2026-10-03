@@ -44,7 +44,7 @@ export function ContactForm() {
         description={t("support.sentDescription")}
         action={
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => {
               setSent(false);
               setSubject("");
@@ -59,8 +59,8 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4" data-testid="contact-form">
-      <div className="flex flex-col gap-1.5">
+    <form onSubmit={submit} className="flex flex-col gap-5" data-testid="contact-form">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="ct-subject">{t("support.subjectLabel")}</Label>
         <Input
           id="ct-subject"
@@ -70,7 +70,7 @@ export function ContactForm() {
           data-testid="contact-subject"
         />
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="ct-message">{t("support.messageLabel")}</Label>
         <Textarea
           id="ct-message"
@@ -82,7 +82,7 @@ export function ContactForm() {
         />
       </div>
       {error ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {error}
         </p>
       ) : null}

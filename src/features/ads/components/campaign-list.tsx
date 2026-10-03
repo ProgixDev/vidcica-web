@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useCampaignsRealtime } from "@/lib/vidcica/use-campaigns-realtime";
 import {
@@ -20,6 +19,7 @@ import {
 } from "@/lib/vidcica/campaign";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey, TFunction } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 function objectiveText(t: TFunction, objective: Campaign["objective"]): string {
   const key = CAMPAIGN_OBJECTIVE_KEY[objective as SupportedObjective];
@@ -46,60 +46,65 @@ function tabOf(status: CampaignStatus): Tab {
   return "active";
 }
 
+/** One column template for the header and every row, so figures line up. */
+const ROW_GRID =
+  "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 sm:grid-cols-[minmax(0,1fr)_6.5rem_4.5rem_6.5rem_7.5rem]";
+const FOCUS_RING =
+  "focus-visible:ring-ring focus-visible:ring-offset-background outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+
 function CampaignCard({ c, currency }: { c: Campaign; currency: string }) {
   const t = useT();
   const meta = STATUS_META[c.status];
   const isDraft = c.status === "brouillon";
   return (
-    <div className="flex flex-col gap-1">
-      <Link href={`/ads/${c.id}`} data-testid={`campaign-${c.id}`} className="block">
-        <Card className="hover:border-primary/40 flex flex-col gap-3 p-4 transition-colors">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="truncate font-medium">{c.name}</span>
-              <span className="text-muted-foreground text-xs">
-                {objectiveText(t, c.objective)} · {budgetText(t, c, currency)}
-              </span>
-            </div>
-            <Badge variant={meta.variant} data-testid={`campaign-status-${c.id}`}>
-              {t(CAMPAIGN_STATUS_KEY[c.status])}
-            </Badge>
-          </div>
-          <div className="text-muted-foreground grid grid-cols-3 gap-2 text-xs">
-            <Metric
-              label={t("ads.metric.impressions")}
-              value={c.metrics.impressions.toLocaleString("fr-FR")}
-            />
-            <Metric
-              label={t("ads.metric.clicks")}
-              value={c.metrics.clicks.toLocaleString("fr-FR")}
-            />
-            <Metric
-              label={t("ads.metric.spent")}
-              value={formatAdMoney(c.metrics.budgetSpent, currency)}
-            />
-          </div>
-        </Card>
+    <li className="flex flex-col">
+      <Link
+        href={`/ads/${c.id}`}
+        data-testid={`campaign-${c.id}`}
+        className={cn(
+          ROW_GRID,
+          "hover:bg-accent focus-visible:bg-accent min-h-16 px-5 py-3 transition-colors outline-none",
+        )}
+      >
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="truncate text-[15px] font-semibold">{c.name}</span>
+          <span className="text-muted-foreground truncate text-[13px]">
+            {objectiveText(t, c.objective)} · {budgetText(t, c, currency)}
+          </span>
+        </span>
+        <Metric value={c.metrics.impressions.toLocaleString("fr-FR")} />
+        <Metric value={c.metrics.clicks.toLocaleString("fr-FR")} />
+        <Metric value={formatAdMoney(c.metrics.budgetSpent, currency)} />
+        <Badge
+          variant={meta.variant}
+          className="justify-self-end"
+          data-testid={`campaign-status-${c.id}`}
+        >
+          {t(CAMPAIGN_STATUS_KEY[c.status])}
+        </Badge>
       </Link>
       {isDraft ? (
         <Link
           href="/ads/new"
-          className="text-primary self-start px-1 text-xs font-medium hover:underline"
+          className={cn(
+            FOCUS_RING,
+            "text-foreground mb-4 ml-5 self-start rounded-full text-[13px] font-semibold underline underline-offset-4",
+          )}
           data-testid={`campaign-resume-${c.id}`}
         >
           {t("ads.resumeDraft")} →
         </Link>
       ) : null}
-    </div>
+    </li>
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+/** A figure cell — shown from `sm` up, where the column header names it. */
+function Metric({ value }: { value: string }) {
   return (
-    <div className="flex min-w-0 flex-col">
-      <span className="text-foreground truncate text-sm font-medium tabular-nums">{value}</span>
-      <span className="truncate">{label}</span>
-    </div>
+    <span className="text-foreground hidden truncate text-right text-[15px] tabular-nums sm:block">
+      {value}
+    </span>
   );
 }
 
@@ -146,9 +151,9 @@ export function CampaignList({
   const visible = campaigns.filter((c) => tabOf(c.status) === tab);
 
   return (
-    <div className="flex flex-col gap-4" data-testid="campaign-list">
+    <div className="flex flex-col gap-6" data-testid="campaign-list">
       <div
-        className="border-border inline-flex gap-1 self-start rounded-full border p-1"
+        className="bg-secondary inline-flex max-w-full gap-1 self-start overflow-x-auto rounded-full p-1"
         role="tablist"
         aria-label={t("ads.tabsAria")}
       >
@@ -162,27 +167,43 @@ export function CampaignList({
               aria-selected={selected}
               onClick={() => setTab(tb.id)}
               data-testid={`ads-tab-${tb.id}`}
-              className={
+              className={cn(
+                "focus-visible:ring-ring inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2",
                 selected
-                  ? "bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-medium"
-                  : "text-muted-foreground hover:text-foreground rounded-full px-3 py-1 text-xs font-medium"
-              }
+                  ? "bg-background text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
             >
-              {t(tb.label)} ({counts[tb.id]})
+              {t(tb.label)} <span className="font-medium tabular-nums">({counts[tb.id]})</span>
             </button>
           );
         })}
       </div>
 
       {visible.length === 0 ? (
-        <p className="text-muted-foreground py-8 text-center text-sm" data-testid="ads-tab-empty">
+        <p
+          className="text-muted-foreground py-12 text-center text-[13px]"
+          data-testid="ads-tab-empty"
+        >
           {t("ads.tab.empty")}
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {visible.map((c) => (
-            <CampaignCard key={c.id} c={c} currency={currency} />
-          ))}
+        <div className="flex flex-col gap-2">
+          <div
+            className={cn(ROW_GRID, "text-muted-foreground hidden px-5 text-[13px] sm:grid")}
+            aria-hidden
+          >
+            <span />
+            <span className="text-right">{t("ads.metric.impressions")}</span>
+            <span className="text-right">{t("ads.metric.clicks")}</span>
+            <span className="text-right">{t("ads.metric.spent")}</span>
+            <span />
+          </div>
+          <ul className="bg-card divide-border flex flex-col divide-y overflow-hidden rounded-lg">
+            {visible.map((c) => (
+              <CampaignCard key={c.id} c={c} currency={currency} />
+            ))}
+          </ul>
         </div>
       )}
     </div>

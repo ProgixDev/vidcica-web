@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { TrackedLink } from "@/components/tracked-link";
 import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
@@ -32,7 +31,7 @@ const Check = ({ className }: { className?: string }) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2.4"
+    strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
     className={className}
@@ -47,7 +46,7 @@ const Dash = ({ className }: { className?: string }) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2.4"
+    strokeWidth="2"
     strokeLinecap="round"
     className={className}
     aria-hidden
@@ -73,73 +72,88 @@ function PlanCard({ id, index, t }: { id: Plan; index: number; t: TFunction }) {
   const newIds = new Set(modelsUnlockedAt(id).map((m) => m.id));
   const previous = ORDERED_TIERS[index - 1];
 
+  // The highlighted plan is the inverted (ink) card — tone, not colour, marks it.
+  // Its text therefore reads from `primary-foreground`; the others from the card.
+  const muted = popular ? "text-primary-foreground/70" : "text-muted-foreground";
+  const pill = popular ? "bg-primary-foreground/10" : "bg-secondary";
+
   return (
     <Reveal
       delay={(index % 4) * 0.07}
       className={cn(
-        "relative flex h-full flex-col gap-4 rounded-lg border p-5 transition-transform hover:-translate-y-1 motion-reduce:transition-none",
-        popular
-          ? "border-primary shadow-xl sm:-my-2 sm:py-7"
-          : "border-border bg-card/80 shadow-sm backdrop-blur-sm",
+        "flex h-full flex-col gap-6 rounded-lg p-6",
+        popular ? "bg-primary text-primary-foreground" : "bg-card",
       )}
-      style={
-        popular
-          ? {
-              background:
-                "linear-gradient(160deg, color-mix(in oklab, var(--primary) 14%, var(--card)), var(--card))",
-            }
-          : undefined
-      }
     >
-      {popular ? (
-        <span
-          className="text-primary-foreground absolute -top-3 left-5 rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase shadow-md"
-          style={{
-            background:
-              "linear-gradient(140deg, var(--primary), color-mix(in oklab, var(--primary) 72%, black))",
-          }}
-        >
-          {t("landing.pricing.popular")}
-        </span>
-      ) : null}
-
-      <div className="flex flex-col gap-1">
-        <h3 className="text-sm font-semibold">{t(tier.labelKey)}</h3>
-        <p className="flex items-baseline gap-1">
-          <span className="text-3xl font-semibold tracking-tight">{tier.priceEUR} €</span>
-          <span className="text-muted-foreground text-xs">{t("landing.pricing.perMonth")}</span>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-[15px] font-semibold">{t(tier.labelKey)}</h3>
+          {popular ? (
+            <span
+              className={cn("rounded-full px-2.5 py-1 text-xs leading-none font-semibold", pill)}
+            >
+              {t("landing.pricing.popular")}
+            </span>
+          ) : null}
+        </div>
+        <p className="flex items-baseline gap-1.5">
+          <span className="text-4xl font-semibold tracking-[-0.03em]">{tier.priceEUR} €</span>
+          <span className={cn("text-[13px]", muted)}>{t("landing.pricing.perMonth")}</span>
         </p>
       </div>
 
       {/* Value line: what the monthly credits actually buy. */}
-      <div className="border-border/70 flex flex-col gap-0.5 border-y py-3">
-        <p className="text-primary text-sm font-semibold">
+      <div className="flex flex-col gap-0.5 lg:min-h-[4.25rem]">
+        <p className="text-[15px] font-semibold">
           {isPayg(tier)
             ? t("landing.pricing.freeValue")
             : t("landing.pricing.videosAi", { n: videosPerMonth(tier) })}
         </p>
-        <p className="text-muted-foreground text-xs">
+        <p className={cn("text-[13px]", muted)}>
           {isPayg(tier)
             ? t("landing.pricing.freeSub")
             : t("landing.pricing.creditsPerMonth", { n: tier.monthlyCredits })}
         </p>
       </div>
 
+      <TrackedLink
+        href="/sign-in"
+        location={`pricing:${tier.id}`}
+        className={buttonVariants({ variant: popular ? "brand" : "secondary" })}
+      >
+        {tier.priceEUR === 0
+          ? t("landing.pricing.startFree")
+          : t("landing.pricing.choose", { plan: t(tier.labelKey) })}
+      </TrackedLink>
+
+      <ul className="flex flex-1 flex-col gap-2.5">
+        {previous ? (
+          <li className="text-[13px] font-semibold">
+            {t("landing.pricing.includesPrev", { plan: t(TIERS[previous].labelKey) })}
+          </li>
+        ) : null}
+        {tier.landingFeatureKeys.map((k) => (
+          <li key={k} className={cn("flex gap-2.5 text-[13px] leading-snug", muted)}>
+            <Check className="mt-0.5 size-3.5 shrink-0" />
+            {t(k)}
+          </li>
+        ))}
+      </ul>
+
       {/* Models unlocked at this tier — the detail buyers compare on. */}
       {models.length > 0 ? (
-        <div className="flex flex-col gap-1.5">
-          <p className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
+        <div className="flex flex-col gap-2">
+          <p className={cn("text-xs font-medium", muted)}>
             {t("landing.pricing.modelsLabel")} ({models.length})
           </p>
-          <ul className="flex flex-wrap gap-1">
+          <ul className="flex flex-wrap gap-1.5">
             {models.map((m) => (
               <li
                 key={m.id}
                 className={cn(
-                  "rounded-full border px-2 py-0.5 text-[10px] font-medium",
-                  newIds.has(m.id)
-                    ? "border-primary/40 bg-primary/15 text-primary"
-                    : "border-border text-muted-foreground",
+                  "rounded-full px-2.5 py-1 text-xs leading-none",
+                  pill,
+                  newIds.has(m.id) ? "font-semibold" : muted,
                 )}
               >
                 {t(m.labelKey)}
@@ -148,33 +162,6 @@ function PlanCard({ id, index, t }: { id: Plan; index: number; t: TFunction }) {
           </ul>
         </div>
       ) : null}
-
-      <ul className="flex flex-1 flex-col gap-2">
-        {previous ? (
-          <li className="text-foreground/80 text-xs font-medium">
-            {t("landing.pricing.includesPrev", { plan: t(TIERS[previous].labelKey) })}
-          </li>
-        ) : null}
-        {tier.landingFeatureKeys.map((k) => (
-          <li key={k} className="text-muted-foreground flex gap-2 text-xs">
-            <Check className="text-primary mt-0.5 size-3 shrink-0" />
-            {t(k)}
-          </li>
-        ))}
-      </ul>
-
-      <TrackedLink
-        href="/sign-in"
-        location={`pricing:${tier.id}`}
-        className={cn(
-          buttonVariants({ variant: popular ? "default" : "outline", size: "sm" }),
-          "rounded-full",
-        )}
-      >
-        {tier.priceEUR === 0
-          ? t("landing.pricing.startFree")
-          : t("landing.pricing.choose", { plan: t(tier.labelKey) })}
-      </TrackedLink>
     </Reveal>
   );
 }
@@ -184,12 +171,12 @@ type Row = { labelKey: Parameters<TFunction>[0]; render: (tier: TierDef) => Reac
 function BoolCell({ on, t }: { on: boolean; t: TFunction }) {
   return on ? (
     <>
-      <Check className="text-primary mx-auto size-4" />
+      <Check className="text-foreground mx-auto size-4" />
       <span className="sr-only">{t("landing.pricing.included")}</span>
     </>
   ) : (
     <>
-      <Dash className="text-muted-foreground/50 mx-auto size-4" />
+      <Dash className="text-muted-foreground mx-auto size-4" />
       <span className="sr-only">{t("landing.pricing.notIncluded")}</span>
     </>
   );
@@ -207,7 +194,7 @@ function ComparisonTable({ t }: { t: TFunction }) {
       labelKey: "landing.pricing.row.videos",
       render: (tier) =>
         isPayg(tier) ? (
-          <Dash className="text-muted-foreground/50 mx-auto size-4" />
+          <Dash className="text-muted-foreground mx-auto size-4" />
         ) : (
           videosPerMonth(tier)
         ),
@@ -263,11 +250,11 @@ function ComparisonTable({ t }: { t: TFunction }) {
 
   return (
     <div className="-mx-6 overflow-x-auto px-6 sm:mx-0 sm:px-0">
-      <table className="w-full min-w-3xl border-collapse text-left text-xs">
+      <table className="w-full min-w-3xl border-collapse text-left text-[13px]">
         <caption className="sr-only">{t("landing.pricing.compareCaption")}</caption>
         <thead>
           <tr className="border-border border-b">
-            <th scope="col" className="text-muted-foreground py-3 pr-4 font-medium">
+            <th scope="col" className="text-muted-foreground py-4 pr-4 font-medium">
               {t("landing.pricing.planColumn")}
             </th>
             {ORDERED_TIERS.map((id) => (
@@ -275,8 +262,8 @@ function ComparisonTable({ t }: { t: TFunction }) {
                 key={id}
                 scope="col"
                 className={cn(
-                  "px-3 py-3 text-center font-semibold",
-                  id === "pro" && "text-primary",
+                  "px-3 py-4 text-center text-[15px] font-semibold",
+                  id === "pro" && "bg-card rounded-t-md",
                 )}
               >
                 {t(TIERS[id].labelKey)}
@@ -286,10 +273,10 @@ function ComparisonTable({ t }: { t: TFunction }) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.labelKey} className="border-border/60 border-b last:border-0">
+            <tr key={row.labelKey} className="border-border border-b last:border-0">
               <th
                 scope="row"
-                className="text-muted-foreground py-2.5 pr-4 font-normal whitespace-nowrap"
+                className="text-muted-foreground py-3.5 pr-4 font-normal whitespace-nowrap"
               >
                 {t(row.labelKey)}
               </th>
@@ -297,8 +284,8 @@ function ComparisonTable({ t }: { t: TFunction }) {
                 <td
                   key={id}
                   className={cn(
-                    "px-3 py-2.5 text-center",
-                    id === "pro" ? "bg-primary/5 font-medium" : "text-muted-foreground",
+                    "px-3 py-3.5 text-center",
+                    id === "pro" ? "bg-card font-semibold" : "text-subtle-foreground",
                   )}
                 >
                   {row.render(TIERS[id])}
@@ -322,11 +309,13 @@ export function PricingCards({ t }: { t: TFunction }) {
       </div>
 
       <Reveal className="mt-6">
-        <p className="text-muted-foreground text-xs leading-relaxed">{t("landing.pricing.note")}</p>
+        <p className="text-muted-foreground max-w-3xl text-[13px] leading-relaxed">
+          {t("landing.pricing.note")}
+        </p>
       </Reveal>
 
-      <Reveal className="mt-12 flex flex-col gap-4">
-        <h3 className="text-base font-semibold tracking-tight">
+      <Reveal className="mt-16 flex flex-col gap-6">
+        <h3 className="text-xl font-semibold tracking-tight">
           {t("landing.pricing.compareTitle")}
         </h3>
         <ComparisonTable t={t} />

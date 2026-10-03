@@ -28,7 +28,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={toggle}
       aria-label="Basculer le thème clair ou sombre"
       className={cn(
-        "text-muted-foreground hover:text-foreground hover:bg-accent inline-flex size-9 items-center justify-center rounded-full transition-colors",
+        "bg-secondary text-foreground hover:bg-accent inline-flex size-10 items-center justify-center rounded-full transition-colors",
         className,
       )}
     >
@@ -37,8 +37,8 @@ export function ThemeToggle({ className }: { className?: string }) {
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.8"
-        className="size-4 dark:hidden"
+        strokeWidth="1.75"
+        className="size-4.5 dark:hidden"
         aria-hidden
       >
         <path
@@ -52,8 +52,8 @@ export function ThemeToggle({ className }: { className?: string }) {
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.8"
-        className="hidden size-4 dark:block"
+        strokeWidth="1.75"
+        className="hidden size-4.5 dark:block"
         aria-hidden
       >
         <circle cx="12" cy="12" r="4" />

@@ -29,7 +29,10 @@ export default async function LeadsPage() {
         title={t("leads.title")}
         subtitle={t("leads.subtitle")}
         actions={
-          <Link href="/ads" className="text-muted-foreground hover:text-foreground text-sm">
+          <Link
+            href="/ads"
+            className="text-muted-foreground hover:text-foreground focus-visible:ring-ring focus-visible:ring-offset-background self-start rounded-full text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          >
             {t("leads.myAds")}
           </Link>
         }

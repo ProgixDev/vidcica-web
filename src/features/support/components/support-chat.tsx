@@ -31,9 +31,9 @@ export function SupportChat({ onHandoff }: { onHandoff: () => void }) {
   }
 
   return (
-    <div className="flex flex-col gap-4" data-testid="support-chat">
+    <div className="flex flex-col gap-6" data-testid="support-chat">
       <div
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-4"
         data-testid="chat-thread"
         role="log"
         aria-live="polite"
@@ -42,27 +42,27 @@ export function SupportChat({ onHandoff }: { onHandoff: () => void }) {
         {messages.map((m) => (
           <div
             key={m.id}
-            className={cn("flex flex-col gap-1.5", m.author === "user" && "items-end")}
+            className={cn("flex flex-col gap-2", m.author === "user" ? "items-end" : "items-start")}
           >
             <div
               data-testid={`msg-${m.author}`}
               className={cn(
-                "max-w-[85%] rounded-2xl px-3.5 py-2 text-sm",
+                "max-w-[85%] rounded-md px-4 py-2.5 text-[15px] leading-relaxed break-words",
                 m.author === "user"
                   ? "bg-primary text-primary-foreground"
-                  : "bg-card text-card-foreground border",
+                  : "bg-secondary text-foreground",
               )}
             >
               {m.body}
             </div>
             {m.suggestions && m.suggestions.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {m.suggestions.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => onChip(s)}
-                    className="border-input hover:bg-accent rounded-full border px-3 py-1 text-xs"
+                    className="bg-secondary text-foreground hover:bg-accent focus-visible:ring-ring focus-visible:ring-offset-background h-8 rounded-full px-3.5 text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                     data-testid="suggestion"
                   >
                     {s}
@@ -73,7 +73,7 @@ export function SupportChat({ onHandoff }: { onHandoff: () => void }) {
           </div>
         ))}
         {typing ? (
-          <div className="text-muted-foreground text-xs" role="status" data-testid="typing">
+          <div className="text-muted-foreground text-[13px]" role="status" data-testid="typing">
             {t("support.typing")}
           </div>
         ) : null}

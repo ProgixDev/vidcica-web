@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { safeRedirectPath } from "@/lib/redirect";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /** Social providers offered on the web sign-in panel — the same two the mobile
@@ -32,8 +33,8 @@ export function OAuthButton({
   label: string;
   pendingLabel: string;
   icon: ReactNode;
-  /** Provider-brand surface colours (Google: white, Apple: black). */
-  className: string;
+  /** Layout-only overrides — the surface is always the pale pill. */
+  className?: string;
   testId: string;
 }) {
   const next = safeRedirectPath(useSearchParams().get("next"), "/dashboard");
@@ -66,7 +67,8 @@ export function OAuthButton({
         onClick={signIn}
         disabled={pending}
         className={cn(
-          "focus-visible:ring-ring flex h-10 w-full items-center justify-center gap-2.5 rounded-full text-sm font-semibold shadow-xs transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60",
+          buttonVariants({ variant: "secondary", size: "lg" }),
+          "w-full gap-2.5",
           className,
         )}
       >
@@ -74,7 +76,7 @@ export function OAuthButton({
         {pending ? pendingLabel : label}
       </button>
       {error ? (
-        <p role="alert" className="text-destructive text-center text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {error}
         </p>
       ) : null}

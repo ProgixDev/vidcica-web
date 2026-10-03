@@ -39,7 +39,7 @@ function Sparkline({ data }: { data: ReadonlyArray<number> }) {
       width={W}
       height={H}
       viewBox={`0 0 ${W} ${H}`}
-      className="text-primary overflow-visible"
+      className="text-foreground overflow-visible"
       aria-hidden
     >
       <polyline
@@ -70,42 +70,34 @@ export function AnalyticsHero({
 }: AnalyticsHeroProps) {
   const trendUp = delta >= 0;
   return (
-    <div
-      className="border-primary/25 bg-primary/5 rounded-2xl border p-5"
-      data-testid="analytics-hero"
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="text-muted-foreground text-[11px] font-medium">
-            {t("analytics.hero.totalViews", { days })}
+    <div className="flex flex-wrap items-end justify-between gap-6" data-testid="analytics-hero">
+      <div className="flex min-w-0 flex-col gap-3">
+        <span className="text-muted-foreground text-[13px]">
+          {t("analytics.hero.totalViews", { days })}
+        </span>
+        <span className="text-5xl leading-none font-semibold tracking-[-0.04em] tabular-nums sm:text-6xl">
+          {value}
+        </span>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+          <span className={cnDelta(delta)}>
+            {delta !== 0 ? <span aria-hidden>{trendUp ? "▲ " : "▼ "}</span> : null}
+            {trendUp ? "+" : ""}
+            {delta.toFixed(1)} %
           </span>
-          <span className="text-primary text-4xl leading-none font-semibold tracking-tight">
-            {value}
-          </span>
-          <div className="mt-1 flex items-center gap-1.5">
-            <span className={trendUp ? "text-success" : "text-destructive"} aria-hidden>
-              {trendUp ? "▲" : "▼"}
-            </span>
-            <span className={cnDelta(trendUp)}>
-              {trendUp ? "+" : ""}
-              {delta.toFixed(1)} %
-            </span>
-            <span className="text-muted-foreground text-[11px]">
-              {t("analytics.hero.deltaVsPrev")}
-            </span>
-          </div>
+          <span className="text-muted-foreground">{t("analytics.hero.deltaVsPrev")}</span>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-2">
-          <Sparkline data={series} />
-          <Badge variant="brand">
-            {t("analytics.hero.publications", { count: publishedCount })}
-          </Badge>
-        </div>
+      </div>
+      <div className="flex shrink-0 flex-col items-end gap-3">
+        <Sparkline data={series} />
+        <Badge variant="muted">{t("analytics.hero.publications", { count: publishedCount })}</Badge>
       </div>
     </div>
   );
 }
 
-function cnDelta(up: boolean): string {
-  return `text-xs font-semibold ${up ? "text-success" : "text-destructive"}`;
+/** Status colour only for a real movement; a flat 0 % stays neutral. */
+function cnDelta(delta: number): string {
+  const tone = { up: "text-success", down: "text-destructive", flat: "text-muted-foreground" };
+  const direction = Math.sign(delta) === 1 ? "up" : Math.sign(delta) === -1 ? "down" : "flat";
+  return `font-semibold tabular-nums ${tone[direction]}`;
 }

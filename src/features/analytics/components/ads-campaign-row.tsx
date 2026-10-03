@@ -19,24 +19,21 @@ export function AdsCampaignRow({ t, campaign }: AdsCampaignRowProps) {
   return (
     <Link
       href={`/ads/${campaign.id}`}
-      className="hover:bg-muted/60 flex items-center gap-3 px-4 py-3 transition-colors first:rounded-t-2xl last:rounded-b-2xl"
+      className="hover:bg-accent focus-visible:bg-accent flex min-h-16 items-center gap-4 px-5 py-3 transition-colors outline-none"
       data-testid={`analytics-campaign-${campaign.id}`}
     >
-      <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="flex items-center gap-2">
-          <span className="truncate text-sm font-semibold">{campaign.name}</span>
-          <Badge variant={meta.variant}>{t(CAMPAIGN_STATUS_KEY[campaign.status])}</Badge>
-        </span>
-        <span className="text-muted-foreground truncate text-xs">
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate text-[15px] font-semibold">{campaign.name}</span>
+        <span className="text-muted-foreground truncate text-[13px] tabular-nums">
           {t("analytics.ads.row.budget", {
             spent: formatNumber(campaign.metrics.budgetSpent),
             total: formatNumber(campaign.budgetTotal),
           })}
         </span>
       </span>
-      <span className="text-muted-foreground shrink-0" aria-hidden>
-        ›
-      </span>
+      <Badge variant={meta.variant} className="shrink-0">
+        {t(CAMPAIGN_STATUS_KEY[campaign.status])}
+      </Badge>
     </Link>
   );
 }

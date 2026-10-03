@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ForgotPasswordForm } from "@/features/auth";
-import { BrandLockup, LogoMark } from "@/components/brand";
+import { BrandLockup } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import { createClient } from "@/lib/supabase/server";
@@ -22,21 +22,21 @@ export default async function ForgotPasswordPage() {
   } = await supabase.auth.getUser();
   if (user) redirect("/dashboard");
   return (
-    <main className="bg-background relative flex min-h-dvh w-full flex-col">
-      <div className="relative z-10 flex w-full items-center justify-between px-6 py-4">
-        <Link href="/" className="rounded-full px-1 py-1">
-          <BrandLockup className="text-sm" />
+    <main className="bg-background flex min-h-dvh w-full flex-col px-6 py-5 sm:px-10">
+      <div className="flex w-full items-center justify-between">
+        <Link
+          href="/"
+          className="focus-visible:ring-ring focus-visible:ring-offset-background rounded-full outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+        >
+          <BrandLockup />
         </Link>
         <div className="flex items-center gap-2">
           <LanguageToggle />
           <ThemeToggle />
         </div>
       </div>
-      <div className="relative z-10 flex flex-1 items-center justify-center px-6 py-10">
-        <div className="border-border/60 bg-card flex w-full max-w-md flex-col items-center gap-6 rounded-2xl border p-6 shadow-sm sm:p-8">
-          <LogoMark className="size-14 object-contain" />
-          <ForgotPasswordForm />
-        </div>
+      <div className="flex flex-1 items-center justify-center py-12">
+        <ForgotPasswordForm />
       </div>
     </main>
   );

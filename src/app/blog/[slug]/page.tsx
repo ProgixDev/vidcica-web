@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
 import { TrackedLink } from "@/components/tracked-link";
@@ -74,16 +73,19 @@ export default async function ArticlePage({ params }: Params) {
       />
       <MarketingHeader t={t} locale={locale} />
       <main className="flex-1">
-        <article className="mx-auto w-full max-w-2xl px-6 py-16">
-          <nav className="text-muted-foreground mb-6 text-sm" aria-label="Breadcrumb">
-            <Link href={localizedPath("/blog", locale)} className="hover:text-foreground">
+        <article className="mx-auto w-full max-w-2xl px-6 py-20 sm:py-28">
+          <nav className="text-muted-foreground mb-8 text-[13px]" aria-label="Breadcrumb">
+            <Link
+              href={localizedPath("/blog", locale)}
+              className="hover:text-foreground underline-offset-4 transition-colors hover:underline"
+            >
               {t("page.blog.h1")}
             </Link>
           </nav>
 
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{body.title}</h1>
+          <h1 className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">{body.title}</h1>
           <time
-            className="text-muted-foreground/70 mt-3 block text-xs"
+            className="text-muted-foreground mt-5 block text-[13px]"
             dateTime={article.published}
           >
             {new Date(article.published).toLocaleDateString(locale === "en" ? "en-CA" : "fr-FR", {
@@ -92,31 +94,28 @@ export default async function ArticlePage({ params }: Params) {
               day: "numeric",
             })}
           </time>
-          <p className="mt-6 text-lg leading-relaxed">{body.intro}</p>
+          <p className="mt-10 text-xl leading-8">{body.intro}</p>
 
           {body.sections.map((s) => (
-            <section key={s.h} className="mt-10">
-              <h2 className="text-xl font-semibold tracking-tight">{s.h}</h2>
-              <p className="text-muted-foreground mt-3 leading-relaxed">{s.p}</p>
+            <section key={s.h} className="mt-12">
+              <h2 className="text-2xl font-semibold tracking-[-0.02em]">{s.h}</h2>
+              <p className="text-subtle-foreground mt-4 text-[16px] leading-7">{s.p}</p>
             </section>
           ))}
 
-          <aside className="border-border mt-12 rounded-lg border p-6">
-            <p className="leading-relaxed">{body.outro}</p>
-            <div className="mt-5 flex flex-wrap gap-3">
+          <aside className="bg-card mt-16 rounded-lg p-8">
+            <p className="text-[17px] leading-7 font-medium">{body.outro}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
               <TrackedLink
                 href={localizedPath("/sign-in", locale)}
                 location={`blog:${slug}`}
-                className={cn(buttonVariants({ size: "sm" }), "rounded-full px-6")}
+                className={buttonVariants()}
               >
                 {t("landing.pricing.startFree")}
               </TrackedLink>
               <Link
                 href={localizedPath("/tarifs", locale)}
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "rounded-full px-6",
-                )}
+                className={buttonVariants({ variant: "ghost" })}
               >
                 {t("landing.nav.pricing")}
               </Link>

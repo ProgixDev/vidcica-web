@@ -8,7 +8,8 @@ import { VideoList } from "@/features/videos";
 import { CreateStoreProvider, CreateFlow } from "@/features/create";
 import { getT } from "@/lib/i18n/server";
 import { formatDate } from "@/lib/format";
-import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/app-shell";
+import { buttonVariants } from "@/components/ui/button";
 
 export async function generateMetadata() {
   const t = await getT();
@@ -107,30 +108,35 @@ export default async function DashboardPage() {
     },
   ] as const;
 
+  const stats = [
+    { value: String(videos.length), label: t("dashboard.statTotal"), delta: false },
+    { value: String(ready), label: t("dashboard.statReady"), delta: false },
+    { value: String(rendering), label: t("dashboard.statRendering"), delta: false },
+    { value: `+${thisWeek}`, label: t("dashboard.statThisWeek"), delta: true },
+  ];
+
   return (
     <>
       {/* Hero — the app's home: greeting + the FULL PromptComposer in place
           (submits to plan review right here, then routes to the video). */}
-      <section className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {name ? t("dashboard.greeting", { name }) : t("dashboard.greetingNoName")}
-          </h1>
-          <p className="text-muted-foreground text-sm">{t("dashboard.subtitle")}</p>
-        </div>
+      <section className="flex flex-col gap-6">
+        <PageHeader
+          title={name ? t("dashboard.greeting", { name }) : t("dashboard.greetingNoName")}
+          subtitle={t("dashboard.subtitle")}
+        />
         <CreateStoreProvider>
           <CreateFlow credits={entitlement.credits} plan={entitlement.plan} />
         </CreateStoreProvider>
       </section>
 
-      {/* Quick actions — compact chips into the core journeys. */}
+      {/* Quick actions — pale pills into the core journeys. */}
       <nav aria-label={t("dashboard.quickActionsLabel")} className="flex flex-wrap gap-2">
         {quickActions.map((a) => (
           <Link
             key={a.href}
             href={a.href}
             data-testid={a.testId}
-            className="border-border bg-card hover:bg-accent hover:text-accent-foreground inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors"
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
           >
             <a.icon />
             {a.label}
@@ -138,39 +144,30 @@ export default async function DashboardPage() {
         ))}
       </nav>
 
-      {/* Quick stats */}
+      {/* Quick stats — quiet tiles: muted label, neutral number. */}
       <section
         aria-label={t("dashboard.statsLabel")}
         className="grid grid-cols-2 gap-4 sm:grid-cols-4"
       >
-        {[
-          { value: String(videos.length), label: t("dashboard.statTotal"), delta: false },
-          { value: String(ready), label: t("dashboard.statReady"), delta: false },
-          { value: String(rendering), label: t("dashboard.statRendering"), delta: false },
-          { value: `+${thisWeek}`, label: t("dashboard.statThisWeek"), delta: true },
-        ].map((s) => (
-          <div
-            key={s.label}
-            className="border-border bg-card flex flex-col gap-0.5 rounded-md border p-4"
-          >
+        {stats.map((s) => (
+          <div key={s.label} className="bg-card flex flex-col gap-3 rounded-lg p-5">
+            <span className="text-muted-foreground text-[13px]">{s.label}</span>
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-2xl font-semibold tracking-tight">{s.value}</span>
+              <span className="text-[28px] leading-9 font-semibold tracking-[-0.03em] tabular-nums sm:text-[32px] sm:leading-10">
+                {s.value}
+              </span>
               {s.delta &&
                 (deltaPct !== null ? (
                   <span
                     aria-label={t("dashboard.deltaLabel")}
-                    className={cn(
-                      "text-xs font-medium",
-                      deltaUp ? "text-success" : "text-muted-foreground",
-                    )}
+                    className="text-muted-foreground text-[13px] font-medium tabular-nums"
                   >
                     {deltaUp ? "▲" : "▼"} {Math.abs(deltaPct)}%
                   </span>
                 ) : (
-                  <span className="text-muted-foreground text-xs">—</span>
+                  <span className="text-muted-foreground text-[13px]">—</span>
                 ))}
             </div>
-            <span className="text-muted-foreground text-xs">{s.label}</span>
           </div>
         ))}
       </section>
@@ -178,20 +175,20 @@ export default async function DashboardPage() {
       {/* Recent drafts — unfinished videos, one tap back into editing.
           Hidden entirely when there are none (no wasted empty state). */}
       {drafts.length > 0 && (
-        <section className="flex flex-col gap-3" aria-labelledby="drafts-h">
-          <h2 id="drafts-h" className="text-base font-semibold tracking-tight">
+        <section className="flex flex-col gap-4" aria-labelledby="drafts-h">
+          <h2 id="drafts-h" className="text-xl font-semibold">
             {t("dashboard.draftsTitle")}
           </h2>
-          <ul className="flex flex-col gap-2">
+          <ul className="bg-card flex flex-col rounded-lg p-2">
             {drafts.map((d) => (
               <li key={d.id}>
                 <Link
                   href={`/videos/${d.id}`}
                   data-testid={`draft-row-${d.id}`}
-                  className="border-border bg-card hover:bg-accent hover:text-accent-foreground flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-colors"
+                  className="hover:bg-accent focus-visible:ring-ring focus-visible:ring-offset-background flex min-h-14 items-center justify-between gap-4 rounded-md px-4 py-3 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
-                  <span className="truncate text-sm font-medium">{d.title}</span>
-                  <span className="text-muted-foreground shrink-0 text-xs">
+                  <span className="truncate text-[15px] font-semibold">{d.title}</span>
+                  <span className="text-muted-foreground shrink-0 text-[13px]">
                     {formatDate(new Date(d.updatedAt))}
                   </span>
                 </Link>
@@ -203,11 +200,11 @@ export default async function DashboardPage() {
 
       {/* Recent videos */}
       <section className="flex flex-col gap-4" aria-labelledby="recent-h">
-        <div className="flex items-center justify-between">
-          <h2 id="recent-h" className="text-base font-semibold tracking-tight">
+        <div className="flex items-center justify-between gap-4">
+          <h2 id="recent-h" className="text-xl font-semibold">
             {t("dashboard.recentTitle")}
           </h2>
-          <Link href="/videos" className="text-muted-foreground hover:text-foreground text-sm">
+          <Link href="/videos" className={buttonVariants({ variant: "ghost", size: "sm" })}>
             {t("common.seeAll")} →
           </Link>
         </div>

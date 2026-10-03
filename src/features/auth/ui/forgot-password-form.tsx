@@ -49,11 +49,11 @@ export function ForgotPasswordForm() {
   if (sentTo) {
     return (
       <div
-        className="flex w-full max-w-sm flex-col items-center gap-4 text-center"
+        className="flex w-full max-w-sm flex-col items-center gap-6 text-center"
         data-testid="forgot-password-sent"
       >
-        <div className="bg-primary/10 text-primary flex size-14 items-center justify-center rounded-full">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <div className="bg-secondary text-foreground flex size-12 items-center justify-center rounded-full">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path
               d="m4 8 8 5 8-5M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z"
               stroke="currentColor"
@@ -63,17 +63,19 @@ export function ForgotPasswordForm() {
             />
           </svg>
         </div>
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold tracking-tight">{t("auth.forgotSentTitle")}</h2>
-          <p className="text-muted-foreground text-sm">
+        <div className="flex flex-col gap-3">
+          <h2 className="text-[28px] leading-tight font-semibold tracking-[-0.03em]">
+            {t("auth.forgotSentTitle")}
+          </h2>
+          <p className="text-muted-foreground text-[15px] leading-relaxed">
             {t("auth.forgotSentBody", { email: sentTo })}
           </p>
-          <p className="text-muted-foreground text-xs">{t("auth.forgotCheckSpam")}</p>
+          <p className="text-muted-foreground text-[13px]">{t("auth.forgotCheckSpam")}</p>
         </div>
         <Button
           type="button"
           variant="secondary"
-          className="rounded-full"
+          className="w-full"
           disabled={pending}
           data-testid="forgot-password-resend"
           onClick={async () => {
@@ -86,7 +88,7 @@ export function ForgotPasswordForm() {
         </Button>
         <Link
           href="/sign-in"
-          className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-2"
+          className="text-muted-foreground hover:text-foreground text-[13px] underline underline-offset-2"
         >
           {t("auth.forgotBackToSignIn")}
         </Link>
@@ -95,10 +97,14 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-4">
-      <div className="flex flex-col gap-1 text-center">
-        <h2 className="text-lg font-semibold tracking-tight">{t("auth.forgotTitle")}</h2>
-        <p className="text-muted-foreground text-xs">{t("auth.forgotSubtitle")}</p>
+    <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-5">
+      <div className="mb-3 flex flex-col gap-3">
+        <h2 className="text-[28px] leading-tight font-semibold tracking-[-0.03em]">
+          {t("auth.forgotTitle")}
+        </h2>
+        <p className="text-muted-foreground text-[15px] leading-relaxed">
+          {t("auth.forgotSubtitle")}
+        </p>
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="forgot-email">{t("auth.emailLabel")}</Label>
@@ -109,26 +115,27 @@ export function ForgotPasswordForm() {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="bg-foreground/5 h-10"
           data-testid="forgot-password-email"
         />
       </div>
       {error ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {error}
         </p>
       ) : null}
       <Button
         type="submit"
         disabled={pending}
-        className="rounded-full"
+        variant="brand"
+        size="lg"
+        className="w-full"
         data-testid="forgot-password-submit"
       >
         {pending ? t("common.sending") : t("auth.forgotSubmit")}
       </Button>
       <Link
         href="/sign-in"
-        className="text-muted-foreground hover:text-foreground text-center text-xs underline underline-offset-2"
+        className="text-muted-foreground hover:text-foreground text-center text-[13px] underline underline-offset-2"
       >
         {t("common.back")}
       </Link>

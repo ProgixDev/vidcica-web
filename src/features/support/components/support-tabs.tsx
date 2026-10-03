@@ -32,11 +32,11 @@ export function SupportTabs({
   const [tab, setTab] = useState<Tab>(initialTab ?? "faq");
 
   return (
-    <div className="flex flex-col gap-6" data-testid="support-tabs">
+    <div className="flex flex-col gap-8" data-testid="support-tabs">
       <div
         role="tablist"
         aria-label={t("support.tablistLabel")}
-        className="bg-muted flex flex-wrap gap-1 rounded-full p-1"
+        className="bg-secondary flex gap-1 self-start overflow-x-auto rounded-full p-1 max-sm:self-stretch"
       >
         {TABS.map(({ id, labelKey }) => (
           <button
@@ -47,9 +47,9 @@ export function SupportTabs({
             onClick={() => setTab(id)}
             data-testid={`tab-${id}`}
             className={cn(
-              "focus-visible:ring-ring flex-1 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none",
+              "focus-visible:ring-ring h-9 flex-1 rounded-full px-5 text-[13px] font-semibold whitespace-nowrap transition-colors outline-none focus-visible:ring-2",
               tab === id
-                ? "bg-background text-foreground shadow-xs"
+                ? "bg-background text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -61,7 +61,7 @@ export function SupportTabs({
       {tab === "faq" ? <FaqSection onContact={() => setTab("contact")} /> : null}
       {tab === "guides" ? <GuidesList /> : null}
       {tab === "contact" ? (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-10">
           <ContactForm />
           <TicketHistory tickets={tickets} />
         </div>

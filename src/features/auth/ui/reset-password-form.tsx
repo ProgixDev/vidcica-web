@@ -99,7 +99,7 @@ export function ResetPasswordForm() {
   if (phase === "checking") {
     return (
       <div
-        className="text-muted-foreground flex w-full max-w-sm flex-col items-center gap-3 py-8 text-sm"
+        className="text-muted-foreground flex w-full max-w-sm flex-col items-center gap-3 py-8 text-[15px]"
         data-testid="reset-password-checking"
       >
         {t("auth.resetVerifying")}
@@ -110,19 +110,23 @@ export function ResetPasswordForm() {
   if (phase === "invalid") {
     return (
       <div
-        className="flex w-full max-w-sm flex-col items-center gap-4 text-center"
+        className="flex w-full max-w-sm flex-col items-center gap-3 text-center"
         data-testid="reset-password-invalid"
       >
-        <h2 className="text-lg font-semibold tracking-tight">{t("auth.resetInvalidTitle")}</h2>
-        <p className="text-muted-foreground text-sm">{t("auth.resetInvalidBody")}</p>
-        <Link href="/forgot-password" className="w-full max-w-xs">
-          <Button variant="secondary" className="w-full rounded-full">
+        <h2 className="text-[28px] leading-tight font-semibold tracking-[-0.03em]">
+          {t("auth.resetInvalidTitle")}
+        </h2>
+        <p className="text-muted-foreground text-[15px] leading-relaxed">
+          {t("auth.resetInvalidBody")}
+        </p>
+        <Link href="/forgot-password" className="mt-5 w-full rounded-full">
+          <Button size="lg" className="w-full">
             {t("auth.resetRequestNew")}
           </Button>
         </Link>
         <Link
           href="/sign-in"
-          className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-2"
+          className="text-muted-foreground hover:text-foreground mt-2 text-[13px] underline underline-offset-2"
         >
           {t("auth.forgotBackToSignIn")}
         </Link>
@@ -136,8 +140,8 @@ export function ResetPasswordForm() {
         className="flex w-full max-w-sm flex-col items-center gap-3 py-6 text-center"
         data-testid="reset-password-done"
       >
-        <div className="bg-success/15 text-success flex size-14 items-center justify-center rounded-full">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <div className="bg-success-subtle text-success mb-3 flex size-12 items-center justify-center rounded-full">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path
               d="m5 13 4 4L19 7"
               stroke="currentColor"
@@ -147,17 +151,25 @@ export function ResetPasswordForm() {
             />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold tracking-tight">{t("auth.resetDoneTitle")}</h2>
-        <p className="text-muted-foreground text-sm">{t("auth.resetDoneBody")}</p>
+        <h2 className="text-[28px] leading-tight font-semibold tracking-[-0.03em]">
+          {t("auth.resetDoneTitle")}
+        </h2>
+        <p className="text-muted-foreground text-[15px] leading-relaxed">
+          {t("auth.resetDoneBody")}
+        </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-4">
-      <div className="flex flex-col gap-1 text-center">
-        <h2 className="text-lg font-semibold tracking-tight">{t("auth.resetTitle")}</h2>
-        <p className="text-muted-foreground text-xs">{t("auth.resetSubtitle")}</p>
+    <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-5">
+      <div className="mb-3 flex flex-col gap-3">
+        <h2 className="text-[28px] leading-tight font-semibold tracking-[-0.03em]">
+          {t("auth.resetTitle")}
+        </h2>
+        <p className="text-muted-foreground text-[15px] leading-relaxed">
+          {t("auth.resetSubtitle")}
+        </p>
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="reset-password">{t("auth.resetNewPassword")}</Label>
@@ -168,7 +180,6 @@ export function ResetPasswordForm() {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="bg-foreground/5 h-10"
           data-testid="reset-password-input"
         />
       </div>
@@ -181,29 +192,30 @@ export function ResetPasswordForm() {
           autoComplete="new-password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
-          className="bg-foreground/5 h-10"
           data-testid="reset-password-confirm"
         />
       </div>
-      <label className="text-muted-foreground flex items-center gap-2 text-xs">
+      <label className="text-muted-foreground flex items-center gap-2.5 text-[13px]">
         <input
           type="checkbox"
           checked={show}
           onChange={(e) => setShow(e.target.checked)}
-          className="accent-primary size-3.5"
+          className="accent-primary size-4"
           data-testid="reset-password-show"
         />
         {t("auth.resetShowPassword")}
       </label>
       {error ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {error}
         </p>
       ) : null}
       <Button
         type="submit"
         disabled={pending}
-        className="rounded-full"
+        variant="brand"
+        size="lg"
+        className="w-full"
         data-testid="reset-password-submit"
       >
         {pending ? t("auth.resetSaving") : t("auth.resetSubmit")}

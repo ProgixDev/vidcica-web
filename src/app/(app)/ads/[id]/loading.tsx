@@ -2,11 +2,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CampaignLoading() {
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-8">
-      <Skeleton className="h-4 w-28" />
-      <Skeleton className="h-8 w-56" />
-      <Skeleton className="h-10 w-40 rounded-md" />
-      <Skeleton className="h-48 w-full rounded-xl" />
-    </main>
+    <div className="flex w-full max-w-3xl flex-col gap-10">
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-9 w-64 max-w-full" />
+        <Skeleton className="h-5 w-48" />
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 w-full rounded-lg" />
+        ))}
+      </div>
+    </div>
   );
 }

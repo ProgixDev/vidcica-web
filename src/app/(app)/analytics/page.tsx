@@ -35,12 +35,13 @@ export default async function AnalyticsOverviewPage({
 
   if (isEmpty) {
     return (
-      <div className="bg-card rounded-2xl border p-8">
+      <div>
         <EmptyState
+          className="py-16"
           title={t("analytics.overview.empty.title")}
           description={t("analytics.overview.empty.body")}
           action={
-            <Link href="/create" className={buttonVariants({ className: "rounded-full" })}>
+            <Link href="/create" className={buttonVariants()}>
               {t("analytics.overview.empty.cta")}
             </Link>
           }
@@ -50,7 +51,7 @@ export default async function AnalyticsOverviewPage({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-10">
       <AnalyticsHero
         t={t}
         value={formatNumber(derived.totals.views)}
@@ -65,13 +66,10 @@ export default async function AnalyticsOverviewPage({
         body={t("analytics.noData.collection")}
       />
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
-          {t("analytics.section.kpis")}
-        </h2>
-        <div className="flex flex-wrap gap-2">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">{t("analytics.section.kpis")}</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <KpiTile
-            brand
             label={t("analytics.kpi.publishedVideos")}
             value={String(derived.publishedVideos.length)}
             testId="kpi-published"
@@ -95,11 +93,11 @@ export default async function AnalyticsOverviewPage({
       </section>
 
       {topVideos.length > 0 ? (
-        <section className="flex flex-col gap-2">
-          <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
+        <section className="flex flex-col gap-4">
+          <h2 className="text-xl font-semibold tracking-tight">
             {t("analytics.section.published")}
           </h2>
-          <div className="bg-card divide-border/60 flex flex-col divide-y rounded-2xl border">
+          <div className="bg-card divide-border flex flex-col divide-y overflow-hidden rounded-lg">
             {topVideos.map((row) => (
               <TopVideoRow key={row.video.id} video={row.video} platform={row.platform} />
             ))}
@@ -107,8 +105,8 @@ export default async function AnalyticsOverviewPage({
         </section>
       ) : null}
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">
           {t("analytics.overview.exploreTitle")}
         </h2>
         <ProfileSection>

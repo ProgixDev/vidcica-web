@@ -78,36 +78,41 @@ export function TikTokOptions() {
   const block = blockReason();
 
   return (
-    <section className="bg-card rounded-2xl border p-4 sm:p-5" data-testid="tiktok-options">
-      <div className="mb-4 flex items-start gap-3">
+    <section className="flex flex-col gap-4" data-testid="tiktok-options">
+      <div className="flex items-center gap-3">
         <PlatformIcon platform="tiktok" size={36} />
-        <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-semibold">{t("tiktok.sectionTitle")}</h2>
-          <p className="text-muted-foreground text-xs">{t("tiktok.sectionSubtitle")}</p>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <h2 className="text-xl font-semibold">{t("tiktok.sectionTitle")}</h2>
+          <p className="text-muted-foreground text-[13px] leading-relaxed">
+            {t("tiktok.sectionSubtitle")}
+          </p>
         </div>
       </div>
 
       {state === "loading" ? (
-        <div className="flex items-center gap-3" data-testid="tiktok-creator-loading">
+        <div
+          className="bg-card flex items-center gap-3 rounded-md px-4 py-3"
+          data-testid="tiktok-creator-loading"
+        >
           <div className="bg-muted size-10 animate-pulse rounded-full" />
           <div className="bg-muted h-3.5 w-32 animate-pulse rounded-full" />
         </div>
       ) : state === "needs_reconnect" || state === "error" ? (
-        <div className="flex flex-col items-start gap-3">
-          <p role="alert" className="text-muted-foreground text-xs">
+        <div className="bg-card flex flex-wrap items-center gap-x-4 gap-y-3 rounded-md px-4 py-3">
+          <p
+            role="alert"
+            className="text-muted-foreground min-w-0 flex-1 text-[13px] leading-relaxed"
+          >
             {state === "needs_reconnect" ? t("tiktok.needsReconnect") : t("tiktok.loadFailed")}
           </p>
-          <Link
-            href="/networks"
-            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full")}
-          >
+          <Link href="/networks" className={buttonVariants({ variant: "secondary", size: "sm" })}>
             {t("common.reconnect")}
           </Link>
         </div>
       ) : (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-8">
           {/* Creator identity — TikTok requires the real handle + avatar here. */}
-          <div className="bg-muted/40 flex items-center gap-3 rounded-xl p-3">
+          <div className="bg-card flex items-center gap-3 rounded-md px-4 py-3">
             {creator?.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element -- remote TikTok CDN avatar
               <img
@@ -119,30 +124,30 @@ export function TikTokOptions() {
               <div className="bg-muted size-10 shrink-0 rounded-full" />
             )}
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium" data-testid="tiktok-username">
+              <p className="truncate text-[15px] font-semibold" data-testid="tiktok-username">
                 {creator?.nickname || creator?.username}
               </p>
               {creator?.username ? (
-                <p className="text-muted-foreground truncate text-xs">@{creator.username}</p>
+                <p className="text-muted-foreground truncate text-[13px]">@{creator.username}</p>
               ) : null}
             </div>
           </div>
 
           {/* Privacy — no pre-selection; TikTok wants a deliberate choice. */}
           <fieldset className="flex flex-col gap-2">
-            <legend className="mb-1 text-xs font-semibold">{t("tiktok.privacyTitle")}</legend>
+            <legend className="mb-3 text-[15px] font-semibold">{t("tiktok.privacyTitle")}</legend>
             {(creator?.privacyOptions ?? []).map((level) => (
               <label
                 key={level}
                 className={cn(
-                  "flex cursor-pointer items-center gap-3 rounded-xl border p-3 text-sm transition-colors",
-                  o.privacyLevel === level ? "border-primary bg-accent/60" : "hover:bg-muted",
+                  "has-focus-visible:ring-ring has-focus-visible:ring-offset-background flex cursor-pointer items-center gap-3 rounded-md px-4 py-3.5 text-[15px] transition-colors has-focus-visible:ring-2 has-focus-visible:ring-offset-2",
+                  o.privacyLevel === level ? "bg-accent" : "bg-card hover:bg-accent",
                 )}
               >
                 <input
                   type="radio"
                   name="tiktok-privacy"
-                  className="accent-primary size-4"
+                  className="accent-primary size-4 outline-none"
                   checked={o.privacyLevel === level}
                   onChange={() => setOptions({ privacyLevel: level })}
                   data-testid={`tiktok-privacy-${level}`}
@@ -151,63 +156,72 @@ export function TikTokOptions() {
               </label>
             ))}
             {(creator?.privacyOptions ?? []).length === 0 ? (
-              <p className="text-muted-foreground text-xs">{t("tiktok.noPrivacyOptions")}</p>
+              <p className="text-muted-foreground text-[13px]">{t("tiktok.noPrivacyOptions")}</p>
             ) : null}
           </fieldset>
 
           {/* Interaction settings — an account-disabled one stays locked on. */}
-          <div className="flex flex-col gap-2.5">
-            <p className="text-xs font-semibold">{t("tiktok.interactionsTitle")}</p>
-            <InteractionToggle
-              label={t("tiktok.allowComments")}
-              lockedLabel={t("tiktok.lockedByAccount")}
-              locked={creator?.commentDisabled ?? false}
-              allowed={!o.disableComment}
-              onChange={(allow) => setOptions({ disableComment: !allow })}
-              testId="tiktok-allow-comment"
-            />
-            <InteractionToggle
-              label={t("tiktok.allowDuet")}
-              lockedLabel={t("tiktok.lockedByAccount")}
-              locked={creator?.duetDisabled ?? false}
-              allowed={!o.disableDuet}
-              onChange={(allow) => setOptions({ disableDuet: !allow })}
-              testId="tiktok-allow-duet"
-            />
-            <InteractionToggle
-              label={t("tiktok.allowStitch")}
-              lockedLabel={t("tiktok.lockedByAccount")}
-              locked={creator?.stitchDisabled ?? false}
-              allowed={!o.disableStitch}
-              onChange={(allow) => setOptions({ disableStitch: !allow })}
-              testId="tiktok-allow-stitch"
-            />
+          <div className="flex flex-col gap-3">
+            <p className="text-[15px] font-semibold">{t("tiktok.interactionsTitle")}</p>
+            <div className="bg-card flex flex-col rounded-md py-1.5">
+              <InteractionToggle
+                label={t("tiktok.allowComments")}
+                lockedLabel={t("tiktok.lockedByAccount")}
+                locked={creator?.commentDisabled ?? false}
+                allowed={!o.disableComment}
+                onChange={(allow) => setOptions({ disableComment: !allow })}
+                testId="tiktok-allow-comment"
+              />
+              <InteractionToggle
+                label={t("tiktok.allowDuet")}
+                lockedLabel={t("tiktok.lockedByAccount")}
+                locked={creator?.duetDisabled ?? false}
+                allowed={!o.disableDuet}
+                onChange={(allow) => setOptions({ disableDuet: !allow })}
+                testId="tiktok-allow-duet"
+              />
+              <InteractionToggle
+                label={t("tiktok.allowStitch")}
+                lockedLabel={t("tiktok.lockedByAccount")}
+                locked={creator?.stitchDisabled ?? false}
+                allowed={!o.disableStitch}
+                onChange={(allow) => setOptions({ disableStitch: !allow })}
+                testId="tiktok-allow-stitch"
+              />
+            </div>
           </div>
 
           {/* Commercial-content disclosure. */}
-          <div className="flex flex-col gap-2.5">
-            <p className="text-xs font-semibold">{t("tiktok.disclosureTitle")}</p>
-            <p className="text-muted-foreground text-[11px] leading-relaxed">
-              {t("tiktok.disclosureHelp")}
-            </p>
-            <label className="flex items-center gap-3 text-sm">
-              <Switch
-                checked={o.brandOrganicToggle}
-                onChange={(v) => setOptions({ brandOrganicToggle: v })}
-                aria-label={t("tiktok.yourBrand")}
-              />
-              <span className="flex-1">{t("tiktok.yourBrand")}</span>
-            </label>
-            <label className="flex items-center gap-3 text-sm">
-              <Switch
-                checked={o.brandContentToggle}
-                onChange={(v) => setOptions({ brandContentToggle: v })}
-                aria-label={t("tiktok.brandedContent")}
-              />
-              <span className="flex-1">{t("tiktok.brandedContent")}</span>
-            </label>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <p className="text-[15px] font-semibold">{t("tiktok.disclosureTitle")}</p>
+              <p className="text-muted-foreground text-[13px] leading-relaxed">
+                {t("tiktok.disclosureHelp")}
+              </p>
+            </div>
+            <div className="bg-card flex flex-col rounded-md py-1.5">
+              <label className="flex min-h-12 items-center gap-3 px-4 py-2 text-[15px]">
+                <span className="flex-1">{t("tiktok.yourBrand")}</span>
+                <Switch
+                  checked={o.brandOrganicToggle}
+                  onChange={(v) => setOptions({ brandOrganicToggle: v })}
+                  aria-label={t("tiktok.yourBrand")}
+                />
+              </label>
+              <label className="flex min-h-12 items-center gap-3 px-4 py-2 text-[15px]">
+                <span className="flex-1">{t("tiktok.brandedContent")}</span>
+                <Switch
+                  checked={o.brandContentToggle}
+                  onChange={(v) => setOptions({ brandContentToggle: v })}
+                  aria-label={t("tiktok.brandedContent")}
+                />
+              </label>
+            </div>
             {o.brandOrganicToggle || o.brandContentToggle ? (
-              <p className="text-muted-foreground text-[11px]" data-testid="tiktok-label-preview">
+              <p
+                className="text-muted-foreground text-[13px] leading-relaxed"
+                data-testid="tiktok-label-preview"
+              >
                 {t("tiktok.labelPreview", {
                   label: o.brandContentToggle
                     ? t("tiktok.labelPaidPartnership")
@@ -218,14 +232,18 @@ export function TikTokOptions() {
           </div>
 
           {block ? (
-            <p role="alert" className="text-destructive text-xs" data-testid="tiktok-block">
+            <p
+              role="alert"
+              className="text-destructive text-[13px] leading-relaxed"
+              data-testid="tiktok-block"
+            >
               {t(BLOCK_KEY[block], {
                 max: String(creator?.maxVideoPostDurationSec ?? 0),
               })}
             </p>
           ) : null}
 
-          <p className="text-muted-foreground text-[11px] leading-relaxed">{t("tiktok.consent")}</p>
+          <p className="text-muted-foreground text-xs leading-relaxed">{t("tiktok.consent")}</p>
         </div>
       )}
     </section>
@@ -251,7 +269,11 @@ function InteractionToggle({
   testId: string;
 }) {
   return (
-    <label className={cn("flex items-center gap-3 text-sm", locked && "opacity-60")}>
+    <label className="flex min-h-12 items-center gap-3 px-4 py-2 text-[15px]">
+      <span className={cn("flex min-w-0 flex-1 flex-col", locked && "text-muted-foreground")}>
+        {label}
+        {locked ? <span className="text-muted-foreground text-xs">{lockedLabel}</span> : null}
+      </span>
       <Switch
         checked={locked ? false : allowed}
         disabled={locked}
@@ -259,8 +281,6 @@ function InteractionToggle({
         aria-label={label}
         data-testid={testId}
       />
-      <span className="flex-1">{label}</span>
-      {locked ? <span className="text-muted-foreground text-[11px]">{lockedLabel}</span> : null}
     </label>
   );
 }

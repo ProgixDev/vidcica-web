@@ -3,12 +3,7 @@ import { cn } from "@/lib/utils";
 type DivProps = React.ComponentProps<"div">;
 
 export function Card({ className, ...props }: DivProps) {
-  return (
-    <div
-      className={cn("bg-card text-card-foreground rounded-xl border shadow-sm", className)}
-      {...props}
-    />
-  );
+  return <div className={cn("bg-card text-card-foreground rounded-lg", className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }: DivProps) {
@@ -17,7 +12,12 @@ export function CardHeader({ className, ...props }: DivProps) {
 
 export function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
   // A real heading, not a div — screen readers and tests navigate by heading roles.
-  return <h3 className={cn("leading-none font-semibold", className)} {...props} />;
+  return (
+    <h3
+      className={cn("text-lg leading-tight font-semibold tracking-tight", className)}
+      {...props}
+    />
+  );
 }
 
 export function CardDescription({ className, ...props }: DivProps) {

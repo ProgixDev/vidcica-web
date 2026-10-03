@@ -59,37 +59,52 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
     }
   }
 
+  // One filled action in the grid: the next tier up is the ink pill, the rest pale.
+  const nextUp = ORDERED_TIERS.find((id) => isUpgrade(current, id));
+
   return (
-    <div className="flex flex-col gap-6" data-testid="paywall">
-      <div className="bg-card flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
-        <div className="flex flex-col">
-          <span className="text-muted-foreground text-xs">{t("billing.currentPlan")}</span>
-          <span className="text-lg font-semibold" data-testid="current-plan">
-            {t(TIERS[current].labelKey)}
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col text-right">
-            <span className="text-muted-foreground text-xs">{t("billing.creditsThisMonth")}</span>
-            <span className="font-semibold" data-testid="credits-balance">
+    <div className="flex flex-col gap-10" data-testid="paywall">
+      {/* Current plan + live credits — a quiet summary strip, one pale action. */}
+      <div className="bg-card flex flex-wrap items-center justify-between gap-x-10 gap-y-5 rounded-lg p-6">
+        <div className="flex flex-wrap gap-x-12 gap-y-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-muted-foreground text-[13px]">{t("billing.currentPlan")}</span>
+            <span
+              className="text-2xl leading-tight font-semibold tracking-[-0.02em]"
+              data-testid="current-plan"
+            >
+              {t(TIERS[current].labelKey)}
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-muted-foreground text-[13px]">
+              {t("billing.creditsThisMonth")}
+            </span>
+            <span
+              className="text-2xl leading-tight font-semibold tracking-[-0.02em] tabular-nums"
+              data-testid="credits-balance"
+            >
               {credits}
             </span>
           </div>
-          {current !== "free" ? (
-            <Button variant="outline" size="sm" onClick={manage} disabled={pendingPlan !== null}>
-              {pendingPlan === "portal" ? t("billing.opening") : t("billing.managePlan")}
-            </Button>
-          ) : null}
         </div>
+        {current !== "free" ? (
+          <Button variant="secondary" size="sm" onClick={manage} disabled={pendingPlan !== null}>
+            {pendingPlan === "portal" ? t("billing.opening") : t("billing.managePlan")}
+          </Button>
+        ) : null}
       </div>
 
       {message ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p
+          role="alert"
+          className="bg-destructive-subtle text-destructive rounded-md px-4 py-3 text-[13px] font-semibold"
+        >
           {message}
         </p>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {ORDERED_TIERS.map((id) => {
           const tier = TIERS[id];
           const isCurrent = id === current;
@@ -99,32 +114,38 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
               key={id}
               data-testid={`plan-${id}`}
               className={cn(
-                "flex flex-col gap-3 rounded-xl border p-4",
-                isCurrent && "border-primary bg-accent/40",
+                "flex flex-col gap-6 rounded-lg p-6",
+                // The marked plan is one neutral step deeper — never a border or glow.
+                isCurrent ? "bg-accent" : "bg-card",
               )}
             >
-              <div className="flex items-center justify-between">
-                <span className="font-semibold">{t(tier.labelKey)}</span>
-                {isCurrent ? <Badge variant="brand">{t("billing.currentBadge")}</Badge> : null}
+              <div className="flex flex-col gap-3">
+                <div className="flex min-h-6 items-center justify-between gap-2">
+                  <span className="text-[15px] font-semibold">{t(tier.labelKey)}</span>
+                  {isCurrent ? <Badge variant="brand">{t("billing.currentBadge")}</Badge> : null}
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-4xl leading-none font-semibold tracking-[-0.03em] tabular-nums">
+                    {tier.priceEUR} €
+                  </span>
+                  <span className="text-muted-foreground text-[13px]">{t("billing.perMonth")}</span>
+                </div>
               </div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-semibold tracking-tight">{tier.priceEUR} €</span>
-                <span className="text-muted-foreground text-xs">{t("billing.perMonth")}</span>
-              </div>
-              <ul className="text-muted-foreground flex flex-col gap-1 text-xs">
+              <ul className="flex flex-col gap-2.5 text-[15px] leading-snug">
                 {tier.highlightKeys.map((k) => (
-                  <li key={k}>· {t(k)}</li>
+                  <li key={k} className="flex items-start gap-2.5">
+                    <CheckIcon />
+                    <span>{t(k)}</span>
+                  </li>
                 ))}
               </ul>
-              <div className="mt-auto pt-2">
+              <div className="mt-auto flex min-h-10 items-center">
                 {isCurrent ? (
-                  <p className="text-muted-foreground text-center text-xs">
-                    {t("billing.yourPlan")}
-                  </p>
+                  <p className="text-muted-foreground text-[13px]">{t("billing.yourPlan")}</p>
                 ) : upgradable ? (
                   <Button
                     className="w-full"
-                    size="sm"
+                    variant={id === nextUp ? "default" : "secondary"}
                     onClick={() => subscribe(id)}
                     disabled={pendingPlan !== null}
                     data-testid={`subscribe-${id}`}
@@ -134,7 +155,7 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
                       : t("billing.upgradeTo", { plan: t(tier.labelKey) })}
                   </Button>
                 ) : (
-                  <p className="text-muted-foreground text-center text-xs">
+                  <p className="text-muted-foreground text-[13px]">
                     {tier.priceEUR === 0 ? t("billing.basePlan") : t("billing.includedInPlan")}
                   </p>
                 )}
@@ -144,5 +165,22 @@ export function Paywall({ userId, entitlement }: { userId: string; entitlement: 
         })}
       </div>
     </div>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-muted-foreground mt-0.5 size-4 shrink-0"
+      aria-hidden
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
   );
 }

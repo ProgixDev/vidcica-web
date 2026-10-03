@@ -16,7 +16,7 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
   const baseId = useId();
 
   return (
-    <div className="border-border divide-border bg-card divide-y rounded-lg border px-5">
+    <div className="divide-border flex flex-col divide-y">
       {items.map((f, i) => {
         const open = openIndex === i;
         const panelId = `${baseId}-faq-${i}`;
@@ -28,8 +28,8 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
               aria-controls={panelId}
               onClick={() => setOpenIndex(open ? null : i)}
               className={cn(
-                "flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left text-sm font-medium transition-colors",
-                open ? "text-foreground" : "text-foreground/90 hover:text-foreground",
+                "focus-visible:ring-ring flex w-full cursor-pointer items-center justify-between gap-6 rounded-sm py-5 text-left text-[17px] font-semibold tracking-tight outline-none focus-visible:ring-2",
+                "text-foreground",
               )}
             >
               {f.q}
@@ -37,9 +37,9 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.75"
                 strokeLinecap="round"
-                className="text-muted-foreground size-4 shrink-0"
+                className="text-muted-foreground size-5 shrink-0"
                 aria-hidden
                 animate={{ rotate: open ? 180 : 0 }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
@@ -58,7 +58,9 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
                   transition={{ duration: 0.32, ease: [0.3, 0.7, 0.3, 1] }}
                   className="overflow-hidden"
                 >
-                  <p className="text-muted-foreground pb-4 text-sm leading-relaxed">{f.a}</p>
+                  <p className="text-muted-foreground max-w-2xl pb-6 text-[15px] leading-relaxed">
+                    {f.a}
+                  </p>
                 </m.div>
               ) : null}
             </AnimatePresence>

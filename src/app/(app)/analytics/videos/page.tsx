@@ -32,12 +32,13 @@ export default async function AnalyticsVideosPage({
 
   if (rows.length === 0) {
     return (
-      <div className="bg-card rounded-2xl border p-8">
+      <div>
         <EmptyState
+          className="py-16"
           title={t("analytics.videos.empty.title")}
           description={t("analytics.videos.empty.body")}
           action={
-            <Link href="/create" className={buttonVariants({ className: "rounded-full" })}>
+            <Link href="/create" className={buttonVariants()}>
               {t("analytics.videos.empty.cta")}
             </Link>
           }
@@ -47,16 +48,14 @@ export default async function AnalyticsVideosPage({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-10">
       <DataComingNotice
         title={t("analytics.overview.dataComing.title")}
         body={t("analytics.noData.collection")}
       />
-      <section className="flex flex-col gap-2">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
-          {t("analytics.section.published")}
-        </h2>
-        <div className="bg-card divide-border/60 flex flex-col divide-y rounded-2xl border">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">{t("analytics.section.published")}</h2>
+        <div className="bg-card divide-border flex flex-col divide-y overflow-hidden rounded-lg">
           {rows.map((row) => (
             <TopVideoRow key={row.video.id} video={row.video} platform={row.platform} />
           ))}

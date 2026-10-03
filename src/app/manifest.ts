@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: site.description,
     start_url: "/",
     display: "standalone",
-    background_color: "#FFFBF6",
-    theme_color: "#FF7A2E",
+    background_color: "#111210",
+    theme_color: "#111210",
     // Real, stable public/ assets (the old "/icon.png" 404'd — Next serves
     // src/app/icon.png at a hashed route, not that path). The 512 covers every
     // smaller size (browsers downscale); the padded SVG is the Android adaptive

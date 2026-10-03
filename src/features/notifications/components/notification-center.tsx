@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/provider";
 import {
   NOTIFICATION_CATEGORY_KEY,
-  TYPE_VARIANT,
   notificationHref,
   relativeTime,
   unreadCount,
@@ -18,46 +17,45 @@ import { useNotificationsRealtime } from "@/lib/vidcica/use-notifications-realti
 import { markAllRead, markRead } from "../actions";
 import { EnablePushBanner } from "./enable-push-banner";
 
-const DOT = {
-  success: "bg-success",
-  warning: "bg-warning",
-  brand: "bg-primary",
-} as const;
-
 function Row({ n, onOpen }: { n: AppNotification; onOpen: (n: AppNotification) => void }) {
   const t = useT();
   const href = notificationHref(n);
   const inner = (
-    <div
-      className={cn(
-        "flex items-start gap-3 rounded-xl border p-4 text-left transition-colors",
-        n.read ? "bg-card" : "bg-accent/40 border-primary/30",
-      )}
-    >
+    <div className="flex items-start gap-4 py-4 text-left">
       <span
         aria-hidden
-        className={cn("mt-1.5 size-2 shrink-0 rounded-full", DOT[TYPE_VARIANT[n.type]])}
+        className={cn(
+          "mt-2 size-2 shrink-0 rounded-full",
+          n.read ? "bg-transparent" : "bg-foreground",
+        )}
       />
-      <div className="flex min-w-0 flex-col gap-0.5">
-        <div className="flex items-center gap-2">
-          <span className={cn("truncate text-sm", n.read ? "font-medium" : "font-semibold")}>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex items-baseline justify-between gap-4">
+          <span
+            className={cn(
+              "truncate text-[15px] leading-snug",
+              n.read ? "text-subtle-foreground font-medium" : "font-semibold",
+            )}
+          >
             {n.title}
           </span>
           {!n.read ? <span className="sr-only">{t("notifications.srUnread")}</span> : null}
+          <span className="text-muted-foreground shrink-0 text-xs">
+            {t(NOTIFICATION_CATEGORY_KEY[n.category])} · {relativeTime(n.createdAt)}
+          </span>
         </div>
-        <span className="text-muted-foreground text-xs">{n.body}</span>
-        <span className="text-muted-foreground mt-1 text-[11px]">
-          {t(NOTIFICATION_CATEGORY_KEY[n.category])} · {relativeTime(n.createdAt)}
-        </span>
+        <span className="text-muted-foreground text-[13px] leading-relaxed">{n.body}</span>
       </div>
     </div>
   );
 
+  const cls =
+    "hover:bg-card focus-visible:ring-ring block w-full rounded-md px-3 transition-colors outline-none focus-visible:ring-2";
   return href ? (
     <Link
       href={href}
       onClick={() => onOpen(n)}
-      className="focus-visible:ring-ring block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      className={cls}
       data-testid={`notification-${n.id}`}
       data-read={n.read}
     >
@@ -67,7 +65,7 @@ function Row({ n, onOpen }: { n: AppNotification; onOpen: (n: AppNotification) =
     <button
       type="button"
       onClick={() => onOpen(n)}
-      className="focus-visible:ring-ring block w-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      className={cls}
       data-testid={`notification-${n.id}`}
       data-read={n.read}
     >
@@ -125,24 +123,24 @@ export function NotificationCenter({
   }
 
   return (
-    <div className="flex flex-col gap-5" data-testid="notification-center">
+    <div className="flex flex-col gap-6" data-testid="notification-center">
       <EnablePushBanner />
-      <div className="flex items-center justify-between">
-        <p className="text-sm">
-          <span data-testid="unread-count" className="font-semibold">
+      <div className="flex min-h-9 items-center justify-between gap-4">
+        <p className="text-[15px]">
+          <span data-testid="unread-count" className="font-semibold tabular-nums">
             {unread}
           </span>{" "}
           <span className="text-muted-foreground">{t("notifications.unread")}</span>
         </p>
         {unread > 0 ? (
-          <Button variant="ghost" size="sm" onClick={readAll} data-testid="mark-all-read">
+          <Button variant="secondary" size="sm" onClick={readAll} data-testid="mark-all-read">
             {t("notifications.markAllRead")}
           </Button>
         ) : null}
       </div>
 
       {message ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {message}
         </p>
       ) : null}
@@ -154,7 +152,7 @@ export function NotificationCenter({
           description={t("notifications.emptyDescription")}
         />
       ) : (
-        <div className="flex flex-col gap-2" data-testid="notification-list">
+        <div className="-mx-3 flex flex-col" data-testid="notification-list">
           {effective.map((n) => (
             <Row key={n.id} n={n} onOpen={open} />
           ))}

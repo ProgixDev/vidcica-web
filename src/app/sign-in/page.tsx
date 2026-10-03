@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthPanel } from "@/features/auth";
 import { BrandLockup, LogoMark } from "@/components/brand";
-import { LandingVideo } from "@/components/landing-video";
+import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
@@ -16,9 +16,9 @@ export async function generateMetadata() {
 }
 
 /**
- * Auth screen mirroring the mobile app's landing (logo mark, «Bienvenue sur
- * Vidcica», value chips, legal footer) — over a looping brand video like the
- * app's welcome carousel, with the form on a frosted-glass card.
+ * Auth screen — identity 01. Desktop: the form column on the canvas (lockup,
+ * «Bienvenue sur Vidcica», value line, form, legal footer) beside one
+ * atmospheric field panel. Mobile: the form stands alone.
  */
 export default async function SignInPage() {
   const t = await getT();
@@ -30,77 +30,80 @@ export default async function SignInPage() {
   } = await supabase.auth.getUser();
   if (user) redirect("/dashboard");
   return (
-    <main className="relative flex min-h-dvh w-full flex-col overflow-hidden">
-      {/* Video backdrop (the app's welcome-3 clip, hosted on app-assets) + scrim */}
-      <LandingVideo
-        src="https://scoozakhhmowpzwotxgp.supabase.co/storage/v1/object/public/app-assets/onboarding/welcome-3.mp4"
-        poster="https://scoozakhhmowpzwotxgp.supabase.co/storage/v1/object/public/app-assets/onboarding/welcome-3.jpg"
-        className="absolute inset-0 size-full object-cover"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-linear-to-b from-black/65 via-black/35 to-black/75"
-      />
-
-      {/* Top bar — wordmark back to the site */}
-      <div className="relative z-10 flex w-full items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          aria-label={t("auth.backHomeAria")}
-          className="rounded-full border border-white/15 bg-black/30 px-3.5 py-1.5 text-white backdrop-blur-md transition-colors hover:bg-black/45"
-        >
-          <BrandLockup className="text-sm" />
-        </Link>
-        <div className="flex items-center gap-2">
-          <LanguageToggle className="border border-white/15 bg-black/30 text-white backdrop-blur-md hover:bg-black/45 hover:text-white" />
-          <ThemeToggle className="border border-white/15 bg-black/30 text-white backdrop-blur-md hover:bg-black/45 hover:text-white" />
+    <main className="bg-background grid min-h-dvh w-full lg:grid-cols-2">
+      {/* Form column — on the canvas */}
+      <div className="flex min-h-dvh flex-col px-6 py-5 sm:px-10">
+        <div className="flex w-full items-center justify-between gap-3">
           <Link
             href="/"
-            className="rounded-full border border-white/15 bg-black/30 px-3.5 py-1.5 text-xs font-medium text-white/85 backdrop-blur-md transition-colors hover:bg-black/45 hover:text-white"
+            aria-label={t("auth.backHomeAria")}
+            className="focus-visible:ring-ring focus-visible:ring-offset-background rounded-full outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
-            ← {t("auth.backToSite")}
+            <BrandLockup />
           </Link>
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <ThemeToggle />
+            <Link
+              href="/"
+              className={buttonVariants({
+                variant: "ghost",
+                size: "sm",
+                className: "hidden sm:inline-flex",
+              })}
+            >
+              ← {t("auth.backToSite")}
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex flex-1 items-center justify-center py-12">
+          <Reveal onMount y={18} className="flex w-full max-w-sm flex-col gap-8">
+            <div className="flex flex-col gap-3">
+              <h1 className="text-[32px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-4xl">
+                {t("auth.welcomeTitle")}
+              </h1>
+              <p
+                className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px]"
+                aria-label={t("auth.valueChipsAria")}
+              >
+                <span>{t("auth.chipAdvancedAi")}</span>
+                <span aria-hidden>·</span>
+                <span>{t("auth.chipMultiNetwork")}</span>
+                <span aria-hidden>·</span>
+                <span>{t("auth.chipAnalytics")}</span>
+              </p>
+            </div>
+
+            <Suspense>
+              <AuthPanel />
+            </Suspense>
+
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              {t("auth.legalPrefix")}{" "}
+              <Link href="/terms" className="hover:text-foreground underline underline-offset-2">
+                {t("auth.legalTerms")}
+              </Link>{" "}
+              {t("auth.legalAnd")}{" "}
+              <Link href="/privacy" className="hover:text-foreground underline underline-offset-2">
+                {t("auth.legalPrivacy")}
+              </Link>
+              .
+            </p>
+          </Reveal>
         </div>
       </div>
 
-      {/* Glass auth card */}
-      <div className="relative z-10 flex flex-1 items-center justify-center px-6 py-10">
-        <Reveal
-          onMount
-          y={18}
-          className="bg-background/95 border-border/60 flex w-full max-w-md flex-col items-center gap-6 rounded-lg border p-6 shadow-2xl backdrop-blur-xl sm:p-8"
-        >
-          <div className="flex flex-col items-center gap-3">
-            <LogoMark className="size-16 object-contain" />
-            <h1 className="text-xl font-semibold tracking-tight">{t("auth.welcomeTitle")}</h1>
-            <p
-              className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[10px] font-bold tracking-widest uppercase"
-              aria-label={t("auth.valueChipsAria")}
-            >
-              <span>{t("auth.chipAdvancedAi")}</span>
-              <span aria-hidden className="bg-primary size-1 rounded-full" />
-              <span>{t("auth.chipMultiNetwork")}</span>
-              <span aria-hidden className="bg-primary size-1 rounded-full" />
-              <span>{t("auth.chipAnalytics")}</span>
-            </p>
-          </div>
-
-          <Suspense>
-            <AuthPanel />
-          </Suspense>
-
-          <p className="text-muted-foreground text-center text-[11px] leading-relaxed">
-            {t("auth.legalPrefix")}{" "}
-            <Link href="/terms" className="hover:text-foreground underline underline-offset-2">
-              {t("auth.legalTerms")}
-            </Link>{" "}
-            {t("auth.legalAnd")}{" "}
-            <Link href="/privacy" className="hover:text-foreground underline underline-offset-2">
-              {t("auth.legalPrivacy")}
-            </Link>
-            .
+      {/* Atmospheric panel — desktop only. The field runs dark (bottom-left) to
+          pale in dark mode and is pale throughout in light mode, so the mark and
+          tagline sit bottom-left where `text-foreground` contrasts in both. */}
+      <div className="hidden p-3 lg:block">
+        <div className="field-contre-jour grain text-foreground sticky top-3 flex h-[calc(100dvh-1.5rem)] flex-col justify-end rounded-lg p-12">
+          <LogoMark className="size-20" />
+          <p className="mt-8 max-w-sm text-2xl leading-snug font-semibold tracking-[-0.03em]">
+            {t("about.tagline")}
           </p>
-        </Reveal>
+        </div>
       </div>
     </main>
   );

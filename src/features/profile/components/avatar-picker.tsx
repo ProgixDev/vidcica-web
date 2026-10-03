@@ -70,19 +70,19 @@ export function AvatarPicker({ initialUrl, initial }: { initialUrl?: string; ini
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-5">
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element -- remote Supabase avatar
-        <img src={url} alt="" className="size-16 shrink-0 rounded-full object-cover" />
+        <img src={url} alt="" className="size-20 shrink-0 rounded-full object-cover" />
       ) : (
         <span
           aria-hidden
-          className="bg-primary text-primary-foreground flex size-16 shrink-0 items-center justify-center rounded-full text-xl font-bold"
+          className="bg-secondary text-foreground flex size-20 shrink-0 items-center justify-center rounded-full text-2xl font-semibold"
         >
           {initial}
         </span>
       )}
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col items-start gap-2">
         <input
           ref={inputRef}
           type="file"
@@ -95,7 +95,6 @@ export function AvatarPicker({ initialUrl, initial }: { initialUrl?: string; ini
           type="button"
           variant="outline"
           size="sm"
-          className="rounded-full"
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
           data-testid="avatar-change-button"
@@ -103,11 +102,11 @@ export function AvatarPicker({ initialUrl, initial }: { initialUrl?: string; ini
           {uploading ? t("profile.avatarUploading") : t("profile.avatarChange")}
         </Button>
         {error ? (
-          <p role="alert" className="text-destructive text-xs">
+          <p role="alert" className="text-destructive text-[13px]">
             {error}
           </p>
         ) : (
-          <p className="text-muted-foreground text-xs">{t("profile.avatarHint")}</p>
+          <p className="text-muted-foreground text-[13px]">{t("profile.avatarHint")}</p>
         )}
       </div>
     </div>

@@ -55,7 +55,7 @@ function Thumb({ video }: { video: Video }) {
     return (
       <div
         aria-hidden
-        className="bg-muted aspect-[9/16] w-full rounded-md bg-cover bg-center"
+        className="bg-card aspect-[9/16] w-full rounded-md bg-cover bg-center"
         style={video.thumbnailUrl ? { backgroundImage: `url(${video.thumbnailUrl})` } : undefined}
       />
     );
@@ -70,7 +70,7 @@ function Thumb({ video }: { video: Video }) {
       preload="none"
       aria-hidden
       tabIndex={-1}
-      className="bg-muted aspect-[9/16] w-full rounded-md object-cover"
+      className="bg-card aspect-[9/16] w-full rounded-md object-cover"
       onMouseEnter={(e) => {
         e.currentTarget.muted = true;
         void e.currentTarget.play().catch(() => undefined);
@@ -111,7 +111,7 @@ function CardMenu({ video }: { video: Video }) {
   };
 
   return (
-    <div className="absolute top-2 right-2 z-10">
+    <div className="absolute top-3 right-3 z-10">
       <button
         type="button"
         aria-label={t("videos.moreActions")}
@@ -120,7 +120,7 @@ function CardMenu({ video }: { video: Video }) {
         disabled={pending}
         onClick={() => setOpen((o) => !o)}
         data-testid="video-card-menu"
-        className="flex size-8 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition-opacity hover:bg-black/70 disabled:opacity-50"
+        className="bg-scrim focus-visible:ring-ring flex size-8 items-center justify-center rounded-full text-white transition-opacity outline-none hover:opacity-80 focus-visible:ring-2 disabled:opacity-50"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" className="size-4" aria-hidden>
           <circle cx="12" cy="5" r="1.6" />
@@ -141,7 +141,7 @@ function CardMenu({ video }: { video: Video }) {
           />
           <div
             role="menu"
-            className="bg-card absolute top-9 right-0 z-10 flex w-40 flex-col overflow-hidden rounded-xl border py-1 shadow-lg"
+            className="bg-popover text-popover-foreground absolute top-10 right-0 z-10 flex w-44 flex-col rounded-md p-1.5"
           >
             {video.videoUrl ? (
               <a
@@ -150,7 +150,7 @@ function CardMenu({ video }: { video: Video }) {
                 role="menuitem"
                 onClick={() => setOpen(false)}
                 data-testid="video-card-download"
-                className="hover:bg-muted px-3 py-2 text-left text-sm"
+                className="hover:bg-accent rounded-sm px-3 py-2.5 text-left text-sm font-medium transition-colors"
               >
                 {t("common.download")}
               </a>
@@ -160,7 +160,7 @@ function CardMenu({ video }: { video: Video }) {
               role="menuitem"
               onClick={runDuplicate}
               data-testid="video-card-duplicate"
-              className="hover:bg-muted px-3 py-2 text-left text-sm"
+              className="hover:bg-accent rounded-sm px-3 py-2.5 text-left text-sm font-medium transition-colors"
             >
               {t("videos.duplicate")}
             </button>
@@ -169,7 +169,7 @@ function CardMenu({ video }: { video: Video }) {
               role="menuitem"
               onClick={runDelete}
               data-testid="video-card-delete"
-              className="text-destructive hover:bg-destructive/10 px-3 py-2 text-left text-sm"
+              className="text-destructive hover:bg-destructive-subtle rounded-sm px-3 py-2.5 text-left text-sm font-medium transition-colors"
             >
               {t("common.delete")}
             </button>
@@ -184,42 +184,28 @@ function VideoCard({ video }: { video: Video }) {
   const t = useT();
   const meta = STATUS_META[video.status];
   return (
-    <div
-      className="bg-card hover:border-foreground/20 relative flex flex-col gap-3 rounded-xl border p-3 transition-colors"
-      data-testid="video-card"
-    >
+    <div className="relative flex flex-col" data-testid="video-card">
       <CardMenu video={video} />
       <Link
         href={`/videos/${video.id}`}
-        className="focus-visible:ring-ring group flex flex-col gap-3 rounded-lg outline-none focus-visible:ring-2"
+        className="focus-visible:ring-ring focus-visible:ring-offset-background group flex flex-col gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-offset-4"
       >
         <div className="relative">
           <Thumb video={video} />
           <Badge
             variant={meta.variant}
-            className="absolute top-2 left-2"
+            className="absolute top-3 left-3"
             data-testid="video-status"
           >
             {isRendering(video.status) ? (
-              <span className="bg-primary-foreground/80 size-1.5 animate-pulse rounded-full" />
+              <span className="size-1.5 animate-pulse rounded-full bg-current motion-reduce:animate-none" />
             ) : null}
             {t(VIDEO_STATUS_KEY[video.status])}
           </Badge>
-          {video.durationSec > 0 ? (
-            <span
-              aria-hidden
-              className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm"
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="size-2.5">
-                <path d="M8 5.5v13l11-6.5-11-6.5Z" />
-              </svg>
-              {t("videos.seconds", { n: Math.round(video.durationSec) })}
-            </span>
-          ) : null}
         </div>
         <div className="flex flex-col gap-0.5">
-          <p className="truncate text-sm font-medium">{video.title}</p>
-          <p className="text-muted-foreground text-xs">
+          <p className="truncate text-[15px] font-semibold">{video.title}</p>
+          <p className="text-muted-foreground text-[13px]">
             {t("videos.formatDuration", { format: video.format, n: Math.round(video.durationSec) })}
           </p>
         </div>
@@ -287,7 +273,7 @@ export function VideoList({
   if (!manage) {
     return (
       <div
-        className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+        className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4"
         data-testid="video-grid"
       >
         {videos.map((v) => (
@@ -298,9 +284,9 @@ export function VideoList({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Search + status chips */}
-      <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-6">
+      {/* Status chips + search */}
+      <div className="flex flex-col gap-3 md:flex-row-reverse md:items-center md:justify-between">
         <Input
           type="search"
           value={query}
@@ -308,7 +294,7 @@ export function VideoList({
           placeholder={t("videos.searchPlaceholder")}
           aria-label={t("videos.searchPlaceholder")}
           data-testid="video-search"
-          className="rounded-full"
+          className="md:max-w-xs"
         />
         <div className="flex flex-wrap gap-2" role="tablist" aria-label={t("videos.title")}>
           {FILTER_ORDER.map((f) => {
@@ -322,10 +308,10 @@ export function VideoList({
                 onClick={() => setFilter(f)}
                 data-testid={`video-filter-${f}`}
                 className={cn(
-                  "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                  "focus-visible:ring-ring focus-visible:ring-offset-background inline-flex h-9 items-center rounded-full px-4 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                   active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted border-border",
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-subtle-foreground hover:bg-accent",
                 )}
               >
                 {t(FILTER_LABEL[f])}
@@ -343,7 +329,7 @@ export function VideoList({
         />
       ) : (
         <div
-          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+          className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4"
           data-testid="video-grid"
         >
           {filtered.map((v) => (

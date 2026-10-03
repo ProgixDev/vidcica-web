@@ -24,7 +24,7 @@ describe("<Paywall /> (AC-1, AC-2, AC-6)", () => {
       expect(screen.getByTestId(`plan-${id}`)).toBeInTheDocument();
     }
     // a feature highlight from the matrix is rendered
-    expect(screen.getByText("· 150 crédits / mois")).toBeInTheDocument();
+    expect(screen.getByText("150 crédits / mois")).toBeInTheDocument();
     // current plan is marked "Actuel"
     expect(screen.getByTestId("plan-free")).toHaveTextContent("Actuel");
     // free user can subscribe to the paid tiers, and has no manage button

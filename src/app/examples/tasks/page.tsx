@@ -19,7 +19,10 @@ export default function TasksPage() {
       <TaskListStoreProvider initialTasks={seedTasks}>
         <TaskList />
       </TaskListStoreProvider>
-      <Link href="/" className="text-muted-foreground text-sm underline-offset-4 hover:underline">
+      <Link
+        href="/"
+        className="text-muted-foreground hover:text-foreground text-[13px] underline-offset-4 transition-colors hover:underline"
+      >
         Back to home
       </Link>
     </main>

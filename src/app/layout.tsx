@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, Geist_Mono } from "next/font/google";
+import { Manrope, Geist_Mono } from "next/font/google";
 import { MotionProvider } from "@/components/motion";
 import { I18nProvider, LocaleTransition } from "@/lib/i18n/provider";
 import { AnalyticsProvider } from "@/lib/analytics/provider";
@@ -9,10 +9,10 @@ import { isBilingualDocumentPath, localizedPath } from "@/lib/i18n/routing";
 import { site, isIndexableDeploy } from "@/core/site";
 import "./globals.css";
 
-// Outfit is the Vidcica brand face (mobile uses @expo-google-fonts/outfit).
-// A distinctive geometric sans — satisfies the quality bar's "not Inter/system".
-const outfit = Outfit({
-  variable: "--font-outfit",
+// Manrope is the Vidcica brand face — identity 01 uses this one family for
+// everything (the mobile app bundles the same static weights). No second face.
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
   display: "swap",
 });
@@ -86,16 +86,17 @@ export default async function RootLayout({
     description: site.description,
   };
 
-  // Resolve the theme before first paint (stored choice → system preference) so
-  // the designed dark tokens apply with no flash. Runs synchronously in <head>.
-  const themeScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
+  // Resolve the theme before first paint so there is no flash. Dark is the
+  // identity's primary scheme: a stored choice wins, then an explicit system
+  // preference for light, otherwise dark. Runs synchronously in <head>.
+  const themeScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':!matchMedia('(prefers-color-scheme: light)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){document.documentElement.classList.add('dark');}})();`;
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={`${outfit.variable} ${geistMono.variable} font-sans antialiased`}>
+      <body className={`${manrope.variable} ${geistMono.variable} font-sans antialiased`}>
         <script
           type="application/ld+json"
           // JSON-LD is static, app-controlled data — safe to inline.

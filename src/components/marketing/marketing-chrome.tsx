@@ -34,12 +34,12 @@ function navLinks(t: TFunction, locale: Locale) {
 
 export function MarketingHeader({ t, locale }: ChromeProps) {
   return (
-    <header className="border-border/60 bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
+    <header className="bg-background sticky top-0 z-40">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
         <Link href={localizedPath("/", locale)} aria-label={t("landing.nav.homeAria")}>
           <BrandLockup />
         </Link>
-        <nav className="text-muted-foreground hidden items-center gap-6 text-sm md:flex">
+        <nav className="text-muted-foreground hidden items-center gap-7 text-sm font-medium md:flex">
           {navLinks(t, locale).map((l) => (
             <Link key={l.href} href={l.href} className="hover:text-foreground transition-colors">
               {l.label}
@@ -51,10 +51,7 @@ export function MarketingHeader({ t, locale }: ChromeProps) {
           <ThemeToggle />
           <Link
             href={localizedPath("/sign-in", locale)}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "sm" }),
-              "hidden rounded-full sm:inline-flex",
-            )}
+            className={cn(buttonVariants({ variant: "ghost" }), "hidden sm:inline-flex")}
           >
             {t("landing.nav.signIn")}
           </Link>
@@ -68,12 +65,12 @@ export function MarketingHeader({ t, locale }: ChromeProps) {
 export function MarketingFooter({ t, locale }: ChromeProps) {
   const link = (path: string) => localizedPath(path, locale);
   return (
-    <footer className="border-t">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12">
+    <footer className="bg-card">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-14 px-6 py-16">
         <div className="flex flex-wrap items-start justify-between gap-10">
           <div className="flex max-w-xs flex-col gap-3">
             <BrandLockup />
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <p className="text-muted-foreground text-[15px] leading-relaxed">
               {t("landing.footer.tagline")}
             </p>
           </div>
@@ -82,66 +79,84 @@ export function MarketingFooter({ t, locale }: ChromeProps) {
             aria-label={t("landing.footer.aria")}
           >
             <div className="flex flex-col gap-3">
-              <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+              <span className="text-foreground text-[13px] font-semibold">
                 {t("landing.footer.product")}
               </span>
               <Link
                 href={`${link("/")}#exemples`}
-                className="hover:text-foreground text-muted-foreground"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 {t("landing.nav.examples")}
               </Link>
               <Link
                 href={link("/fonctionnalites")}
-                className="hover:text-foreground text-muted-foreground"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 {t("landing.nav.features")}
               </Link>
-              <Link href={link("/tarifs")} className="hover:text-foreground text-muted-foreground">
+              <Link
+                href={link("/tarifs")}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 {t("landing.nav.pricing")}
               </Link>
-              <Link href={link("/faq")} className="hover:text-foreground text-muted-foreground">
+              <Link
+                href={link("/faq")}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 FAQ
               </Link>
-              <Link href={link("/blog")} className="hover:text-foreground text-muted-foreground">
+              <Link
+                href={link("/blog")}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 {t("landing.nav.blog")}
               </Link>
-              <Link href={link("/sign-in")} className="hover:text-foreground text-muted-foreground">
+              <Link
+                href={link("/sign-in")}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 {t("landing.nav.signIn")}
               </Link>
             </div>
             <div className="flex flex-col gap-3">
-              <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+              <span className="text-foreground text-[13px] font-semibold">
                 {t("landing.footer.legal")}
               </span>
               {/* Legal pages are one bilingual document each — never locale-prefixed. */}
-              <Link href="/privacy" className="hover:text-foreground text-muted-foreground">
+              <Link
+                href="/privacy"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 {t("landing.footer.privacy")}
               </Link>
-              <Link href="/terms" className="hover:text-foreground text-muted-foreground">
+              <Link
+                href="/terms"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 {t("landing.footer.terms")}
               </Link>
               <Link
                 href={link("/mentions-legales")}
-                className="hover:text-foreground text-muted-foreground"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 {t("landing.footer.legalNotice")}
               </Link>
             </div>
             <div className="flex flex-col gap-3">
-              <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+              <span className="text-foreground text-[13px] font-semibold">
                 {t("landing.footer.contact")}
               </span>
               <a
                 href="mailto:support@vidcica.com"
-                className="hover:text-foreground text-muted-foreground"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 support@vidcica.com
               </a>
             </div>
           </nav>
         </div>
-        <p className="text-muted-foreground/70 text-xs">{t("landing.footer.copyright")}</p>
+        <p className="text-muted-foreground text-[13px]">{t("landing.footer.copyright")}</p>
       </div>
     </footer>
   );

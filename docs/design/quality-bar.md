@@ -8,6 +8,11 @@ of all training data. Premium = **intentional deviation from defaults, inside a 
 > recognizable AI tells. Rebrand the theme tokens (`src/app/globals.css`) per app** before you ship.
 > Geist (the default font) is a reasonable distinctive choice; Inter/system as a brand face is not.
 
+> **Vidcica has been rebranded** (2026-10-02): identity 01 “Rémanence” — warm mineral neutrals, one
+> citron accent, Manrope, ink pills, pale borderless cards. The concrete rules are in
+> [`redesign-rules.md`](redesign-rules.md); where this generic checklist disagrees (shadows,
+> elevation, “accent for primary”), the redesign rules win.
+
 ## Premium-UI checklist (a brief must demand it; a review must verify it)
 
 **Spacing & layout**

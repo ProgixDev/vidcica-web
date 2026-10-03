@@ -108,28 +108,22 @@ function LauncherInner() {
             exit={{ opacity: 0, y: 14, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 340, damping: 30 }}
             style={{ transformOrigin: "bottom right", height: "min(560px, calc(100dvh - 7.5rem))" }}
-            className="fixed right-4 bottom-[5.75rem] z-40 flex w-[calc(100vw-2rem)] max-w-[380px] flex-col overflow-hidden rounded-3xl border shadow-2xl sm:right-6"
+            className="bg-card text-card-foreground ring-border fixed right-4 bottom-[5.75rem] z-40 flex w-[calc(100vw-2rem)] max-w-[380px] flex-col overflow-hidden rounded-lg ring-1 sm:right-6"
           >
             {/* Header */}
-            <div className="bg-primary text-primary-foreground flex items-center gap-3 px-4 py-3">
+            <div className="flex items-center gap-3 py-4 pr-3 pl-5">
               <LiaAvatar />
               <div className="min-w-0 flex-1">
-                <p className="text-sm leading-tight font-semibold">
+                <p className="text-[15px] leading-tight font-semibold">
                   {t("support.bubble.assistantName")}
                 </p>
-                <p className="flex items-center gap-1.5 text-[11px] opacity-90">
-                  <span className="relative flex size-1.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
-                    <span className="relative inline-flex size-1.5 rounded-full bg-emerald-300" />
-                  </span>
-                  {t("support.bubble.online")}
-                </p>
+                <p className="text-muted-foreground mt-0.5 text-xs">{t("support.bubble.online")}</p>
               </div>
               <button
                 type="button"
                 onClick={() => router.push("/support")}
                 aria-label={t("support.bubble.expandAria")}
-                className="hover:bg-primary-foreground/15 flex size-8 items-center justify-center rounded-full transition-colors"
+                className="hover:bg-accent focus-visible:ring-ring flex size-10 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2"
               >
                 <Icon name="expand" />
               </button>
@@ -138,7 +132,7 @@ function LauncherInner() {
                 onClick={() => setOpen(false)}
                 aria-label={t("support.bubble.closeAria")}
                 data-testid="lili-close"
-                className="hover:bg-primary-foreground/15 flex size-8 items-center justify-center rounded-full transition-colors"
+                className="hover:bg-accent focus-visible:ring-ring flex size-10 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2"
               >
                 <Icon name="chevron-down" />
               </button>
@@ -150,7 +144,7 @@ function LauncherInner() {
               role="log"
               aria-live="polite"
               aria-label={t("support.chatLogLabel")}
-              className="bg-background flex flex-1 flex-col gap-3 overflow-y-auto px-3.5 py-4"
+              className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-2"
             >
               {messages.map((msgItem) => (
                 <div
@@ -163,17 +157,17 @@ function LauncherInner() {
                   {msgItem.author === "lia" ? <LiaAvatar size="sm" /> : null}
                   <div
                     className={cn(
-                      "flex min-w-0 flex-col gap-1.5",
+                      "flex min-w-0 flex-col gap-2",
                       msgItem.author === "user" && "items-end",
                     )}
                   >
                     <div
                       data-testid={`lili-msg-${msgItem.author}`}
                       className={cn(
-                        "max-w-[15rem] px-3.5 py-2 text-sm break-words",
+                        "max-w-[15rem] rounded-md px-4 py-2.5 text-[15px] leading-snug break-words",
                         msgItem.author === "user"
-                          ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
-                          : "bg-muted text-foreground rounded-2xl rounded-bl-md",
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-foreground",
                       )}
                     >
                       {msgItem.body}
@@ -186,7 +180,7 @@ function LauncherInner() {
                             type="button"
                             onClick={() => onChip(sugg)}
                             data-testid="lili-suggestion"
-                            className="border-input hover:bg-accent hover:text-accent-foreground rounded-full border px-3 py-1 text-xs transition-colors"
+                            className="bg-secondary text-foreground hover:bg-accent focus-visible:ring-ring h-8 rounded-full px-3.5 text-[13px] font-medium transition-colors outline-none focus-visible:ring-2"
                           >
                             {sugg}
                           </button>
@@ -204,11 +198,11 @@ function LauncherInner() {
                   aria-label={t("support.typing")}
                 >
                   <LiaAvatar size="sm" />
-                  <div className="bg-muted flex items-center gap-1 rounded-2xl rounded-bl-md px-3.5 py-3">
+                  <div className="bg-secondary flex items-center gap-1 rounded-md px-4 py-3.5">
                     {[0, 1, 2].map((i) => (
                       <m.span
                         key={i}
-                        className="bg-muted-foreground/60 size-1.5 rounded-full"
+                        className="bg-muted-foreground size-1.5 rounded-full"
                         animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
                         transition={{ repeat: Infinity, duration: 0.9, delay: i * 0.15 }}
                       />
@@ -219,10 +213,7 @@ function LauncherInner() {
             </div>
 
             {/* Composer */}
-            <form
-              onSubmit={submit}
-              className="border-border/60 bg-background/85 flex items-center gap-2 border-t px-3 py-2.5 backdrop-blur"
-            >
+            <form onSubmit={submit} className="flex items-center gap-2 p-4">
               <Input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -230,14 +221,13 @@ function LauncherInner() {
                 aria-label={t("support.inputAriaLabel")}
                 data-testid="lili-input"
                 autoFocus
-                className="h-10 rounded-full"
               />
               <button
                 type="submit"
                 disabled={typing || text.trim().length === 0}
                 aria-label={t("support.send")}
                 data-testid="lili-send"
-                className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
+                className="bg-primary text-primary-foreground hover:bg-primary/85 focus-visible:ring-ring focus-visible:ring-offset-card flex size-11 shrink-0 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
               >
                 <Icon name="send" />
               </button>
@@ -256,13 +246,13 @@ function LauncherInner() {
             exit={{ opacity: 0, y: 8, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
             style={{ transformOrigin: "bottom right" }}
-            className="bg-card fixed right-5 bottom-[5.5rem] z-40 flex max-w-[15rem] items-center gap-2 rounded-2xl rounded-br-md border py-2 pr-2 pl-3 shadow-lg sm:right-7"
+            className="bg-card ring-border fixed right-5 bottom-[5.75rem] z-40 flex max-w-[16rem] items-center gap-1 rounded-md py-2 pr-2 pl-4 ring-1 sm:right-6"
           >
             <button
               type="button"
               onClick={openPanel}
               data-testid="lili-nudge"
-              className="text-foreground text-left text-xs leading-snug"
+              className="text-foreground focus-visible:ring-ring rounded-sm text-left text-[13px] leading-snug outline-none focus-visible:ring-2"
             >
               {t("support.bubble.nudge")}
             </button>
@@ -270,7 +260,7 @@ function LauncherInner() {
               type="button"
               onClick={dismissNudge}
               aria-label={t("support.bubble.dismissNudge")}
-              className="text-muted-foreground hover:text-foreground flex size-5 shrink-0 items-center justify-center rounded-full"
+              className="text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-ring flex size-8 shrink-0 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2"
             >
               <Icon name="close" small />
             </button>
@@ -286,12 +276,8 @@ function LauncherInner() {
         aria-haspopup="dialog"
         aria-label={open ? t("support.bubble.closeAria") : t("support.bubble.openAria")}
         data-testid="lili-fab"
-        className="bg-primary text-primary-foreground shadow-primary/30 fixed right-5 bottom-5 z-40 flex size-14 items-center justify-center rounded-full shadow-lg transition-[transform,box-shadow] hover:scale-105 hover:shadow-xl active:scale-95 sm:right-6 sm:bottom-6"
+        className="bg-primary text-primary-foreground hover:bg-primary/85 focus-visible:ring-ring focus-visible:ring-offset-background fixed right-5 bottom-5 z-40 flex size-14 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.98] sm:right-6 sm:bottom-6"
       >
-        {/* online pip */}
-        {!open ? (
-          <span className="border-primary absolute top-0.5 right-0.5 size-3 rounded-full border-2 bg-emerald-400" />
-        ) : null}
         <AnimatePresence mode="wait" initial={false}>
           <m.span
             key={open ? "down" : "chat"}
@@ -309,16 +295,15 @@ function LauncherInner() {
   );
 }
 
-/** Lia avatar — a warm brand disc with a friendly chat/sparkle mark. */
+/** Lia avatar — a pale neutral disc with a friendly chat/sparkle mark. */
 function LiaAvatar({ size = "md" }: { size?: "sm" | "md" }) {
-  const dim = size === "sm" ? "size-7" : "size-9";
+  const dim = size === "sm" ? "size-7" : "size-10";
   return (
     <span
       aria-hidden
       className={cn(
-        "bg-primary-foreground/15 ring-primary-foreground/25 grid shrink-0 place-items-center rounded-full ring-1",
+        "bg-secondary text-foreground grid shrink-0 place-items-center rounded-full",
         dim,
-        size === "md" ? "text-primary-foreground" : "bg-primary/10 text-primary ring-primary/20",
       )}
     >
       <svg

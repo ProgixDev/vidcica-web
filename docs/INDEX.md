@@ -28,10 +28,11 @@ The docs tree is the repository's long-term memory. Agents and humans ground the
 
 ## Design
 
-| File                                                                   | What it answers                                              |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------ |
-| [design/quality-bar.md](design/quality-bar.md)                         | Premium vs "vibe-coded"; the checklist every page must clear |
-| [templates/claude-design-prompt.md](templates/claude-design-prompt.md) | The professional design brief (`/design-prompt` fills it)    |
+| File                                                                   | What it answers                                               |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------- |
+| [design/quality-bar.md](design/quality-bar.md)                         | Premium vs "vibe-coded"; the checklist every page must clear  |
+| [design/redesign-rules.md](design/redesign-rules.md)                   | Identity 01 “Rémanence”: tokens, accent budget, anti-patterns |
+| [templates/claude-design-prompt.md](templates/claude-design-prompt.md) | The professional design brief (`/design-prompt` fills it)     |
 
 ## Conventions (how we write code)
 

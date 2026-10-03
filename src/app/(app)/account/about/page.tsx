@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getT } from "@/lib/i18n/server";
 import { PageHeader } from "@/components/app-shell";
+import { buttonVariants } from "@/components/ui/button";
 import { ProfileSection, ProfileLinkRow } from "@/features/profile";
 
 const APP_VERSION = "1.0.0";
@@ -24,29 +25,31 @@ export default async function AboutPage() {
   const t = await getT();
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-10">
       <PageHeader
         title={t("about.title")}
         actions={
-          <Link href="/account" className="text-muted-foreground hover:text-foreground text-sm">
+          <Link href="/account" className={buttonVariants({ variant: "ghost", size: "sm" })}>
             ← {t("common.back")}
           </Link>
         }
       />
 
       {/* App identity */}
-      <div className="bg-card flex flex-col items-center gap-2 rounded-2xl border p-6 text-center">
+      <div className="bg-card flex items-center gap-5 rounded-lg p-6">
         <span
           aria-hidden
-          className="bg-primary text-primary-foreground flex size-16 items-center justify-center rounded-full text-2xl font-bold"
+          className="bg-primary text-primary-foreground flex size-16 shrink-0 items-center justify-center rounded-full text-2xl font-semibold"
         >
           V
         </span>
-        <h2 className="text-lg font-semibold tracking-tight">Vidcica</h2>
-        <p className="text-muted-foreground text-xs">
-          {t("about.version", { version: APP_VERSION })}
-        </p>
-        <p className="text-muted-foreground max-w-xs text-sm">{t("about.tagline")}</p>
+        <div className="flex min-w-0 flex-col gap-1">
+          <h2 className="text-xl font-semibold">Vidcica</h2>
+          <p className="text-muted-foreground text-[15px] leading-relaxed">{t("about.tagline")}</p>
+          <p className="text-muted-foreground text-[13px]">
+            {t("about.version", { version: APP_VERSION })}
+          </p>
+        </div>
       </div>
 
       {/* Legal + support links */}

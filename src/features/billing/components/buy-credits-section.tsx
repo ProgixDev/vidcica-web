@@ -57,20 +57,22 @@ export function BuyCreditsSection({ packs }: { packs: CreditPack[] }) {
     packs.length > 1 ? packs[Math.floor(packs.length / 2)]?.credits : undefined;
 
   return (
-    <section className="flex flex-col gap-3 lg:sticky lg:top-6" data-testid="buy-credits">
-      <div className="flex flex-col gap-0.5 px-1">
-        <h2 className="text-muted-foreground text-[11px] font-semibold tracking-widest uppercase">
-          {t("billing.credits.buyTitle")}
-        </h2>
-        <p className="text-muted-foreground text-xs">{t("billing.credits.buySubtitle")}</p>
+    <section className="flex flex-col gap-4 lg:sticky lg:top-6" data-testid="buy-credits">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-xl font-semibold">{t("billing.credits.buyTitle")}</h2>
+        <p className="text-muted-foreground text-[13px] leading-relaxed">
+          {t("billing.credits.buySubtitle")}
+        </p>
       </div>
 
       {message ? (
         <p
           role={message.kind === "err" ? "alert" : undefined}
           className={cn(
-            "px-1 text-sm font-medium",
-            message.kind === "ok" ? "text-success" : "text-destructive",
+            "rounded-md px-4 py-3 text-[13px] font-semibold",
+            message.kind === "ok"
+              ? "bg-success-subtle text-success"
+              : "bg-destructive-subtle text-destructive",
           )}
           data-testid="buy-credits-message"
         >
@@ -83,38 +85,27 @@ export function BuyCreditsSection({ packs }: { packs: CreditPack[] }) {
           const isPopular = pack.credits === popularCredits;
           const name = nameOf(pack.label);
           return (
-            <Card
-              key={pack.credits}
-              className={cn(
-                "relative flex flex-col gap-3 p-4",
-                isPopular ? "border-primary shadow-sm" : "",
-              )}
-            >
-              {isPopular ? (
-                <Badge variant="brand" className="absolute -top-2 right-3">
-                  {t("billing.credits.popular")}
-                </Badge>
-              ) : null}
-              <div className="flex flex-col gap-0.5">
-                {name ? (
-                  <span className="text-muted-foreground text-xs font-medium">{name}</span>
-                ) : null}
-                <span className="text-2xl font-semibold tracking-tight tabular-nums">
-                  {formatNumber(pack.credits)}{" "}
-                  <span className="text-muted-foreground text-sm font-normal">
-                    {t("billing.credits.unit")}
+            <Card key={pack.credits} className="flex items-center gap-4 p-5">
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xl leading-tight font-semibold tracking-[-0.02em] tabular-nums">
+                    {formatNumber(pack.credits)}{" "}
+                    <span className="text-muted-foreground text-[13px] font-normal tracking-normal">
+                      {t("billing.credits.unit")}
+                    </span>
                   </span>
-                </span>
-              </div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-xl font-semibold">{pack.priceEur} €</span>
-                <span className="text-muted-foreground text-xs">
+                  {isPopular ? <Badge variant="brand">{t("billing.credits.popular")}</Badge> : null}
+                </div>
+                <span className="text-muted-foreground truncate text-[13px]">
+                  {name ? `${name} · ` : ""}
+                  <span className="text-foreground font-semibold">{pack.priceEur} €</span>{" "}
                   {t("billing.credits.oneTime")}
                 </span>
               </div>
               <Button
-                className="mt-auto w-full rounded-full"
                 size="sm"
+                variant={isPopular || popularCredits === undefined ? "default" : "secondary"}
+                className="shrink-0"
                 onClick={() => buy(pack)}
                 disabled={pending !== null}
                 data-testid={`buy-pack-${pack.credits}`}

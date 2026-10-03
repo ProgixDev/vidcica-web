@@ -19,22 +19,27 @@ export default async function UseCasesPage() {
     <div className="flex min-h-dvh flex-col">
       <MarketingHeader t={t} locale={locale} />
       <main className="flex-1">
-        <section className="mx-auto w-full max-w-6xl px-6 py-16" aria-labelledby="usecases-h">
-          <div className="mb-12 flex max-w-2xl flex-col gap-3">
-            <h1 id="usecases-h" className="text-3xl font-semibold tracking-tight sm:text-4xl">
+        <section
+          className="mx-auto w-full max-w-6xl px-6 py-20 sm:py-28"
+          aria-labelledby="usecases-h"
+        >
+          <div className="flex max-w-2xl flex-col gap-5">
+            <h1 id="usecases-h" className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
               {t("page.useCases.h1")}
             </h1>
-            <p className="text-muted-foreground leading-relaxed">{t("page.useCases.intro")}</p>
+            <p className="text-muted-foreground text-[17px] leading-relaxed">
+              {t("page.useCases.intro")}
+            </p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="mt-14 grid gap-4 sm:mt-20 sm:grid-cols-2">
             {USE_CASES.map((u) => (
               <Link
                 key={u.slug}
                 href={localizedPath(`/cas-usage/${u.slug}`, locale)}
-                className="border-border hover:border-primary/60 flex flex-col gap-2 rounded-lg border p-6 transition-colors"
+                className="bg-card hover:bg-accent focus-visible:ring-ring focus-visible:ring-offset-background flex flex-col gap-3 rounded-lg p-8 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               >
-                <h2 className="text-base font-semibold tracking-tight">{t(u.cardTitle)}</h2>
-                <p className="text-muted-foreground text-sm leading-relaxed">{t(u.cardBody)}</p>
+                <h2 className="text-xl font-semibold tracking-[-0.02em]">{t(u.cardTitle)}</h2>
+                <p className="text-muted-foreground text-[15px] leading-relaxed">{t(u.cardBody)}</p>
               </Link>
             ))}
           </div>

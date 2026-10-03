@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LogoMark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/lib/i18n/provider";
 
@@ -29,38 +30,17 @@ export function OAuthConnectedView({ ok }: { ok: boolean }) {
   }, []);
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-5 p-8 text-center">
-      <span
-        aria-hidden
-        className={`flex size-16 items-center justify-center rounded-full ${
-          ok ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"
-        }`}
-      >
-        <svg
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          {ok ? <path d="M20 6 9 17l-5-5" /> : <path d="M18 6 6 18M6 6l12 12" />}
-        </svg>
-      </span>
-
-      <div className="flex flex-col gap-1.5">
-        <h1 className="text-lg font-semibold tracking-tight">
-          {ok ? t("oauth.successTitle") : t("oauth.failureTitle")}
-        </h1>
-        <p className="text-muted-foreground max-w-xs text-sm">
-          {ok ? t("oauth.successBody") : t("oauth.failureBody")}
-        </p>
-      </div>
+    <main className="bg-background flex min-h-dvh flex-col items-center justify-center px-6 py-12 text-center">
+      <LogoMark className="size-12" />
+      <h1 className="mt-8 text-[28px] leading-tight font-semibold tracking-[-0.03em]">
+        {ok ? t("oauth.successTitle") : t("oauth.failureTitle")}
+      </h1>
+      <p className="text-muted-foreground mt-3 max-w-xs text-[15px] leading-relaxed">
+        {ok ? t("oauth.successBody") : t("oauth.failureBody")}
+      </p>
 
       {stuck ? (
-        <Button variant="outline" className="rounded-full" onClick={() => window.close()}>
+        <Button variant="secondary" className="mt-8" onClick={() => window.close()}>
           {t("common.close")}
         </Button>
       ) : null}

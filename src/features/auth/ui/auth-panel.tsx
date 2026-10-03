@@ -26,11 +26,11 @@ export function AuthPanel() {
   const failedProvider = params.get("provider") === "apple" ? "apple" : "google";
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-5">
+    <div className="flex w-full max-w-sm flex-col gap-6">
       <div
         role="tablist"
         aria-label={t("auth.methodTablistAria")}
-        className="bg-muted grid grid-cols-2 gap-1 rounded-full p-1"
+        className="bg-secondary grid grid-cols-2 gap-1 rounded-full p-1"
       >
         {(["email", "phone"] as const).map((m) => (
           <button
@@ -40,10 +40,10 @@ export function AuthPanel() {
             aria-selected={method === m}
             onClick={() => setMethod(m)}
             className={cn(
-              "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-              "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+              "h-9 rounded-full px-3 text-sm font-semibold transition-colors outline-none",
+              "focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2",
               method === m
-                ? "bg-background text-foreground shadow-xs"
+                ? "bg-background text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -54,19 +54,18 @@ export function AuthPanel() {
       {method === "email" ? <SignInForm /> : <PhoneOtpForm />}
 
       {/* Divider + Google/Apple — same alternative-provider block as the app */}
-      <div className="flex items-center gap-3" aria-hidden>
-        <span className="bg-border h-px flex-1" />
-        <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
-          {t("auth.orDivider")}
-        </span>
-        <span className="bg-border h-px flex-1" />
-      </div>
-      <div className="flex w-full flex-col gap-2.5">
+      <p className="text-muted-foreground text-center text-[13px]" aria-hidden>
+        {t("auth.orDivider")}
+      </p>
+      <div className="flex w-full flex-col gap-2">
         <GoogleButton />
         <AppleButton />
       </div>
       {oauthFailed ? (
-        <p role="alert" className="text-destructive text-center text-sm">
+        <p
+          role="alert"
+          className="bg-destructive-subtle text-destructive rounded-md px-4 py-3 text-[13px]"
+        >
           {failedProvider === "apple" ? t("auth.appleOauthFailed") : t("auth.googleOauthFailed")}
         </p>
       ) : null}

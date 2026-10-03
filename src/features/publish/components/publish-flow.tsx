@@ -5,6 +5,7 @@ import Link from "next/link";
 import { m } from "@/components/motion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PlatformIcon } from "@/components/platform-icon";
 import { cn } from "@/lib/utils";
@@ -153,88 +154,96 @@ export function PublishFlow({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="mx-auto flex w-full max-w-md flex-col items-center gap-6 py-6"
+        className="mx-auto flex w-full max-w-md flex-col items-center gap-8 py-10"
         data-testid="publish-status"
       >
-        <m.div
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 220, damping: 15 }}
-          className={cn(
-            "flex size-20 items-center justify-center rounded-full shadow-lg",
-            nothingQueued ? "bg-muted text-muted-foreground" : "bg-success text-success-foreground",
-          )}
-        >
-          <svg
-            width="38"
-            height="38"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            {nothingQueued ? (
-              <>
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 8h.01M11 12h1v4h1" />
-              </>
-            ) : mode === "schedule" ? (
-              <>
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4" />
-              </>
-            ) : (
-              <path d="M20 6 9 17l-5-5" />
+        <div className="flex flex-col items-center gap-5">
+          <m.div
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 220, damping: 15 }}
+            className={cn(
+              "flex size-16 items-center justify-center rounded-full",
+              nothingQueued
+                ? "bg-secondary text-muted-foreground"
+                : "bg-success-subtle text-success",
             )}
-          </svg>
-        </m.div>
+          >
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              {nothingQueued ? (
+                <>
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 8h.01M11 12h1v4h1" />
+                </>
+              ) : mode === "schedule" ? (
+                <>
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4" />
+                </>
+              ) : (
+                <path d="M20 6 9 17l-5-5" />
+              )}
+            </svg>
+          </m.div>
 
-        <div className="flex flex-col items-center gap-1.5 text-center">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {nothingQueued
-              ? t("publish.doneNothingTitle")
-              : mode === "schedule"
-                ? t("publish.doneScheduledTitle")
-                : t("publish.doneLaunchedTitle")}
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            {nothingQueued
-              ? t("publish.doneNothingDesc")
-              : mode === "schedule"
-                ? t("publish.doneScheduledDesc")
-                : t("publish.doneLaunchedDesc")}
-          </p>
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h2 className="text-xl font-semibold">
+              {nothingQueued
+                ? t("publish.doneNothingTitle")
+                : mode === "schedule"
+                  ? t("publish.doneScheduledTitle")
+                  : t("publish.doneLaunchedTitle")}
+            </h2>
+            <p className="text-muted-foreground text-[15px] leading-relaxed">
+              {nothingQueued
+                ? t("publish.doneNothingDesc")
+                : mode === "schedule"
+                  ? t("publish.doneScheduledDesc")
+                  : t("publish.doneLaunchedDesc")}
+            </p>
+          </div>
         </div>
 
-        <ul className="flex w-full flex-col gap-2">
-          {queued.map((p) => {
-            const s = statusView(statuses[p], t);
-            const meta = platforms.find((x) => x.id === p);
-            return (
-              <li key={p} className="bg-card flex items-center gap-3 rounded-xl border p-3 text-sm">
-                <PlatformIcon platform={p} size={28} />
-                <span className="flex-1 font-medium">{meta?.label ?? p}</span>
-                <Badge variant={s.variant}>{s.label}</Badge>
-              </li>
-            );
-          })}
-        </ul>
+        {queued.length > 0 ? (
+          <ul className="flex w-full flex-col gap-2">
+            {queued.map((p) => {
+              const s = statusView(statuses[p], t);
+              const meta = platforms.find((x) => x.id === p);
+              return (
+                <li key={p} className="bg-card flex items-center gap-3 rounded-md px-4 py-3">
+                  <PlatformIcon platform={p} size={32} />
+                  <span className="min-w-0 flex-1 truncate text-[15px] font-semibold">
+                    {meta?.label ?? p}
+                  </span>
+                  <Badge variant={s.variant}>{s.label}</Badge>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
 
         {skipped.length > 0 ? (
-          <p className="text-muted-foreground text-center text-xs">
+          <p className="text-muted-foreground text-center text-[13px] leading-relaxed">
             {t("publish.skippedLabel")}{" "}
             {skipped.map((s) => platforms.find((p) => p.id === s)?.label ?? s).join(", ")}
           </p>
         ) : null}
 
         <div className="flex w-full flex-col gap-2">
-          <Link href={`/videos/${video.id}`} className={buttonVariants()}>
+          <Link href={`/videos/${video.id}`} className={buttonVariants({ size: "lg" })}>
             {t("publish.viewVideo")}
           </Link>
-          <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline" }))}>
+          <Link href="/dashboard" className={buttonVariants({ variant: "ghost", size: "lg" })}>
             {t("publish.backToDashboard")}
           </Link>
         </div>
@@ -243,20 +252,26 @@ export function PublishFlow({
   }
 
   // ---- Composer view ----
+  const allSelected = connectable.every((p) => selected.includes(p.id));
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]" data-testid="publish-flow">
+    <div
+      className="grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1fr)_340px]"
+      data-testid="publish-flow"
+    >
       {/* Controls */}
-      <div className="flex flex-col gap-5">
+      <div className="flex min-w-0 flex-col gap-10">
         {/* Networks */}
-        <section className="bg-card rounded-2xl border p-4 sm:p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-semibold">{t("publish.networksTitle")}</h2>
-              <p className="text-muted-foreground text-xs">{t("publish.networksSubtitle")}</p>
-            </div>
+        <section className="flex flex-col gap-4">
+          <div className="flex items-end justify-between gap-3">
+            <SectionHeading
+              title={t("publish.networksTitle")}
+              subtitle={t("publish.networksSubtitle")}
+            />
             {connectable.length > 1 ? (
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-mr-2 shrink-0"
                 onClick={() => {
                   const allOn = connectable.every((p) => selected.includes(p.id));
                   connectable.forEach((p) => {
@@ -265,12 +280,9 @@ export function PublishFlow({
                     if (!allOn && !on) toggle(p.id);
                   });
                 }}
-                className="text-primary text-xs font-medium hover:underline"
               >
-                {connectable.every((p) => selected.includes(p.id))
-                  ? t("publish.deselectAll")
-                  : t("publish.selectAll")}
-              </button>
+                {allSelected ? t("publish.deselectAll") : t("publish.selectAll")}
+              </Button>
             ) : null}
           </div>
 
@@ -289,16 +301,16 @@ export function PublishFlow({
 
         {/* Caption editor — per-platform override, folded with hashtags at confirm */}
         {connectable.length > 0 ? (
-          <section className="bg-card rounded-2xl border p-4 sm:p-5">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="text-sm font-semibold">{t("publish.captionEditorTitle")}</h2>
-                <p className="text-muted-foreground text-xs">
-                  {editTarget
+          <section className="flex flex-col gap-4">
+            <div className="flex items-end justify-between gap-3">
+              <SectionHeading
+                title={t("publish.captionEditorTitle")}
+                subtitle={
+                  editTarget
                     ? t("publish.captionEditorSubtitle", { platform: editTargetLabel })
-                    : t("publish.captionSelectToEdit")}
-                </p>
-              </div>
+                    : t("publish.captionSelectToEdit")
+                }
+              />
               {editTarget ? <PlatformIcon platform={editTarget} size={28} /> : null}
             </div>
             <Textarea
@@ -306,31 +318,28 @@ export function PublishFlow({
               disabled={!editTarget}
               onChange={(e) => editTarget && setCaption(editTarget, e.target.value)}
               rows={5}
-              className="min-h-28 rounded-xl"
+              className="min-h-36"
               data-testid="publish-caption"
               aria-label={t("publish.captionEditorTitle")}
             />
             {editTarget ? (
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
+              <div className="-mt-1 -ml-2 flex flex-wrap items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setCaption(editTarget, defaultCaption)}
                   disabled={editBody === defaultCaption}
-                  className="text-muted-foreground hover:text-foreground text-xs font-medium disabled:opacity-40"
                 >
                   {t("publish.captionReset")}
-                </button>
+                </Button>
                 {selected.length > 1 ? (
-                  <>
-                    <span className="text-muted-foreground/40 text-xs">·</span>
-                    <button
-                      type="button"
-                      onClick={() => selected.forEach((p) => setCaption(p, editBody))}
-                      className="text-primary text-xs font-medium hover:underline"
-                    >
-                      {t("publish.captionApplyAll")}
-                    </button>
-                  </>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => selected.forEach((p) => setCaption(p, editBody))}
+                  >
+                    {t("publish.captionApplyAll")}
+                  </Button>
                 ) : null}
               </div>
             ) : null}
@@ -339,12 +348,12 @@ export function PublishFlow({
 
         {/* YouTube format */}
         {youtubeSelected ? (
-          <section className="bg-card rounded-2xl border p-4 sm:p-5">
-            <h2 className="text-sm font-semibold">{t("publish.youtubeFormatTitle")}</h2>
-            <p className="text-muted-foreground mb-3 text-xs">
-              {t("publish.youtubeFormatSubtitle")}
-            </p>
-            <div className="grid grid-cols-2 gap-2">
+          <section className="flex flex-col gap-4">
+            <SectionHeading
+              title={t("publish.youtubeFormatTitle")}
+              subtitle={t("publish.youtubeFormatSubtitle")}
+            />
+            <div className="grid gap-2 sm:grid-cols-2">
               <FormatOption
                 title={t("publish.formatShortTitle")}
                 hint={t("publish.formatShortHint")}
@@ -360,7 +369,10 @@ export function PublishFlow({
               />
             </div>
             {!shortEligible ? (
-              <p className="text-muted-foreground mt-3 text-xs" data-testid="short-ineligible">
+              <p
+                className="text-muted-foreground text-[13px] leading-relaxed"
+                data-testid="short-ineligible"
+              >
                 {t("publish.formatShortIneligible", { format: video.format })}
               </p>
             ) : null}
@@ -372,86 +384,93 @@ export function PublishFlow({
         {tiktokSelected ? <TikTokOptions /> : null}
 
         {/* Timing */}
-        <section className="bg-card rounded-2xl border p-4 sm:p-5">
-          <h2 className="text-sm font-semibold">{t("publish.timingTitle")}</h2>
-          <p className="text-muted-foreground mb-3 text-xs">{t("publish.timingSubtitle")}</p>
-          <div className="flex flex-col gap-2">
+        <section className="flex flex-col gap-4">
+          <SectionHeading title={t("publish.timingTitle")} subtitle={t("publish.timingSubtitle")} />
+          <div className="flex flex-wrap gap-2">
             <TimingOption
               title={t("publish.timingNowTitle")}
-              hint={t("publish.timingNowHint")}
               icon="send"
               selected={mode === "now"}
               onClick={() => setMode("now")}
             />
             <TimingOption
               title={t("publish.timingScheduleTitle")}
-              hint={
-                mode === "schedule" && scheduledAt
-                  ? new Date(scheduledAt).toLocaleString("fr-FR", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })
-                  : t("publish.timingScheduleHint")
-              }
               icon="calendar"
               selected={mode === "schedule"}
               onClick={() => setMode("schedule")}
             />
-            {mode === "schedule" ? (
-              <input
-                type="datetime-local"
-                aria-label={t("publish.scheduleAriaLabel")}
-                className="border-input bg-background focus-visible:ring-ring mt-1 h-10 rounded-full border px-4 text-sm focus-visible:ring-2 focus-visible:outline-none"
-                data-testid="publish-schedule"
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (v) setScheduledAt(new Date(v).toISOString());
-                }}
-              />
-            ) : null}
           </div>
+          {mode === "schedule" ? (
+            <Input
+              type="datetime-local"
+              aria-label={t("publish.scheduleAriaLabel")}
+              className="sm:max-w-xs"
+              data-testid="publish-schedule"
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v) setScheduledAt(new Date(v).toISOString());
+              }}
+            />
+          ) : null}
+          <p className="text-muted-foreground text-[13px] leading-relaxed">
+            {mode === "now"
+              ? t("publish.timingNowHint")
+              : scheduledAt
+                ? new Date(scheduledAt).toLocaleString("fr-FR", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })
+                : t("publish.timingScheduleHint")}
+          </p>
         </section>
 
-        {phase === "error" && error ? (
-          <p role="alert" className="text-destructive text-sm">
-            {error}
-          </p>
-        ) : null}
-
-        <Button
-          size="lg"
-          className="rounded-full"
-          onClick={() => void confirm()}
-          disabled={!canConfirm()}
-          data-testid="publish-confirm"
-        >
-          {phase === "submitting"
-            ? t("publish.submitting")
-            : selected.length === 0
-              ? t("publish.selectANetwork")
-              : mode === "schedule"
-                ? t("publish.schedulePublish")
-                : `${t("publish.publishNow")}${selected.length > 1 ? ` (${selected.length})` : ""}`}
-        </Button>
+        {/* Closing action row — the one filled action of the screen. */}
+        <div className="bg-background sticky bottom-0 z-10 -mt-4 flex flex-col gap-3 py-4">
+          {phase === "error" && error ? (
+            <p role="alert" className="text-destructive text-[13px] leading-relaxed">
+              {error}
+            </p>
+          ) : null}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              size="lg"
+              className="flex-1 sm:flex-none"
+              onClick={() => void confirm()}
+              disabled={!canConfirm()}
+              data-testid="publish-confirm"
+            >
+              {phase === "submitting"
+                ? t("publish.submitting")
+                : selected.length === 0
+                  ? t("publish.selectANetwork")
+                  : mode === "schedule"
+                    ? t("publish.schedulePublish")
+                    : `${t("publish.publishNow")}${selected.length > 1 ? ` (${selected.length})` : ""}`}
+            </Button>
+            <Link
+              href={`/videos/${video.id}`}
+              className={buttonVariants({ variant: "ghost", size: "lg" })}
+            >
+              {t("common.cancel")}
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Preview */}
-      <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="bg-card flex flex-col gap-4 rounded-2xl border p-4">
+      <aside className="lg:sticky lg:top-24 lg:self-start" aria-label={t("publish.previewLabel")}>
+        <div className="bg-card flex flex-col gap-5 rounded-lg p-5">
           {/* Video summary */}
           <div className="flex items-center gap-3">
-            <div className="bg-muted aspect-[9/16] w-12 shrink-0 overflow-hidden rounded-lg">
+            <div className="bg-secondary aspect-[9/16] w-11 shrink-0 overflow-hidden rounded-sm">
               {video.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element -- remote Supabase thumb
                 <img src={video.thumbnailUrl} alt="" className="size-full object-cover" />
               ) : null}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-                {t("publish.previewLabel")}
-              </p>
-              <p className="truncate text-sm font-semibold">{video.title}</p>
-              <p className="text-muted-foreground text-xs">
+              <p className="truncate text-[15px] font-semibold">{video.title}</p>
+              <p className="text-muted-foreground text-[13px]">
                 {video.format} · {Math.round(video.durationSec)} s
               </p>
             </div>
@@ -469,14 +488,16 @@ export function PublishFlow({
                 key={p.id}
                 type="button"
                 onClick={() => setPreviewTab(p.id)}
+                aria-pressed={activePreview === p.id}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                  "flex h-9 items-center gap-2 rounded-full pr-3.5 pl-2.5 text-[13px] font-semibold transition-colors",
+                  FOCUS_RING,
                   activePreview === p.id
-                    ? "border-primary bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:bg-muted",
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-subtle-foreground hover:bg-accent",
                 )}
               >
-                <PlatformIcon platform={p.id} size={14} />
+                <PlatformIcon platform={p.id} size={16} />
                 {p.label}
               </button>
             ))}
@@ -492,7 +513,7 @@ export function PublishFlow({
             asShort={asShort}
           />
 
-          <p className="text-muted-foreground text-[11px] leading-relaxed">
+          <p className="text-muted-foreground text-xs leading-relaxed">
             {t("publish.captionNote")}
           </p>
         </div>
@@ -502,6 +523,56 @@ export function PublishFlow({
 }
 
 // ---- sub-components ----
+
+/** Neutral focus ring for the custom (non-primitive) interactive elements. */
+const FOCUS_RING =
+  "focus-visible:ring-ring focus-visible:ring-offset-background outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+
+/** A selectable pale tile: one tone step when chosen — never a coloured edge. */
+function tileClass(selected: boolean) {
+  return cn(
+    "flex w-full items-center gap-3 rounded-md px-4 py-3 text-left transition-colors",
+    FOCUS_RING,
+    selected ? "bg-accent" : "bg-card hover:bg-accent",
+  );
+}
+
+function SectionHeading({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1">
+      <h2 className="text-xl font-semibold">{title}</h2>
+      <p className="text-muted-foreground text-[13px] leading-relaxed">{subtitle}</p>
+    </div>
+  );
+}
+
+/** The selection signal: an ink disc with a check when on, a pale disc when off. */
+function CheckDisc({ selected }: { selected: boolean }) {
+  return (
+    <span
+      className={cn(
+        "flex size-6 shrink-0 items-center justify-center rounded-full transition-colors",
+        selected ? "bg-primary text-primary-foreground" : "bg-secondary",
+      )}
+    >
+      {selected ? (
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      ) : null}
+    </span>
+  );
+}
 
 const STATUS_HINT: Record<NetworkStatus, MessageKey | null> = {
   connected: null,
@@ -535,42 +606,16 @@ function PlatformRow({
           }}
           data-testid={`publish-pick-${platform.id}`}
           aria-pressed={selected}
-          className={cn(
-            "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors",
-            selected ? "border-primary bg-accent/60" : "hover:bg-muted border-border",
-          )}
+          className={tileClass(selected)}
         >
           <PlatformIcon platform={platform.id} size={36} />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{platform.label}</p>
-            {platform.handle ? (
-              <p className="text-muted-foreground truncate text-xs">{platform.handle}</p>
-            ) : (
-              <p className="text-success text-xs font-medium">{t("publish.connected")}</p>
-            )}
+            <p className="text-[15px] font-semibold">{platform.label}</p>
+            <p className="text-muted-foreground truncate text-[13px]">
+              {platform.handle ? platform.handle : t("publish.connected")}
+            </p>
           </div>
-          <span
-            className={cn(
-              "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-              selected ? "border-primary bg-primary text-primary-foreground" : "border-input",
-            )}
-          >
-            {selected ? (
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-              >
-                <path d="M20 6 9 17l-5-5" />
-              </svg>
-            ) : null}
-          </span>
+          <CheckDisc selected={selected} />
         </button>
       </li>
     );
@@ -580,22 +625,22 @@ function PlatformRow({
   const unavailable = platform.status === "unavailable";
   return (
     <li
-      className="border-border flex items-center gap-3 rounded-xl border border-dashed p-3"
+      className="bg-card flex items-center gap-3 rounded-md px-4 py-3"
       data-testid={`publish-pick-${platform.id}`}
     >
       <PlatformIcon platform={platform.id} size={36} muted />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium">{platform.label}</p>
-        <p className="text-muted-foreground text-xs">
+        <p className="text-muted-foreground text-[15px] font-semibold">{platform.label}</p>
+        <p className="text-muted-foreground text-[13px]">
           {STATUS_HINT[platform.status] ? t(STATUS_HINT[platform.status]!) : ""}
         </p>
       </div>
       {unavailable ? (
-        <span className="text-muted-foreground text-xs">{t("publish.soon")}</span>
+        <span className="text-muted-foreground text-[13px]">{t("publish.soon")}</span>
       ) : (
         <Link
           href="/networks"
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full")}
+          className={buttonVariants({ variant: "secondary", size: "sm" })}
           data-testid={`connect-${platform.id}`}
         >
           {platform.status === "needs_reconnect" ? t("common.reconnect") : t("common.connect")}
@@ -624,27 +669,25 @@ function FormatOption({
       onClick={onClick}
       disabled={disabled}
       aria-pressed={selected}
-      className={cn(
-        "flex flex-col gap-0.5 rounded-xl border p-3 text-left transition-colors",
-        selected ? "border-primary bg-accent/60" : "hover:bg-muted border-border",
-        disabled && "cursor-not-allowed opacity-50 hover:bg-transparent",
-      )}
+      className={cn(tileClass(selected), disabled && "hover:bg-card cursor-not-allowed opacity-50")}
     >
-      <span className={cn("text-sm font-semibold", selected && "text-primary")}>{title}</span>
-      <span className="text-muted-foreground text-[11px]">{hint}</span>
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="text-[15px] font-semibold">{title}</span>
+        <span className="text-muted-foreground text-[13px]">{hint}</span>
+      </span>
+      <CheckDisc selected={selected} />
     </button>
   );
 }
 
+/** Timing choice — a pale pill; the chosen one turns ink (selected chip). */
 function TimingOption({
   title,
-  hint,
   icon,
   selected,
   onClick,
 }: {
   title: string;
-  hint: string;
   icon: "send" | "calendar";
   selected: boolean;
   onClick: () => void;
@@ -655,41 +698,34 @@ function TimingOption({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        "flex items-center gap-3 rounded-xl border p-3 text-left transition-colors",
-        selected ? "border-primary bg-accent/60" : "hover:bg-muted border-border",
+        "flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors",
+        FOCUS_RING,
+        selected
+          ? "bg-primary text-primary-foreground"
+          : "bg-secondary text-foreground hover:bg-accent",
       )}
     >
-      <span
-        className={cn(
-          "flex size-9 shrink-0 items-center justify-center rounded-full",
-          selected ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
-        )}
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
       >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden
-        >
-          {icon === "send" ? (
-            <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" />
-          ) : (
-            <>
-              <rect x="3" y="4" width="18" height="18" rx="2" />
-              <path d="M16 2v4M8 2v4M3 10h18" />
-            </>
-          )}
-        </svg>
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-muted-foreground truncate text-xs">{hint}</p>
-      </div>
+        {icon === "send" ? (
+          <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" />
+        ) : (
+          <>
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <path d="M16 2v4M8 2v4M3 10h18" />
+          </>
+        )}
+      </svg>
+      {title}
     </button>
   );
 }

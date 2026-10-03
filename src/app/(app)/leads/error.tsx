@@ -7,12 +7,12 @@ import { useT } from "@/lib/i18n/provider";
 export default function LeadsError({ reset }: { error: Error; reset: () => void }) {
   const t = useT();
   return (
-    <main className="mx-auto flex min-h-[60dvh] w-full max-w-2xl items-center justify-center px-6 py-8">
+    <div className="flex min-h-[50dvh] w-full items-center justify-center">
       <EmptyState
         title={t("leads.errorListTitle")}
         description={t("leads.errorDescription")}
         action={<Button onClick={reset}>{t("common.retry")}</Button>}
       />
-    </main>
+    </div>
   );
 }

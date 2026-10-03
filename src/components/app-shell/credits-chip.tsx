@@ -34,17 +34,13 @@ export function CreditsChip({
         href="/billing"
         data-testid="shell-credits-chip"
         className={cn(
-          "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors",
+          "flex h-10 items-center rounded-full px-4 text-[13px] font-semibold whitespace-nowrap transition-colors",
           low
-            ? "border-destructive/30 text-destructive hover:bg-destructive/10"
-            : "border-border text-foreground hover:bg-accent",
+            ? "bg-destructive-subtle text-destructive"
+            : "bg-secondary text-foreground hover:bg-accent",
           className,
         )}
       >
-        <span
-          aria-hidden
-          className={cn("size-1.5 rounded-full", low ? "bg-destructive" : "bg-primary")}
-        />
         {t("chrome.creditsCount", { count: credits })}
       </Link>
     );
@@ -56,15 +52,15 @@ export function CreditsChip({
       href="/billing"
       data-testid="shell-credits-card"
       className={cn(
-        "border-border bg-card hover:border-foreground/20 flex flex-col gap-2 rounded-md border p-3 transition-colors",
+        "bg-secondary hover:bg-accent flex flex-col gap-2.5 rounded-md p-4 transition-colors",
         className,
       )}
     >
       <div className="flex items-baseline justify-between">
-        <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
+        <span className="text-muted-foreground text-[13px] font-medium">
           {t("chrome.creditsLabel")}
         </span>
-        <span className={cn("text-sm font-semibold", low && "text-destructive")}>
+        <span className={cn("text-[15px] font-semibold", low && "text-destructive")}>
           {credits}
           {monthlyCredits > 0 ? (
             <span className="text-muted-foreground font-normal"> / {monthlyCredits}</span>
@@ -72,14 +68,14 @@ export function CreditsChip({
         </span>
       </div>
       {monthlyCredits > 0 ? (
-        <div className="bg-muted h-1.5 overflow-hidden rounded-full" aria-hidden>
+        <div className="bg-accent h-1 overflow-hidden rounded-full" aria-hidden>
           <div
             className={cn("h-full rounded-full", low ? "bg-destructive" : "bg-primary")}
             style={{ width: `${pct}%` }}
           />
         </div>
       ) : null}
-      <span className="text-muted-foreground text-[11px]">
+      <span className="text-muted-foreground text-xs">
         {low ? t("chrome.lowBalance") : t("chrome.manageOffer")}
       </span>
     </Link>

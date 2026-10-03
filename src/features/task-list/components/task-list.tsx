@@ -44,14 +44,19 @@ export function TaskList() {
         </form>
 
         {tasks.length === 0 ? (
-          <p className="text-muted-foreground py-6 text-center text-sm">
+          <p className="text-muted-foreground py-6 text-center text-[13px]">
             Nothing here yet — add your first task above.
           </p>
         ) : (
-          <ul className="space-y-1">
+          <ul>
             <AnimatePresence initial={false}>
               {tasks.map((task) => (
-                <m.li key={task.id} {...listItem} layout className="flex items-center gap-3">
+                <m.li
+                  key={task.id}
+                  {...listItem}
+                  layout
+                  className="flex min-h-12 items-center gap-3"
+                >
                   <input
                     id={`task-${task.id}`}
                     type="checkbox"
@@ -61,7 +66,9 @@ export function TaskList() {
                   />
                   <label
                     htmlFor={`task-${task.id}`}
-                    className={task.done ? "text-muted-foreground text-sm line-through" : "text-sm"}
+                    className={
+                      task.done ? "text-muted-foreground text-[15px] line-through" : "text-[15px]"
+                    }
                   >
                     {task.title}
                   </label>
@@ -72,10 +79,10 @@ export function TaskList() {
         )}
       </CardContent>
       <CardFooter className="justify-between">
-        <p aria-live="polite" className="text-muted-foreground text-sm">
+        <p aria-live="polite" className="text-muted-foreground text-[13px]">
           {remaining === 0 ? "You’re all caught up." : `${remaining} remaining`}
         </p>
-        <Button variant="outline" size="sm" onClick={clearDone} disabled={doneCount === 0}>
+        <Button variant="ghost" size="sm" onClick={clearDone} disabled={doneCount === 0}>
           Clear done
         </Button>
       </CardFooter>

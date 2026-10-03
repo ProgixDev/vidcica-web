@@ -37,13 +37,13 @@ export default async function VideosPage() {
           <>
             <Link
               href="/videos/trash"
-              className="text-muted-foreground hover:text-foreground text-sm"
+              className={buttonVariants({ variant: "ghost" })}
               data-testid="videos-trash-link"
             >
               {t("library.trash.title")}
             </Link>
             <UploadVideoButton />
-            <Link href="/create" className={buttonVariants({ className: "rounded-full" })}>
+            <Link href="/create" className={buttonVariants()}>
               {t("videos.create")}
             </Link>
           </>

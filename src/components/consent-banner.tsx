@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { useAnalytics } from "@/lib/analytics/provider";
 import { useT } from "@/lib/i18n/provider";
@@ -26,12 +25,12 @@ export function ConsentBanner() {
       aria-label={t("consent.title")}
       className="fixed inset-x-0 bottom-0 z-50 p-4"
     >
-      <div className="border-border bg-card mx-auto flex w-full max-w-3xl flex-col gap-4 rounded-lg border p-5 shadow-lg sm:flex-row sm:items-center">
+      <div className="bg-popover text-popover-foreground mx-auto flex w-full max-w-3xl flex-col gap-5 rounded-lg p-6 sm:flex-row sm:items-center sm:gap-8">
         <div className="flex-1">
-          <p className="text-sm font-medium">{t("consent.title")}</p>
-          <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
+          <p className="text-[15px] font-semibold">{t("consent.title")}</p>
+          <p className="text-muted-foreground mt-1 text-[13px] leading-relaxed">
             {t("consent.body")}{" "}
-            <Link href="/privacy" className="hover:text-foreground underline">
+            <Link href="/privacy" className="text-foreground underline underline-offset-4">
               {t("consent.learnMore")}
             </Link>
           </p>
@@ -40,14 +39,14 @@ export function ConsentBanner() {
           <button
             type="button"
             onClick={() => setConsent("denied")}
-            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full")}
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
           >
             {t("consent.decline")}
           </button>
           <button
             type="button"
             onClick={() => setConsent("granted")}
-            className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
+            className={buttonVariants({ size: "sm" })}
           >
             {t("consent.accept")}
           </button>

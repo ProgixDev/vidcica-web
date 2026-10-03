@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { listMyTrashedVideos } from "@/lib/vidcica/videos-queries";
 import { TrashList } from "@/features/videos";
 import { PageHeader } from "@/components/app-shell";
+import { buttonVariants } from "@/components/ui/button";
 import { getT } from "@/lib/i18n/server";
 
 export async function generateMetadata() {
@@ -29,7 +30,7 @@ export default async function VideosTrashPage() {
         title={t("library.trash.title")}
         subtitle={t("library.trash.subtitle")}
         actions={
-          <Link href="/videos" className="text-muted-foreground hover:text-foreground text-sm">
+          <Link href="/videos" className={buttonVariants({ variant: "ghost" })}>
             ← {t("videos.title")}
           </Link>
         }

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { useT } from "@/lib/i18n/provider";
@@ -26,13 +25,13 @@ export function HeaderCta() {
   return authed ? (
     <Link
       href="/dashboard"
-      className={cn(buttonVariants({ size: "sm" }), "rounded-full px-4")}
+      className={buttonVariants({ size: "default" })}
       data-testid="header-cta-app"
     >
       {t("landing.headerCta.openApp")}
     </Link>
   ) : (
-    <Link href="/sign-in" className={cn(buttonVariants({ size: "sm" }), "rounded-full px-4")}>
+    <Link href="/sign-in" className={buttonVariants({ size: "default" })}>
       {t("landing.headerCta.start")}
     </Link>
   );

@@ -79,14 +79,16 @@ export default function TermsPage() {
       footer={
         <>
           Vidcica · Questions juridiques / legal :{" "}
-          <a href="mailto:support@vidcica.com" className="underline">
+          <a
+            href="mailto:support@vidcica.com"
+            className="text-foreground font-medium underline underline-offset-4"
+          >
             support@vidcica.com
           </a>
         </>
       }
     >
       <LegalSection doc={FR} />
-      <hr className="border-border my-12" />
       <LegalSection doc={EN} />
     </LegalShell>
   );

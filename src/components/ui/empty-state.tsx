@@ -18,14 +18,14 @@ type EmptyStateProps = {
 export function EmptyState({ title, description, icon, action, className }: EmptyStateProps) {
   return (
     <div
-      className={cn("flex flex-col items-center justify-center gap-3 px-6 text-center", className)}
+      className={cn("flex flex-col items-center justify-center gap-2 px-6 text-center", className)}
     >
       {icon ? <div className="text-muted-foreground mb-1">{icon}</div> : null}
-      <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+      <h2 className="text-[17px] font-semibold tracking-tight">{title}</h2>
       {description ? (
-        <p className="text-muted-foreground max-w-prose text-sm">{description}</p>
+        <p className="text-muted-foreground max-w-sm text-[13px] leading-relaxed">{description}</p>
       ) : null}
-      {action ? <div className="mt-2">{action}</div> : null}
+      {action ? <div className="mt-4">{action}</div> : null}
     </div>
   );
 }

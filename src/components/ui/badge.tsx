@@ -2,19 +2,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Status pill. Solid fills so the label always clears WCAG AA (a soft orange
- * chip on light would not). Variants map to the video status metadata.
+ * Status pill — identity 01. Neutral by default; status colours are a tinted
+ * `*-subtle` surface with its paired foreground (all AA) and are used only when
+ * the feedback is essential. Never bordered. `brand` is the ink pill, not citron.
  */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap",
+  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs leading-none font-semibold whitespace-nowrap",
   {
     variants: {
       variant: {
-        muted: "bg-muted text-muted-foreground",
+        muted: "bg-secondary text-subtle-foreground",
         brand: "bg-primary text-primary-foreground",
-        success: "bg-success text-success-foreground",
-        warning: "bg-warning text-warning-foreground",
-        outline: "border-border text-foreground border",
+        success: "bg-success-subtle text-success",
+        warning: "bg-warning-subtle text-warning",
+        destructive: "bg-destructive-subtle text-destructive",
+        outline: "bg-secondary text-foreground",
       },
     },
     defaultVariants: { variant: "muted" },

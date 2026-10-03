@@ -123,12 +123,12 @@ export function SignInForm() {
   }
 
   return (
-    <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-4">
-      <div className="flex flex-col gap-1 text-center">
-        <h2 className="text-lg font-semibold tracking-tight">
+    <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-5">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-[17px] font-semibold tracking-[-0.01em]">
           {mode === "sign-in" ? t("auth.signInTitle") : t("auth.signUpTitle")}
         </h2>
-        <p className="text-muted-foreground text-xs">
+        <p className="text-muted-foreground text-[13px] leading-relaxed">
           {mode === "sign-in" ? t("auth.signInSubtitle") : t("auth.signUpSubtitle")}
         </p>
       </div>
@@ -141,7 +141,6 @@ export function SignInForm() {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="bg-foreground/5 h-10"
           data-testid="sign-in-email"
         />
       </div>
@@ -151,7 +150,7 @@ export function SignInForm() {
           {mode === "sign-in" ? (
             <Link
               href="/forgot-password"
-              className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-2"
+              className="text-muted-foreground hover:text-foreground text-[13px] underline underline-offset-2"
               data-testid="sign-in-forgot-link"
             >
               {t("auth.forgotLink")}
@@ -165,11 +164,10 @@ export function SignInForm() {
           autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="bg-foreground/5 h-10"
           data-testid="sign-in-password"
         />
         {mode === "sign-up" ? (
-          <p className="text-muted-foreground text-[11px]" data-testid="sign-up-password-rules">
+          <p className="text-muted-foreground text-xs" data-testid="sign-up-password-rules">
             {t("auth.passwordRules")}
           </p>
         ) : null}
@@ -177,8 +175,10 @@ export function SignInForm() {
 
       {/* Sign-up only: lightweight profile capture (optional). */}
       {mode === "sign-up" ? (
-        <div className="border-border/60 flex flex-col gap-4 rounded-xl border border-dashed p-3">
-          <p className="text-muted-foreground text-[11px]">{t("auth.signUpProfileHint")}</p>
+        <div className="flex flex-col gap-5 pt-1">
+          <p className="text-muted-foreground text-[13px] leading-relaxed">
+            {t("auth.signUpProfileHint")}
+          </p>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="auth-niche">{t("profile.nicheLabel")}</Label>
             <Input
@@ -187,7 +187,6 @@ export function SignInForm() {
               placeholder={t("profile.nichePlaceholder")}
               value={niche}
               onChange={(e) => setNiche(e.target.value)}
-              className="bg-foreground/5 h-10"
               data-testid="sign-up-niche"
             />
           </div>
@@ -198,7 +197,7 @@ export function SignInForm() {
               placeholder={t("profile.audiencePlaceholder")}
               value={audience}
               onChange={(e) => setAudience(e.target.value)}
-              className="bg-foreground/5 min-h-16"
+              className="min-h-20"
               data-testid="sign-up-audience"
             />
           </div>
@@ -206,14 +205,16 @@ export function SignInForm() {
       ) : null}
 
       {error ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {error}
         </p>
       ) : null}
       <Button
         type="submit"
         disabled={pending}
-        className="rounded-full"
+        variant="brand"
+        size="lg"
+        className="w-full"
         data-testid="sign-in-submit"
       >
         {mode === "sign-in"
@@ -227,7 +228,7 @@ export function SignInForm() {
       <Button
         type="button"
         variant="ghost"
-        className="rounded-full"
+        className="-mt-2 w-full"
         onClick={() => setMode(mode === "sign-in" ? "sign-up" : "sign-in")}
         data-testid="sign-in-toggle-mode"
       >

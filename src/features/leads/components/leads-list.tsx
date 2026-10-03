@@ -3,13 +3,11 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import {
   LEAD_SCORE_KEY,
   LEAD_STATUS_KEY,
-  SCORE_META,
   STATUS_META,
   STATUS_ORDER,
   type Lead,
@@ -17,6 +15,7 @@ import {
 } from "@/lib/vidcica/lead";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import { useLeadsStore } from "../provider";
 import { ExportButton } from "./export-button";
 
@@ -56,36 +55,42 @@ function LeadCard({
 }) {
   const t = useT();
   const status = STATUS_META[lead.status];
-  const score = SCORE_META[lead.scoreBucket];
   return (
-    <Card className="flex items-center gap-3 p-4" data-testid={`lead-${lead.id}`}>
+    <li
+      className="hover:bg-accent flex min-h-16 items-center gap-4 pl-5 transition-colors"
+      data-testid={`lead-${lead.id}`}
+    >
       <input
         type="checkbox"
         checked={selected}
         onChange={(e) => onToggle(e.target.checked)}
         aria-label={t("leads.selectLead", { name: `${lead.firstName} ${lead.lastName}` })}
         data-testid={`lead-select-${lead.id}`}
+        className="accent-primary size-4 shrink-0 cursor-pointer"
       />
       <Link
         href={`/leads/${lead.id}`}
-        className="flex min-w-0 flex-1 items-center justify-between gap-3"
+        className="focus-visible:ring-ring flex min-w-0 flex-1 items-center justify-between gap-4 self-stretch py-3 pr-5 outline-none focus-visible:ring-2 focus-visible:ring-inset"
       >
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate font-medium">
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="truncate text-[15px] font-semibold">
             {lead.firstName} {lead.lastName}
           </span>
-          <span className="text-muted-foreground truncate text-xs">{lead.campaignName}</span>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Badge variant={score.variant}>{t(LEAD_SCORE_KEY[lead.scoreBucket])}</Badge>
-          <Badge variant={status.variant}>{t(LEAD_STATUS_KEY[lead.status])}</Badge>
-        </div>
+          <span className="text-muted-foreground truncate text-[13px]">
+            {t(LEAD_SCORE_KEY[lead.scoreBucket])} · {lead.campaignName}
+          </span>
+        </span>
+        <Badge variant={status.variant} className="shrink-0">
+          {t(LEAD_STATUS_KEY[lead.status])}
+        </Badge>
       </Link>
-    </Card>
+    </li>
   );
 }
 
-/** Pill toggle used for the status + period filter rows (matches the ads tab style). */
+const SEGMENT_FOCUS = "focus-visible:ring-ring outline-none focus-visible:ring-2";
+
+/** Chip toggle for the status filter row — the selected chip is the ink pill. */
 function FilterPill({
   active,
   onClick,
@@ -104,11 +109,43 @@ function FilterPill({
       aria-selected={active}
       onClick={onClick}
       data-testid={testId}
-      className={
+      className={cn(
+        SEGMENT_FOCUS,
+        "focus-visible:ring-offset-background inline-flex h-9 items-center rounded-full px-4 text-[13px] font-semibold transition-colors focus-visible:ring-offset-2",
         active
-          ? "bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-medium"
-          : "text-muted-foreground hover:text-foreground border-border rounded-full border px-3 py-1 text-xs font-medium"
-      }
+          ? "bg-primary text-primary-foreground"
+          : "bg-secondary text-foreground hover:bg-accent",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** One segment of the pale period control (same look as the analytics range). */
+function Segment({
+  active,
+  onClick,
+  children,
+  testId,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  testId: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      data-testid={testId}
+      className={cn(
+        SEGMENT_FOCUS,
+        "inline-flex h-9 shrink-0 items-center rounded-full px-3.5 text-[13px] font-semibold transition-colors",
+        active ? "bg-background text-foreground" : "text-muted-foreground hover:text-foreground",
+      )}
     >
       {children}
     </button>
@@ -182,22 +219,22 @@ export function LeadsList() {
   const statusOptions: StatusFilter[] = ["all", ...STATUS_ORDER];
 
   return (
-    <div className="flex flex-col gap-4" data-testid="leads-list">
-      {/* Search */}
-      <Input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder={t("leads.searchPlaceholder")}
-        aria-label={t("leads.searchPlaceholder")}
-        data-testid="leads-search"
-      />
+    <div className="flex flex-col gap-6" data-testid="leads-list">
+      {/* Search + the one action of this list */}
+      <div className="flex flex-wrap items-center gap-3">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t("leads.searchPlaceholder")}
+          aria-label={t("leads.searchPlaceholder")}
+          data-testid="leads-search"
+          className="min-w-0 flex-1 basis-60"
+        />
+        <ExportButton ids={exportIds} />
+      </div>
 
       {/* Status chips */}
-      <div
-        className="flex flex-wrap gap-1.5"
-        role="tablist"
-        aria-label={t("leads.filterStatusAria")}
-      >
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label={t("leads.filterStatusAria")}>
         {statusOptions.map((s) => (
           <FilterPill
             key={s}
@@ -210,38 +247,37 @@ export function LeadsList() {
         ))}
       </div>
 
-      {/* Period chips */}
-      <div
-        className="flex flex-wrap gap-1.5"
-        role="tablist"
-        aria-label={t("leads.filterPeriodAria")}
-      >
-        {PERIOD_OPTIONS.map((opt) => (
-          <FilterPill
-            key={opt.value}
-            active={period === opt.value}
-            onClick={() => setPeriod(opt.value)}
-            testId={`leads-period-filter-${opt.value}`}
-          >
-            {t(opt.label)}
-          </FilterPill>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-muted-foreground text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-muted-foreground flex items-center gap-2 text-[13px]">
           {filtered.length > 1
             ? t("leads.countPlural", { count: filtered.length })
             : t("leads.countSingular", { count: filtered.length })}
           {newCount > 0 ? (
-            <Badge variant="brand" className="ml-2" data-testid="leads-new-badge">
+            <Badge variant="muted" data-testid="leads-new-badge">
               {newCount > 1
                 ? t("leads.newCountPlural", { count: newCount })
                 : t("leads.newCountSingular", { count: newCount })}
             </Badge>
           ) : null}
         </span>
-        <ExportButton ids={exportIds} />
+
+        {/* Period — a pale segmented control */}
+        <div
+          className="bg-secondary inline-flex max-w-full gap-1 overflow-x-auto rounded-full p-1"
+          role="tablist"
+          aria-label={t("leads.filterPeriodAria")}
+        >
+          {PERIOD_OPTIONS.map((opt) => (
+            <Segment
+              key={opt.value}
+              active={period === opt.value}
+              onClick={() => setPeriod(opt.value)}
+              testId={`leads-period-filter-${opt.value}`}
+            >
+              {t(opt.label)}
+            </Segment>
+          ))}
+        </div>
       </div>
 
       {filtered.length === 0 ? (
@@ -253,7 +289,7 @@ export function LeadsList() {
           />
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <ul className="bg-card divide-border flex flex-col divide-y overflow-hidden rounded-lg">
           {filtered.map((lead) => (
             <LeadCard
               key={lead.id}
@@ -262,7 +298,7 @@ export function LeadsList() {
               onToggle={(on) => toggle(lead.id, on)}
             />
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );

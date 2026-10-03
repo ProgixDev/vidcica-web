@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { deleteCampaign, duplicateCampaign } from "../actions";
 import { type Campaign, type CampaignStatus } from "@/lib/vidcica/campaign";
 import { useT } from "@/lib/i18n/provider";
@@ -56,12 +55,12 @@ export function CampaignManageControls({
   }
 
   return (
-    <Card className="flex flex-col gap-3 p-5" data-testid="campaign-manage">
-      <h2 className="text-sm font-medium">{t("ads.manage.title")}</h2>
+    <section className="flex flex-col gap-4" data-testid="campaign-manage">
+      <h2 className="text-xl font-semibold tracking-tight">{t("ads.manage.title")}</h2>
 
       <div className="flex flex-wrap gap-2">
         <Button
-          variant="outline"
+          variant="secondary"
           onClick={() => void onDuplicate()}
           disabled={pending !== null}
           data-testid="duplicate-btn"
@@ -72,7 +71,6 @@ export function CampaignManageControls({
         {canDelete && !confirming ? (
           <Button
             variant="ghost"
-            className="text-destructive hover:text-destructive"
             onClick={() => setConfirming(true)}
             disabled={pending !== null}
             data-testid="delete-btn"
@@ -82,22 +80,20 @@ export function CampaignManageControls({
         ) : null}
       </div>
 
-      <p className="text-muted-foreground text-xs">{t("ads.manage.duplicateNote")}</p>
-
-      {!canDelete ? (
-        <p className="text-muted-foreground text-xs" data-testid="delete-blocked">
-          {t("ads.manage.deleteBlocked")}
-        </p>
-      ) : null}
+      <div className="text-muted-foreground flex max-w-xl flex-col gap-1 text-[13px] leading-relaxed">
+        <p>{t("ads.manage.duplicateNote")}</p>
+        {!canDelete ? <p data-testid="delete-blocked">{t("ads.manage.deleteBlocked")}</p> : null}
+      </div>
 
       {canDelete && confirming ? (
-        <div
-          className="border-destructive/40 bg-destructive/10 flex flex-col gap-2 rounded-lg border p-3"
-          data-testid="delete-confirm"
-        >
-          <p className="text-sm font-medium">{t("ads.manage.confirmDeleteTitle")}</p>
-          <p className="text-muted-foreground text-xs">{t("ads.manage.confirmDeleteBody")}</p>
-          <div className="flex gap-2">
+        <div className="bg-card flex flex-col gap-4 rounded-lg p-5" data-testid="delete-confirm">
+          <div className="flex flex-col gap-1">
+            <p className="text-[15px] font-semibold">{t("ads.manage.confirmDeleteTitle")}</p>
+            <p className="text-muted-foreground text-[13px] leading-relaxed">
+              {t("ads.manage.confirmDeleteBody")}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="destructive"
               onClick={() => void onDelete()}
@@ -118,10 +114,10 @@ export function CampaignManageControls({
       ) : null}
 
       {error ? (
-        <p role="alert" className="text-destructive text-sm" data-testid="manage-error">
+        <p role="alert" className="text-destructive text-[13px]" data-testid="manage-error">
           {error}
         </p>
       ) : null}
-    </Card>
+    </section>
   );
 }

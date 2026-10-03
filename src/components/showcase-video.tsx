@@ -101,13 +101,13 @@ export function ShowcaseVideo({
         aria-pressed={audible}
         aria-label={audible ? soundOffLabel : soundOnLabel}
         title={audible ? soundOffLabel : soundOnLabel}
-        className="text-foreground/90 focus-visible:ring-ring absolute top-3 right-3 grid size-8 place-items-center rounded-full border border-white/20 bg-black/45 backdrop-blur-sm transition-colors hover:bg-black/65 focus-visible:ring-2 focus-visible:outline-none"
+        className="bg-background text-foreground hover:bg-secondary focus-visible:ring-ring absolute top-3 right-3 grid size-9 place-items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
       >
         <svg
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#fff"
-          strokeWidth="2"
+          stroke="currentColor"
+          strokeWidth="1.75"
           strokeLinecap="round"
           strokeLinejoin="round"
           className="size-4"

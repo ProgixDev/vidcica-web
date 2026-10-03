@@ -30,12 +30,13 @@ export default async function AnalyticsAdsPage() {
 
   if (campaigns.length === 0) {
     return (
-      <div className="bg-card rounded-2xl border p-8">
+      <div>
         <EmptyState
+          className="py-16"
           title={t("analytics.ads.empty.title")}
           description={t("analytics.ads.empty.body")}
           action={
-            <Link href="/ads/new" className={buttonVariants({ className: "rounded-full" })}>
+            <Link href="/ads/new" className={buttonVariants()}>
               {t("analytics.ads.empty.cta")}
             </Link>
           }
@@ -47,14 +48,11 @@ export default async function AnalyticsAdsPage() {
   const agg = aggregateCampaigns(campaigns);
 
   return (
-    <div className="flex flex-col gap-5">
-      <section className="flex flex-col gap-2">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
-          {t("analytics.ads.summary.title")}
-        </h2>
-        <div className="flex flex-wrap gap-2">
+    <div className="flex flex-col gap-10">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">{t("analytics.ads.summary.title")}</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <KpiTile
-            brand
             label={t("analytics.kpi.adSpend")}
             value={`${formatNumber(agg.totalSpend)} €`}
             testId="ads-kpi-spend"
@@ -89,31 +87,28 @@ export default async function AnalyticsAdsPage() {
 
       {!agg.hasMetrics ? <DataComingNotice body={t("analytics.ads.metricsEmpty")} /> : null}
 
-      <section className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
-            {t("analytics.ads.list.title")}
-          </h2>
-          <Link
-            href="/ads/new"
-            className={buttonVariants({ variant: "ghost", size: "sm", className: "rounded-full" })}
-          >
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-xl font-semibold tracking-tight">{t("analytics.ads.list.title")}</h2>
+          <Link href="/ads/new" className={buttonVariants({ variant: "ghost", size: "sm" })}>
             {t("analytics.ads.empty.cta")}
           </Link>
         </div>
-        <div className="bg-card divide-border/60 flex flex-col divide-y rounded-2xl border">
+        <div className="bg-card divide-border flex flex-col divide-y overflow-hidden rounded-lg">
           {campaigns.map((c) => (
             <AdsCampaignRow key={c.id} t={t} campaign={c} />
           ))}
         </div>
       </section>
 
-      <div className="bg-card rounded-2xl border p-5">
-        <p className="text-sm font-semibold">{t("analytics.link.ads.title")}</p>
-        <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
-          {t("analytics.link.ads.body")}
-        </p>
-        <Link href="/ads" className={buttonVariants({ className: "mt-3 rounded-full" })}>
+      <div className="bg-card flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-lg p-6">
+        <div className="flex min-w-0 flex-1 basis-64 flex-col gap-1">
+          <p className="text-[15px] font-semibold">{t("analytics.link.ads.title")}</p>
+          <p className="text-muted-foreground text-[13px] leading-relaxed">
+            {t("analytics.link.ads.body")}
+          </p>
+        </div>
+        <Link href="/ads" className={buttonVariants({ variant: "secondary" })}>
           {t("analytics.ads.openCampaigns")}
         </Link>
       </div>

@@ -8,6 +8,7 @@ import { connectablePlatforms, hasMetaReviewAccess, networkStatus } from "@/lib/
 import { env } from "@/core/env";
 import { PublishStoreProvider, PublishFlow, type PublishablePlatform } from "@/features/publish";
 import { PageHeader } from "@/components/app-shell";
+import { buttonVariants } from "@/components/ui/button";
 import { getT } from "@/lib/i18n/server";
 
 export async function generateMetadata() {
@@ -57,15 +58,12 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
         title={t("publish.pageTitle", { title: video.title })}
         subtitle={t("publish.pageSubtitle")}
         actions={
-          <Link
-            href={`/videos/${id}`}
-            className="text-muted-foreground hover:text-foreground text-sm"
-          >
+          <Link href={`/videos/${id}`} className={buttonVariants({ variant: "ghost", size: "sm" })}>
             ← {t("common.back")}
           </Link>
         }
       />
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-5xl">
         <PublishStoreProvider
           videoId={video.id}
           hashtags={video.hashtags}

@@ -34,7 +34,7 @@ export function AccountActions() {
       </Button>
 
       {confirming ? (
-        <div className="border-destructive/40 bg-destructive/5 flex flex-col gap-2 rounded-2xl border p-4">
+        <div className="flex flex-col gap-3 pt-2">
           <Label htmlFor="delete-confirm">{t("auth.deleteConfirmPrompt", { word: keyword })}</Label>
           <Input
             id="delete-confirm"
@@ -45,7 +45,6 @@ export function AccountActions() {
             autoCapitalize="characters"
             aria-label={t("auth.deleteConfirmPrompt", { word: keyword })}
             data-testid="account-delete-input"
-            className="bg-foreground/5 h-10"
           />
           <div className="flex gap-2">
             <Button
@@ -86,7 +85,9 @@ export function AccountActions() {
         </Button>
       )}
 
-      <p className="text-muted-foreground text-sm">{t("auth.deleteAccountHint")}</p>
+      <p className="text-muted-foreground text-[13px] leading-relaxed">
+        {t("auth.deleteAccountHint")}
+      </p>
     </div>
   );
 }

@@ -20,8 +20,11 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
   if (!lead) notFound();
 
   return (
-    <div className="flex w-full max-w-2xl flex-col gap-6">
-      <Link href="/leads" className="text-muted-foreground hover:text-foreground text-sm">
+    <div className="flex w-full max-w-2xl flex-col gap-8">
+      <Link
+        href="/leads"
+        className="text-muted-foreground hover:text-foreground focus-visible:ring-ring focus-visible:ring-offset-background self-start rounded-full text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      >
         {t("leads.backToLeads")}
       </Link>
       <LeadsStoreProvider userId={user.id} initial={[lead]}>

@@ -10,7 +10,7 @@ const BUCKETS = [0, 4, 8, 12, 16, 20];
 
 /**
  * 7×6 activity heatmap (4-hour buckets). Cell opacity encodes intensity over the
- * brand token. With no cells (no collection yet) it renders the full grid at
+ * ink (`foreground`) token. With no cells (no collection yet) it renders the full grid at
  * minimum opacity — an honest empty shell, not fabricated peaks.
  */
 export function HeatmapHours({ t, cells }: { t: TFunction; cells: ReadonlyArray<HeatmapCell> }) {
@@ -27,25 +27,25 @@ export function HeatmapHours({ t, cells }: { t: TFunction; cells: ReadonlyArray<
   }
 
   return (
-    <div className="flex flex-col gap-1.5" data-testid="analytics-heatmap">
-      <div className="flex gap-1.5 pl-7">
+    <div className="flex flex-col gap-2" data-testid="analytics-heatmap">
+      <div className="flex gap-2 pl-8">
         {BUCKETS.map((b) => (
-          <div key={b} className="text-muted-foreground flex-1 text-center text-[9px]">
+          <div key={b} className="text-muted-foreground flex-1 text-center text-xs">
             {t("analytics.audience.hours.hourFmt", { h: b })}
           </div>
         ))}
       </div>
       {Array.from({ length: 7 }, (_, d) => (
-        <div key={d} className="flex items-center gap-1.5">
-          <div className="text-muted-foreground w-5 text-[10px]">{dayLabels[d] ?? ""}</div>
+        <div key={d} className="flex items-center gap-2">
+          <div className="text-muted-foreground w-6 text-xs">{dayLabels[d] ?? ""}</div>
           {BUCKETS.map((_, b) => {
             const c = count[d]![b]!;
             const v = c > 0 ? sum[d]![b]! / c : 0;
             return (
               <div
                 key={b}
-                className="bg-primary border-border/60 h-5 flex-1 rounded-md border"
-                style={{ opacity: Math.max(0.06, v) }}
+                className="bg-foreground h-7 flex-1 rounded-sm"
+                style={{ opacity: Math.max(0.08, v) }}
               />
             );
           })}

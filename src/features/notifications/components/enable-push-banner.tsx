@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/provider";
 import {
   isPushSupported,
@@ -79,12 +78,12 @@ export function EnablePushBanner() {
   if (state === "enabled") {
     return (
       <div
-        className="border-primary/30 bg-accent/40 flex items-center gap-3 rounded-xl border p-3"
+        className="bg-card flex items-center gap-4 rounded-lg py-3 pr-3 pl-5"
         data-testid="push-banner"
         data-state="enabled"
       >
-        <BellIcon className="text-primary size-4 shrink-0" filled />
-        <span className="flex-1 text-sm font-medium">{t("push.enabledTitle")}</span>
+        <BellIcon className="text-foreground size-5 shrink-0" filled />
+        <span className="flex-1 text-[15px] font-semibold">{t("push.enabledTitle")}</span>
         <Button
           variant="ghost"
           size="sm"
@@ -101,14 +100,16 @@ export function EnablePushBanner() {
   if (state === "denied") {
     return (
       <div
-        className="bg-muted/40 flex items-start gap-3 rounded-xl border p-3"
+        className="bg-card flex items-start gap-4 rounded-lg px-5 py-4"
         data-testid="push-banner"
         data-state="denied"
       >
-        <BellOffIcon className="text-muted-foreground mt-0.5 size-4 shrink-0" />
+        <BellOffIcon className="text-muted-foreground mt-0.5 size-5 shrink-0" />
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-medium">{t("push.blockedTitle")}</span>
-          <span className="text-muted-foreground text-xs">{t("push.blockedBody")}</span>
+          <span className="text-[15px] font-semibold">{t("push.blockedTitle")}</span>
+          <span className="text-muted-foreground text-[13px] leading-relaxed">
+            {t("push.blockedBody")}
+          </span>
         </div>
       </div>
     );
@@ -117,23 +118,20 @@ export function EnablePushBanner() {
   // prompt
   return (
     <div
-      className={cn(
-        "border-primary/30 bg-accent/40 flex flex-col gap-3 rounded-xl border p-4",
-        "sm:flex-row sm:items-center",
-      )}
+      className="bg-card flex flex-col gap-4 rounded-lg p-5 sm:flex-row sm:items-center"
       data-testid="push-banner"
       data-state="prompt"
     >
-      <span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-full">
-        <BellIcon className="size-4.5" />
-      </span>
+      <BellIcon className="text-foreground size-5 shrink-0" />
       <div className="flex flex-1 flex-col gap-0.5">
-        <span className="text-sm font-semibold">{t("push.promptTitle")}</span>
-        <span className="text-muted-foreground text-xs">{t("push.promptBody")}</span>
+        <span className="text-[15px] font-semibold">{t("push.promptTitle")}</span>
+        <span className="text-muted-foreground text-[13px] leading-relaxed">
+          {t("push.promptBody")}
+        </span>
       </div>
       <Button
         size="sm"
-        className="rounded-full"
+        className="self-start sm:self-auto"
         onClick={enable}
         disabled={busy}
         data-testid="push-enable"

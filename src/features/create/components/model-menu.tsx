@@ -38,7 +38,7 @@ export function ModelMenu({
         aria-label={t("create.modelMenuLabel")}
         data-testid="composer-model"
         onClick={() => setOpen((o) => !o)}
-        className="border-border bg-background hover:bg-accent focus-visible:ring-ring flex items-center gap-2 rounded-full border py-1.5 pr-2.5 pl-2 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        className="bg-secondary text-foreground hover:bg-accent focus-visible:ring-ring focus-visible:ring-offset-background flex h-9 items-center gap-2 rounded-full pr-3 pl-2.5 text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
       >
         <ModelIcon id={selected.id} className="size-4.5 shrink-0" />
         {t(selected.labelKey)}
@@ -67,16 +67,16 @@ export function ModelMenu({
             <m.div
               role="menu"
               aria-label={t("create.modelMenuLabel")}
-              className="border-border bg-popover absolute top-full left-0 z-50 mt-2 max-h-80 w-64 overflow-y-auto rounded-md border shadow-xl"
+              className="bg-popover text-popover-foreground absolute top-full left-0 z-50 mt-2 max-h-80 w-72 overflow-y-auto rounded-md p-1.5"
               initial={{ opacity: 0, y: -6, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.98 }}
               transition={{ duration: 0.16, ease: "easeOut" }}
             >
-              <p className="text-muted-foreground px-4 pt-3 pb-1 text-[10px] font-semibold tracking-widest uppercase">
+              <p className="text-muted-foreground px-3 pt-2 pb-1.5 text-[13px]">
                 {t("create.modelMenuLabel")}
               </p>
-              <ul className="flex flex-col p-1.5">
+              <ul className="flex flex-col">
                 {MODELS.map((m) => {
                   const locked = planRank(plan) < planRank(m.minTier);
                   const isSelected = m.id === value;
@@ -92,24 +92,21 @@ export function ModelMenu({
                           else onChange(m.id);
                         }}
                         className={cn(
-                          "hover:bg-accent flex w-full items-center gap-3 rounded-sm px-2.5 py-2 text-left transition-colors",
+                          "hover:bg-accent focus-visible:bg-accent flex min-h-12 w-full items-center gap-3 rounded-sm px-3 py-2 text-left transition-colors outline-none",
                           locked && "opacity-55",
                         )}
                       >
                         <ModelIcon id={m.id} className="size-7 shrink-0" />
                         <span className="flex min-w-0 flex-1 flex-col">
                           <span
-                            className={cn(
-                              "text-sm",
-                              isSelected ? "text-primary font-semibold" : "font-medium",
-                            )}
+                            className={cn("text-sm", isSelected ? "font-semibold" : "font-medium")}
                           >
                             {t(m.labelKey)}
                           </span>
-                          <span className="text-muted-foreground text-[11px]">{m.maxQuality}</span>
+                          <span className="text-muted-foreground text-xs">{m.maxQuality}</span>
                         </span>
                         {locked ? (
-                          <span className="text-muted-foreground flex items-center gap-1.5 text-[11px]">
+                          <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
                             {t(tierDef(m.minTier).labelKey)}
                             <svg
                               viewBox="0 0 24 24"
@@ -131,7 +128,7 @@ export function ModelMenu({
                             strokeWidth="2.2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            className="text-primary size-4"
+                            className="text-foreground size-4"
                             aria-hidden
                           >
                             <path d="m4.5 12.5 5 5 10-11" />

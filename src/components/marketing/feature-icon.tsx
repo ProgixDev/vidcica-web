@@ -11,10 +11,10 @@ export function FeatureIcon({
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="size-4.5"
+      className="size-6"
       aria-hidden
     >
       {path ? <path d={path} /> : null}

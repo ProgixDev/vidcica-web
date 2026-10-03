@@ -48,13 +48,13 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       aria-current={active ? "page" : undefined}
       data-testid={`shell-nav-${item.href.slice(1)}`}
       className={cn(
-        "flex items-center gap-3 rounded-full px-3.5 py-2 text-sm font-medium transition-colors",
+        "flex h-10 items-center gap-3 rounded-full px-3.5 text-sm transition-colors",
         active
-          ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+          ? "bg-secondary text-foreground font-semibold"
+          : "text-muted-foreground hover:text-foreground font-medium",
       )}
     >
-      <ShellIcon name={item.icon} className="size-4.5 shrink-0" />
+      <ShellIcon name={item.icon} className="size-5 shrink-0" />
       {t(item.labelKey)}
     </Link>
   );
@@ -71,7 +71,7 @@ function NavSections({ pathname }: { pathname: string }) {
         ))}
       </div>
       <div className="flex flex-col gap-1">
-        <span className="text-muted-foreground px-3.5 pb-1 text-[10px] font-semibold tracking-widest uppercase">
+        <span className="text-muted-foreground px-3.5 pb-1 text-xs font-medium">
           {t("nav.sectionAccount")}
         </span>
         {NAV_SECONDARY.map((item) => (
@@ -116,13 +116,13 @@ export function AppShell({
 
   const sidebarBody = (
     <>
-      <Link href="/dashboard" aria-label={t("shell.home")} className="px-1.5">
+      <Link href="/dashboard" aria-label={t("shell.home")} className="px-3.5 pt-1">
         <BrandLockup />
       </Link>
       <Link
         href="/create"
         data-testid="shell-create-cta"
-        className={cn(buttonVariants(), "rounded-full font-semibold")}
+        className={buttonVariants({ variant: "brand", size: "lg" })}
       >
         <ShellIcon name="sparkle" className="size-4" />
         {t("shell.createCta")}
@@ -136,16 +136,16 @@ export function AppShell({
       />
       <Link
         href="/account"
-        className="hover:bg-accent/60 flex items-center gap-3 rounded-md px-2 py-2 transition-colors"
+        className="hover:bg-secondary flex items-center gap-3 rounded-full p-1.5 pr-4 transition-colors"
       >
         <span
           aria-hidden
-          className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+          className="bg-secondary text-foreground flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
         >
           {initial}
         </span>
         <span className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-medium">{email}</span>
+          <span className="truncate text-[13px] font-semibold">{email}</span>
           <span className="text-muted-foreground text-xs">
             {t("shell.planLabel", { plan: planLabel })}
           </span>
@@ -155,9 +155,9 @@ export function AppShell({
   );
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
       {/* Desktop sidebar */}
-      <aside className="border-border sticky top-0 hidden h-dvh flex-col gap-5 border-r px-4 py-5 lg:flex">
+      <aside className="bg-card sticky top-0 hidden h-dvh flex-col gap-6 overflow-y-auto px-4 py-5 lg:flex">
         {sidebarBody}
       </aside>
 
@@ -169,30 +169,27 @@ export function AppShell({
               type="button"
               aria-label={t("shell.closeMenu")}
               onClick={() => setDrawerOpen(false)}
-              className="absolute inset-0 bg-black/50"
+              className="bg-scrim absolute inset-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             />
             <m.div
-              className="bg-background relative flex h-full w-72 flex-col gap-5 px-4 py-5 shadow-2xl"
+              className="bg-card relative flex h-full w-72 flex-col gap-6 overflow-y-auto px-4 py-5"
               initial={{ x: -320 }}
               animate={{ x: 0 }}
               exit={{ x: -320 }}
               transition={{ type: "spring", stiffness: 380, damping: 38 }}
             >
-              <div className="flex items-center justify-between px-1.5">
-                <BrandLockup />
-                <button
-                  type="button"
-                  aria-label={t("shell.closeMenu")}
-                  onClick={() => setDrawerOpen(false)}
-                  className="text-muted-foreground hover:text-foreground flex size-9 items-center justify-center rounded-full"
-                >
-                  <ShellIcon name="close" className="size-5" />
-                </button>
-              </div>
+              <button
+                type="button"
+                aria-label={t("shell.closeMenu")}
+                onClick={() => setDrawerOpen(false)}
+                className="bg-secondary text-foreground hover:bg-accent absolute top-4 right-4 flex size-10 items-center justify-center rounded-full transition-colors"
+              >
+                <ShellIcon name="close" className="size-5" />
+              </button>
               {sidebarBody}
             </m.div>
           </div>
@@ -201,14 +198,14 @@ export function AppShell({
 
       <div className="flex min-w-0 flex-col">
         {/* Top bar */}
-        <header className="border-border/60 bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
-          <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <header className="bg-background sticky top-0 z-40">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-8">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 aria-label={t("shell.openMenu")}
                 onClick={() => setDrawerOpen(true)}
-                className="text-muted-foreground hover:text-foreground hover:bg-accent flex size-9 items-center justify-center rounded-full transition-colors lg:hidden"
+                className="bg-secondary text-foreground hover:bg-accent flex size-10 items-center justify-center rounded-full transition-colors lg:hidden"
               >
                 <ShellIcon name="menu" className="size-5" />
               </button>
@@ -230,7 +227,7 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6">
+        <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 pt-4 pb-16 sm:px-8">
           {children}
         </main>
       </div>

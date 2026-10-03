@@ -49,12 +49,12 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
   if (sentTo) {
     return (
       <div
-        className="border-success/40 bg-success/10 flex flex-col gap-1.5 rounded-2xl border p-4"
+        className="bg-success-subtle flex flex-col gap-1 rounded-md p-4"
         role="status"
         data-testid="security-email-sent"
       >
-        <p className="text-sm font-semibold">{t("security.email.sentTitle")}</p>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-success text-[15px] font-semibold">{t("security.email.sentTitle")}</p>
+        <p className="text-subtle-foreground text-[13px] leading-relaxed">
           {t("security.email.sentBody", { email: sentTo })}
         </p>
       </div>
@@ -62,12 +62,12 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4" data-testid="security-email-form">
-      <div className="flex flex-col gap-1.5">
+    <form onSubmit={submit} className="flex flex-col gap-5" data-testid="security-email-form">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="sec-current-email">{t("security.email.currentLabel")}</Label>
         <Input id="sec-current-email" value={currentEmail} readOnly disabled />
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="sec-new-email">{t("security.email.newLabel")}</Label>
         <Input
           id="sec-new-email"
@@ -84,16 +84,18 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
           data-testid="security-email-input"
         />
       </div>
-      <p className="text-muted-foreground text-xs">{t("security.email.note")}</p>
+      <p className="text-muted-foreground text-[13px] leading-relaxed">
+        {t("security.email.note")}
+      </p>
       {error ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {error}
         </p>
       ) : null}
       <Button
         type="submit"
         disabled={pending || email.trim().length === 0}
-        className="self-start rounded-full"
+        className="self-start"
         data-testid="security-email-submit"
       >
         {pending ? t("common.sending") : t("security.email.cta")}

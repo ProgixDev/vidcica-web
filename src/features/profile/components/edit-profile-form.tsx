@@ -50,10 +50,10 @@ export function EditProfileForm({ profile }: { profile: Profile | null }) {
   const avatarInitial = ((displayName.trim() || firstName(profile))[0] ?? "?").toUpperCase();
 
   return (
-    <form onSubmit={submit} className="flex w-full max-w-xl flex-col gap-5">
+    <form onSubmit={submit} className="flex w-full max-w-xl flex-col gap-6">
       <AvatarPicker initialUrl={profile?.avatarUrl} initial={avatarInitial} />
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="p-name">{t("profile.nameLabel")}</Label>
         <Input
           id="p-name"
@@ -64,7 +64,7 @@ export function EditProfileForm({ profile }: { profile: Profile | null }) {
         />
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="p-niche">{t("profile.nicheLabel")}</Label>
         <Input
           id="p-niche"
@@ -75,7 +75,7 @@ export function EditProfileForm({ profile }: { profile: Profile | null }) {
         />
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="p-audience">{t("profile.audienceLabel")}</Label>
         <Textarea
           id="p-audience"
@@ -99,10 +99,10 @@ export function EditProfileForm({ profile }: { profile: Profile | null }) {
                 aria-pressed={active}
                 onClick={() => setTone(active ? "" : o.value)}
                 className={cn(
-                  "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                  "focus-visible:ring-ring focus-visible:ring-offset-background h-9 rounded-full px-4 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                   active
-                    ? "border-primary bg-accent text-accent-foreground"
-                    : "hover:bg-muted border-border text-muted-foreground",
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-foreground hover:bg-accent",
                 )}
               >
                 {t(o.key)}
@@ -113,21 +113,16 @@ export function EditProfileForm({ profile }: { profile: Profile | null }) {
       </div>
 
       {error ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {error}
         </p>
       ) : null}
 
-      <div className="flex gap-3">
-        <Button type="submit" disabled={pending} className="rounded-full">
+      <div className="flex gap-2 pt-2">
+        <Button type="submit" disabled={pending}>
           {pending ? t("profile.saving") : t("profile.save")}
         </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          className="rounded-full"
-          onClick={() => router.push("/account")}
-        >
+        <Button type="button" variant="ghost" onClick={() => router.push("/account")}>
           {t("common.cancel")}
         </Button>
       </div>

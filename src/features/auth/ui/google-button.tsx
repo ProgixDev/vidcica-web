@@ -40,7 +40,6 @@ export function GoogleButton() {
       label={t("auth.googleContinue")}
       pendingLabel={t("auth.googleRedirecting")}
       icon={<GoogleG />}
-      className="border border-black/10 bg-white text-[#1A130C]"
     />
   );
 }

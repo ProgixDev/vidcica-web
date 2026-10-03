@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -75,9 +76,9 @@ export function BoostWizard({ videos }: { videos: VideoOption[] }) {
 
   if (phase === "checking") {
     return (
-      <div className="flex flex-col gap-3" data-testid="boost-checking">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-40 w-full" />
+      <div className="flex flex-col gap-6" data-testid="boost-checking">
+        <Skeleton className="h-5 w-48" />
+        <Skeleton className="h-56 w-full rounded-lg" />
       </div>
     );
   }
@@ -148,10 +149,10 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
   }
 
   return (
-    <div className="flex flex-col gap-5" data-testid="boost-wizard">
+    <div className="flex flex-col gap-6" data-testid="boost-wizard">
       {draftOnly ? (
         <div
-          className="border-warning/40 bg-warning/10 text-foreground rounded-lg border p-3 text-xs"
+          className="bg-warning-subtle text-warning rounded-md px-5 py-4 text-[13px] leading-relaxed"
           data-testid="boost-draft-banner"
         >
           {t("ads.draftBanner")}
@@ -162,7 +163,7 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
 
       {/* mode="wait" so the outgoing step finishes before the next arrives —
           crossfading two forms of different heights makes the card jump. */}
-      <Card className="overflow-hidden p-5">
+      <Card className="overflow-hidden p-6">
         <AnimatePresence mode="wait" initial={false} custom={dir}>
           <m.div
             key={key}
@@ -171,7 +172,7 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: dir * -24 }}
             transition={{ type: "spring", stiffness: 320, damping: 32, mass: 0.6 }}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-5"
           >
             {key === "video" ? (
               <VideoStep videos={videos} draft={draft} setDraft={setDraft} />
@@ -185,12 +186,15 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
       </Card>
 
       {error ? (
-        <p role="alert" className="text-destructive text-sm" data-testid="boost-error">
+        <p role="alert" className="text-destructive text-[13px]" data-testid="boost-error">
           {error}
           {campaignId ? (
             <>
               {" "}
-              <Link href={`/ads/${campaignId}`} className="underline">
+              <Link
+                href={`/ads/${campaignId}`}
+                className="font-semibold underline underline-offset-4"
+              >
                 {t("ads.viewDraft")}
               </Link>
             </>
@@ -231,84 +235,76 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
 }
 
 /**
- * Progress rail. Completed steps stay clickable so a user can jump back and
- * correct something without walking the whole wizard again; steps ahead are
- * disabled because they may not be valid yet.
- *
- * The fill is a single animated element rather than per-segment colouring, so
- * progress reads as one continuous movement.
+ * Step indicator: a thin progress line and the step names as quiet text.
+ * Completed steps stay clickable so a user can jump back and correct something
+ * without walking the whole wizard again; steps ahead are disabled because they
+ * may not be valid yet.
  */
 function Stepper({ step, onSelect }: { step: number; onSelect: (i: number) => void }) {
   const t = useT();
-  const pct = (step / (BOOST_STEPS.length - 1)) * 100;
+  const pct = ((step + 1) / BOOST_STEPS.length) * 100;
 
   return (
-    <nav aria-label={t("ads.stepsAria")} data-testid="boost-stepper">
-      <div className="relative">
-        <div className="bg-muted absolute top-3.5 right-0 left-0 h-0.5" aria-hidden />
-        <m.div
-          className="bg-primary absolute top-3.5 left-0 h-0.5"
-          aria-hidden
-          initial={false}
-          animate={{ width: `${pct}%` }}
-          transition={{ type: "spring", stiffness: 260, damping: 30 }}
-        />
-        <ol className="relative flex justify-between">
-          {BOOST_STEPS.map((s, i) => {
-            const done = i < step;
-            const current = i === step;
-            const reachable = i <= step;
-            return (
-              <li key={s} className="flex flex-col items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => reachable && onSelect(i)}
-                  disabled={!reachable}
-                  aria-current={current ? "step" : undefined}
-                  data-testid={`boost-step-${s}`}
-                  className={cn(
-                    "bg-background flex size-7 items-center justify-center rounded-full border-2 text-[11px] font-semibold transition-colors",
-                    done && "border-primary bg-primary text-primary-foreground",
-                    current && "border-primary text-primary",
-                    !done && !current && "border-muted text-muted-foreground",
-                    reachable ? "cursor-pointer" : "cursor-default",
-                  )}
-                >
-                  {done ? (
-                    <m.svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      initial={{ scale: 0.4, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                      aria-hidden
-                    >
-                      <path d="M20 6 9 17l-5-5" />
-                    </m.svg>
-                  ) : (
-                    i + 1
-                  )}
-                </button>
-                <span
-                  className={cn(
-                    "hidden text-[11px] sm:block",
-                    current ? "text-foreground font-medium" : "text-muted-foreground",
-                  )}
-                >
-                  {t(STEP_TITLE[s])}
+    <nav
+      aria-label={t("ads.stepsAria")}
+      data-testid="boost-stepper"
+      className="flex flex-col gap-3"
+    >
+      <Progress value={pct} label={t("ads.stepsAria")} className="h-1" />
+      <ol className="flex flex-wrap gap-x-5 gap-y-1">
+        {BOOST_STEPS.map((s, i) => {
+          const current = i === step;
+          const reachable = i <= step;
+          return (
+            <li key={s} className={cn(!current && "hidden sm:block")}>
+              <button
+                type="button"
+                onClick={() => reachable && onSelect(i)}
+                disabled={!reachable}
+                aria-current={current ? "step" : undefined}
+                data-testid={`boost-step-${s}`}
+                className={cn(
+                  "focus-visible:ring-ring focus-visible:ring-offset-background flex items-center gap-1.5 rounded-full text-[13px] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                  current && "text-foreground font-semibold",
+                  !current && reachable && "text-foreground hover:underline",
+                  !reachable && "text-muted-foreground",
+                  reachable ? "cursor-pointer" : "cursor-default",
+                )}
+              >
+                <span className="tabular-nums">
+                  {i + 1}
+                  <span className="sm:hidden">/{BOOST_STEPS.length}</span>
                 </span>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
+                {t(STEP_TITLE[s])}
+              </button>
+            </li>
+          );
+        })}
+      </ol>
     </nav>
+  );
+}
+
+/** Shared look of a selectable tile/chip whose native input covers it invisibly. */
+const CHOICE_FOCUS =
+  "has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-card has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-offset-2";
+
+function CheckMark() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-foreground shrink-0"
+      aria-hidden
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
   );
 }
 
@@ -333,8 +329,8 @@ type StepProps = {
 function VideoStep({ videos, draft, setDraft }: StepProps & { videos: VideoOption[] }) {
   const t = useT();
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="bw-video">{t("ads.field.video")}</Label>
         <Select
           id="bw-video"
@@ -356,7 +352,7 @@ function VideoStep({ videos, draft, setDraft }: StepProps & { videos: VideoOptio
           ))}
         </Select>
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="bw-name">{t("ads.field.name")}</Label>
         <Input
           id="bw-name"
@@ -374,20 +370,32 @@ function ObjectiveStep({ draft, setDraft }: StepProps) {
   const t = useT();
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-1 text-sm font-medium">{t("ads.objectiveLegend")}</legend>
-      {SUPPORTED_OBJECTIVES.map((o) => (
-        <label key={o} className="flex items-center gap-2 text-sm">
-          <input
-            type="radio"
-            name="objective"
-            value={o}
-            checked={draft.objective === o}
-            onChange={() => setDraft({ objective: o as SupportedObjective })}
-            data-testid={`bw-objective-${o}`}
-          />
-          {t(CAMPAIGN_OBJECTIVE_KEY[o])}
-        </label>
-      ))}
+      <legend className="mb-3 text-[13px] font-semibold">{t("ads.objectiveLegend")}</legend>
+      {SUPPORTED_OBJECTIVES.map((o) => {
+        const selected = draft.objective === o;
+        return (
+          <label
+            key={o}
+            className={cn(
+              CHOICE_FOCUS,
+              "relative flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-md px-4 text-[15px] font-medium transition-colors",
+              selected ? "bg-secondary" : "hover:bg-accent",
+            )}
+          >
+            <input
+              type="radio"
+              name="objective"
+              value={o}
+              checked={selected}
+              onChange={() => setDraft({ objective: o as SupportedObjective })}
+              data-testid={`bw-objective-${o}`}
+              className="absolute inset-0 cursor-pointer opacity-0"
+            />
+            {t(CAMPAIGN_OBJECTIVE_KEY[o])}
+            {selected ? <CheckMark /> : null}
+          </label>
+        );
+      })}
     </fieldset>
   );
 }
@@ -401,25 +409,38 @@ function AudienceStep({ draft, setDraft }: StepProps) {
     setDraft({ countries: [...set] });
   }
   return (
-    <div className="flex flex-col gap-4">
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-medium">{t("ads.field.countries")}</legend>
-        <div className="flex flex-wrap gap-3">
-          {COUNTRIES.map(([code, nameKey]) => (
-            <label key={code} className="flex items-center gap-1.5 text-sm">
-              <input
-                type="checkbox"
-                checked={draft.countries.includes(code)}
-                onChange={(e) => toggleCountry(code, e.target.checked)}
-                data-testid={`bw-country-${code}`}
-              />
-              {t(nameKey)}
-            </label>
-          ))}
+    <div className="flex flex-col gap-5">
+      <fieldset className="flex flex-col">
+        <legend className="mb-3 text-[13px] font-semibold">{t("ads.field.countries")}</legend>
+        <div className="flex flex-wrap gap-2">
+          {COUNTRIES.map(([code, nameKey]) => {
+            const checked = draft.countries.includes(code);
+            return (
+              <label
+                key={code}
+                className={cn(
+                  CHOICE_FOCUS,
+                  "relative inline-flex h-10 cursor-pointer items-center rounded-full px-4 text-sm font-semibold transition-colors",
+                  checked
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-foreground hover:bg-accent",
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => toggleCountry(code, e.target.checked)}
+                  data-testid={`bw-country-${code}`}
+                  className="absolute inset-0 cursor-pointer opacity-0"
+                />
+                {t(nameKey)}
+              </label>
+            );
+          })}
         </div>
       </fieldset>
       <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="bw-agemin">{t("ads.field.ageMin")}</Label>
           <Input
             id="bw-agemin"
@@ -430,7 +451,7 @@ function AudienceStep({ draft, setDraft }: StepProps) {
             onChange={(e) => setDraft({ ageMin: Number(e.target.value) })}
           />
         </div>
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="bw-agemax">{t("ads.field.ageMax")}</Label>
           <Input
             id="bw-agemax"
@@ -442,7 +463,7 @@ function AudienceStep({ draft, setDraft }: StepProps) {
           />
         </div>
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="bw-gender">{t("ads.field.gender")}</Label>
         <Select
           id="bw-gender"
@@ -463,8 +484,8 @@ function BudgetStep({ draft, setDraft }: StepProps) {
   const { currency, format } = useMoney();
   const amount = draft.budgetMode === "total" ? draft.budgetTotal : draft.budgetDaily;
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="bw-budgetmode">{t("ads.field.budgetMode")}</Label>
         <Select
           id="bw-budgetmode"
@@ -478,7 +499,7 @@ function BudgetStep({ draft, setDraft }: StepProps) {
         </Select>
       </div>
       {draft.budgetMode === "total" ? (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="bw-budget-total">{t("ads.field.budgetTotal", { currency })}</Label>
           <Input
             id="bw-budget-total"
@@ -490,7 +511,7 @@ function BudgetStep({ draft, setDraft }: StepProps) {
           />
         </div>
       ) : (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="bw-budget-daily">{t("ads.field.budgetDaily", { currency })}</Label>
           <Input
             id="bw-budget-daily"
@@ -511,7 +532,7 @@ function BudgetStep({ draft, setDraft }: StepProps) {
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.18, ease: "easeOut" }}
-        className="text-muted-foreground text-xs"
+        className="text-muted-foreground text-[13px] tabular-nums"
         data-testid="bw-budget-preview"
       >
         {draft.budgetMode === "total"
@@ -541,22 +562,24 @@ function ReviewStep({ draft, videos }: { draft: StepProps["draft"]; videos: Vide
     ],
   ];
   return (
-    <dl className="flex flex-col gap-2 text-sm" data-testid="bw-review">
+    <dl className="divide-border flex flex-col divide-y" data-testid="bw-review">
       {rows.map(([k, v], i) => (
         <m.div
           key={k}
-          className="flex justify-between gap-4"
+          className="flex items-baseline justify-between gap-6 py-3 first:pt-0"
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           // Staggered so the summary reads top-to-bottom as it lands, which
           // encourages actually checking it before spending money.
           transition={{ delay: i * 0.04, duration: 0.22, ease: "easeOut" }}
         >
-          <dt className="text-muted-foreground">{k}</dt>
-          <dd className="text-right font-medium">{v}</dd>
+          <dt className="text-muted-foreground shrink-0 text-[13px]">{k}</dt>
+          <dd className="min-w-0 text-right text-[15px] font-semibold break-words">{v}</dd>
         </m.div>
       ))}
-      <p className="text-muted-foreground mt-2 text-xs">{t("ads.review.note")}</p>
+      <p className="text-muted-foreground pt-4 text-[13px] leading-relaxed">
+        {t("ads.review.note")}
+      </p>
     </dl>
   );
 }

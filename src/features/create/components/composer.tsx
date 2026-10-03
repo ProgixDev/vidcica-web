@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
 import type { Plan } from "@/lib/vidcica/tiers";
@@ -49,7 +49,11 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
       }}
     >
       {/* Kind pills — Idée (l’IA écrit) / Script (tel quel) */}
-      <div role="tablist" aria-label={t("create.kindTablistLabel")} className="flex gap-2">
+      <div
+        role="tablist"
+        aria-label={t("create.kindTablistLabel")}
+        className="flex flex-wrap items-center gap-2"
+      >
         {(
           [
             { id: "idea", label: t("create.kindIdea"), hint: t("create.kindIdeaHint") },
@@ -64,22 +68,22 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
             onClick={() => setInput({ kind: k.id })}
             title={k.hint}
             className={cn(
-              "focus-visible:ring-ring rounded-full px-4 py-1.5 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none",
+              "focus-visible:ring-ring focus-visible:ring-offset-background inline-flex h-9 items-center rounded-full px-4 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
               input.kind === k.id
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-subtle-foreground hover:bg-accent",
             )}
           >
             {k.label}
           </button>
         ))}
-        <span className="text-muted-foreground/80 self-center text-xs">
+        <span className="text-muted-foreground ml-1 text-[13px]">
           {input.kind === "idea" ? t("create.kindIdeaCaption") : t("create.kindScriptCaption")}
         </span>
       </div>
 
       {/* The composer card */}
-      <div className="border-border bg-card focus-within:border-ring/50 flex flex-col rounded-lg border shadow-sm transition-colors">
+      <div className="bg-card has-[textarea:focus-visible]:ring-ring ring-offset-background flex flex-col rounded-lg has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-offset-2">
         <textarea
           id="prompt"
           value={input.prompt}
@@ -89,14 +93,14 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
             input.kind === "idea" ? t("create.promptAriaIdea") : t("create.promptAriaScript")
           }
           rows={5}
-          className="placeholder:text-muted-foreground min-h-36 w-full resize-y bg-transparent px-5 pt-4 pb-2 text-base leading-relaxed outline-none"
+          className="placeholder:text-muted-foreground min-h-40 w-full resize-y bg-transparent px-6 pt-6 pb-3 text-[17px] leading-relaxed outline-none"
           data-testid="composer-prompt"
         />
 
         {/* Cost line */}
         <p
           className={cn(
-            "flex items-center gap-2 px-5 pb-3 text-xs",
+            "flex items-center gap-2 px-6 pb-4 text-[13px]",
             cost.affordable ? "text-muted-foreground" : "text-destructive",
           )}
           data-testid="composer-cost"
@@ -106,7 +110,7 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
             fill="none"
             stroke="currentColor"
             strokeWidth="1.8"
-            className="size-3.5 shrink-0"
+            className="size-4 shrink-0"
             aria-hidden
           >
             <circle cx="9" cy="9" r="6.5" />
@@ -126,7 +130,7 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
           ) : (
             <>
               {t("create.costInsufficient", { total: cost.total })}{" "}
-              <Link href="/billing" className="underline underline-offset-2">
+              <Link href="/billing" className="font-semibold underline underline-offset-4">
                 {t("create.recharge")}
               </Link>
             </>
@@ -134,7 +138,7 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
         </p>
 
         {/* Control row */}
-        <div className="border-border/60 flex flex-wrap items-center gap-2 border-t px-3 py-3">
+        <div className="flex flex-wrap items-center gap-2 px-4 pb-4">
           <ModelMenu value={input.model} plan={plan} onChange={(v) => setInput({ model: v })} />
           <PillSelect
             label={t("create.optDuration")}
@@ -181,7 +185,7 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
             disabled={!canSubmit}
             aria-label={planning ? t("create.submitPlanningAria") : t("create.submitAria")}
             data-testid="composer-submit"
-            className="bg-primary text-primary-foreground ml-auto flex size-10 shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-90 disabled:opacity-40"
+            className={cn(buttonVariants({ size: "icon" }), "ml-auto shrink-0")}
           >
             {planning ? (
               <span
@@ -215,21 +219,21 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
                 key={s}
                 type="button"
                 onClick={() => setInput({ prompt: text, kind: "idea" })}
-                className="border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground rounded-full border border-dashed px-3 py-1.5 text-xs transition-colors"
+                className="bg-secondary text-subtle-foreground hover:bg-accent hover:text-foreground focus-visible:ring-ring focus-visible:ring-offset-background rounded-full px-4 py-2 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               >
-                ✦ {text}
+                {text}
               </button>
             );
           })}
         </div>
       ) : null}
 
-      <p className="text-muted-foreground/80 text-xs">{t("create.planNote")}</p>
+      <p className="text-muted-foreground text-xs">{t("create.planNote")}</p>
 
       {(error || errorKey) && phase === "error" ? (
-        <div role="alert" className="flex flex-col gap-2">
-          <p className="text-destructive text-sm">{errorKey ? t(errorKey) : error}</p>
-          <Button type="button" variant="outline" onClick={backToEdit} className="self-start">
+        <div role="alert" className="flex flex-col gap-3">
+          <p className="text-destructive text-[13px]">{errorKey ? t(errorKey) : error}</p>
+          <Button type="button" variant="secondary" onClick={backToEdit} className="self-start">
             {t("common.retry")}
           </Button>
         </div>
@@ -259,7 +263,7 @@ function PillSelect({
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
-        className="border-border bg-background text-foreground hover:bg-accent focus-visible:ring-ring appearance-none rounded-full border py-1.5 pr-7 pl-3 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:pointer-events-none"
+        className="bg-secondary text-foreground hover:bg-accent focus-visible:ring-ring focus-visible:ring-offset-background h-9 appearance-none rounded-full pr-8 pl-3.5 text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -273,7 +277,7 @@ function PillSelect({
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
-        className="text-muted-foreground pointer-events-none absolute top-1/2 right-2.5 size-3 -translate-y-1/2"
+        className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-3 -translate-y-1/2"
         aria-hidden
       >
         <path d="m6 9 6 6 6-6" />
@@ -303,10 +307,8 @@ function PillToggle({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn(
-        "focus-visible:ring-ring rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-40",
-        checked
-          ? "bg-accent text-accent-foreground border-transparent"
-          : "border-border text-muted-foreground hover:text-foreground",
+        "focus-visible:ring-ring focus-visible:ring-offset-background hover:bg-accent inline-flex h-9 items-center rounded-full px-3.5 text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40",
+        checked ? "bg-accent text-foreground" : "bg-secondary text-muted-foreground",
       )}
     >
       {checked ? "✓ " : ""}

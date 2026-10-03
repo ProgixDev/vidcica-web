@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { LogoMark } from "@/components/brand";
 import { FaqAccordion } from "@/components/faq-accordion";
-import { LandingAmbience } from "@/components/landing-ambience";
 import { LandingVideo } from "@/components/landing-video";
 import { PricingCards } from "@/components/pricing-cards";
 import { Reveal } from "@/components/reveal";
@@ -119,11 +119,12 @@ const STEPS: { n: string; title: MessageKey; body: MessageKey }[] = [
   },
 ];
 
-function GlassChip({ className, children }: { className?: string; children: React.ReactNode }) {
+/** Solid pill laid over media — opaque, so it needs no blur or border. */
+function MediaChip({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <span
       className={cn(
-        "border-border/60 bg-background/70 text-foreground/90 rounded-full border px-3 py-1.5 text-xs font-medium shadow-lg backdrop-blur-md",
+        "bg-background text-foreground rounded-full px-3 py-1.5 text-xs font-semibold",
         className,
       )}
     >
@@ -132,13 +133,30 @@ function GlassChip({ className, children }: { className?: string; children: Reac
   );
 }
 
-/** Small brand-tinted section label — adds structure + colour above headings. */
-function Eyebrow({ children }: { children: React.ReactNode }) {
+/** Section heading — one title, one optional muted lead. No eyebrow. */
+function SectionHead({
+  id,
+  title,
+  lead,
+  className,
+}: {
+  id: string;
+  title: string;
+  lead?: string;
+  className?: string;
+}) {
   return (
-    <span className="text-primary flex items-center gap-2 text-xs font-semibold tracking-widest uppercase">
-      <span aria-hidden className="bg-primary h-px w-6" />
-      {children}
-    </span>
+    <Reveal className={cn("mb-12 flex max-w-2xl flex-col gap-4", className)}>
+      <h2
+        id={id}
+        className="text-3xl leading-tight font-semibold tracking-[-0.03em] text-balance sm:text-4xl"
+      >
+        {title}
+      </h2>
+      {lead ? (
+        <p className="text-muted-foreground text-base leading-relaxed text-pretty">{lead}</p>
+      ) : null}
+    </Reveal>
   );
 }
 
@@ -170,108 +188,89 @@ export default async function Home() {
   const faqItems = FAQ_ITEMS.map((f) => ({ q: t(f.q), a: t(f.a) }));
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-x-clip">
-      <LandingAmbience />
+    <div className="flex min-h-dvh flex-col overflow-x-clip">
       <MarketingHeader t={t} locale={locale} />
 
       <main className="flex-1">
         {/* ---------- Hero ---------- */}
-        <section className="relative overflow-hidden">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-48 left-1/2 h-[520px] w-[780px] -translate-x-1/2 rounded-full opacity-20 blur-3xl"
-            style={{ background: "radial-gradient(closest-side, var(--primary), transparent 72%)" }}
-          />
-          <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-6 pt-14 pb-20 lg:grid-cols-[1fr_auto] lg:gap-20">
-            <div className="flex max-w-2xl flex-col items-start gap-6">
-              <Reveal onMount y={10}>
-                <span className="bg-accent text-accent-foreground inline-block rounded-full px-3 py-1 text-xs font-medium">
-                  {t("landing.hero.badge")}
-                </span>
-              </Reveal>
-              <Reveal onMount delay={0.08}>
-                <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-5xl">
-                  {t("landing.hero.title")}
-                </h1>
-              </Reveal>
-              <Reveal onMount delay={0.16}>
-                <p className="text-muted-foreground max-w-xl text-base leading-relaxed text-pretty">
-                  {t("landing.hero.subtitle")}
-                </p>
-              </Reveal>
-              <Reveal onMount delay={0.24}>
-                <div className="flex flex-wrap items-center gap-4 pt-1">
-                  <TrackedLink
-                    href="/sign-in"
-                    location="hero"
-                    className={cn(buttonVariants({ size: "lg" }), "rounded-full px-7")}
-                  >
-                    {t("landing.hero.cta")}
-                  </TrackedLink>
-                  <a
-                    href="#exemples"
-                    className="text-muted-foreground hover:text-foreground text-sm"
-                  >
-                    {t("landing.hero.seeExamples")}
-                  </a>
-                </div>
-              </Reveal>
-              <Reveal onMount delay={0.32}>
-                <p className="text-muted-foreground/80 flex flex-wrap gap-x-2 gap-y-1 pt-4 text-xs">
-                  <span className="text-foreground/70 font-medium">
-                    {t("landing.hero.publishOn")}
+        <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pt-10 pb-20 sm:pt-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-16 lg:pb-28">
+          <div className="flex flex-col items-start gap-7">
+            <Reveal onMount y={10}>
+              <p className="text-muted-foreground text-[15px] font-medium">
+                {t("landing.hero.badge")}
+              </p>
+            </Reveal>
+            <Reveal onMount delay={0.08}>
+              <h1 className="text-[40px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[56px]">
+                {t("landing.hero.title")}
+              </h1>
+            </Reveal>
+            <Reveal onMount delay={0.16}>
+              <p className="text-muted-foreground max-w-xl text-lg leading-relaxed text-pretty">
+                {t("landing.hero.subtitle")}
+              </p>
+            </Reveal>
+            <Reveal onMount delay={0.24}>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <TrackedLink
+                  href="/sign-in"
+                  location="hero"
+                  className={buttonVariants({ variant: "brand", size: "lg" })}
+                >
+                  {t("landing.hero.cta")}
+                </TrackedLink>
+                <a href="#exemples" className={buttonVariants({ variant: "ghost", size: "lg" })}>
+                  {t("landing.hero.seeExamples")}
+                </a>
+              </div>
+            </Reveal>
+            <Reveal onMount delay={0.32}>
+              <p className="text-muted-foreground flex flex-wrap gap-x-2 gap-y-1 pt-2 text-[13px]">
+                <span>{t("landing.hero.publishOn")}</span>
+                {PLATFORMS.map((p, i) => (
+                  <span key={p} className="text-foreground font-medium">
+                    {p}
+                    {i < PLATFORMS.length - 1 ? (
+                      <span aria-hidden className="text-muted-foreground ml-2 font-normal">
+                        ·
+                      </span>
+                    ) : null}
                   </span>
-                  {PLATFORMS.map((p, i) => (
-                    <span key={p}>
-                      {p}
-                      {i < PLATFORMS.length - 1 ? (
-                        <span aria-hidden className="ml-2 opacity-50">
-                          ·
-                        </span>
-                      ) : null}
-                    </span>
-                  ))}
-                </p>
-              </Reveal>
-            </div>
+                ))}
+              </p>
+            </Reveal>
+          </div>
 
-            {/* Phone mockup with a real generated-style clip */}
-            <Reveal
-              onMount
-              delay={0.2}
-              y={24}
-              className="relative mx-auto w-[240px] shrink-0 sm:w-[264px]"
-            >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 -z-10 scale-110 rounded-full opacity-25 blur-2xl"
-                style={{ background: "radial-gradient(closest-side, var(--primary), transparent)" }}
-              />
-              <div className="border-border bg-card rounded-[40px] border p-2 shadow-2xl">
+          {/* The one atmospheric field of this view; the clip is composited above the grain. */}
+          <Reveal onMount delay={0.2} y={24}>
+            <div className="field-contre-jour grain flex items-center justify-center rounded-lg px-8 py-12 sm:py-14">
+              <div className="relative w-[220px] sm:w-[248px]">
                 <LandingVideo
                   src={HERO_CLIP.src}
                   poster={HERO_CLIP.poster}
-                  className="aspect-9/16 w-full rounded-[32px] object-cover"
+                  className="aspect-9/16 w-full rounded-lg object-cover"
                 />
+                <MediaChip className="absolute top-8 -left-10 hidden sm:inline-flex">
+                  {t("landing.hero.chipVoice")}
+                </MediaChip>
+                <MediaChip className="absolute -right-10 bottom-14 hidden sm:inline-flex">
+                  {t("landing.hero.chipSubtitles")}
+                </MediaChip>
               </div>
-              <GlassChip className="absolute top-12 -left-16 hidden sm:inline-flex">
-                {t("landing.hero.chipVoice")}
-              </GlassChip>
-              <GlassChip className="absolute -right-12 bottom-20 hidden sm:inline-flex">
-                {t("landing.hero.chipSubtitles")}
-              </GlassChip>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
         </section>
 
-        {/* ---------- Stats band ---------- */}
-        <section className="bg-secondary/50 relative border-y">
+        {/* ---------- Stats ---------- */}
+        <section className="mx-auto w-full max-w-6xl px-6">
           <Reveal y={10}>
-            <dl className="divide-border/70 mx-auto grid w-full max-w-6xl grid-cols-2 gap-y-8 px-6 py-10 sm:grid-cols-4 sm:divide-x">
+            <dl className="bg-card grid grid-cols-2 gap-x-6 gap-y-8 rounded-lg p-8 sm:grid-cols-4 sm:p-10">
               {STATS.map((s) => (
-                <div key={s.value} className="flex flex-col gap-1 sm:px-6 sm:first:pl-0">
-                  <dt className="text-muted-foreground order-2 text-xs">{t(s.label)}</dt>
-                  <dd className="text-primary order-1 text-2xl font-semibold tracking-tight sm:text-3xl">
+                <div key={s.value} className="flex flex-col gap-1.5">
+                  <dt className="text-muted-foreground order-2 text-[13px] leading-snug">
+                    {t(s.label)}
+                  </dt>
+                  <dd className="order-1 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
                     {t(s.value)}
                   </dd>
                 </div>
@@ -282,24 +281,20 @@ export default async function Home() {
 
         {/* ---------- Showcase ---------- */}
         <section
-          className="mx-auto w-full max-w-6xl px-6 py-20"
+          className="mx-auto w-full max-w-6xl px-6 py-20 sm:py-28"
           id="exemples"
           aria-labelledby="exemples-h"
         >
-          <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
-            <Eyebrow>{t("landing.nav.examples")}</Eyebrow>
-            <h2 id="exemples-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              {t("landing.showcase.title")}
-            </h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {t("landing.showcase.subtitle")}
-            </p>
-          </Reveal>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <SectionHead
+            id="exemples-h"
+            title={t("landing.showcase.title")}
+            lead={t("landing.showcase.subtitle")}
+          />
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-10">
             {SHOWCASE.map((item, i) => (
               <Reveal key={item.chip} delay={(i % 3) * 0.08}>
-                <figure className="group flex flex-col gap-3">
-                  <div className="border-border bg-card relative overflow-hidden rounded-lg border shadow-lg transition-transform duration-300 group-hover:-translate-y-1 motion-reduce:transition-none">
+                <figure className="flex flex-col gap-3">
+                  <div className="bg-card relative overflow-hidden rounded-md">
                     {item.sound ? (
                       <ShowcaseVideo
                         src={item.clip.src}
@@ -315,9 +310,9 @@ export default async function Home() {
                         className="aspect-9/16 w-full object-cover"
                       />
                     )}
-                    <GlassChip className="absolute bottom-3 left-3">{t(item.chip)}</GlassChip>
+                    <MediaChip className="absolute bottom-3 left-3">{t(item.chip)}</MediaChip>
                   </div>
-                  <figcaption className="text-muted-foreground px-1 text-xs leading-relaxed">
+                  <figcaption className="text-muted-foreground text-[13px] leading-relaxed">
                     {t(item.caption)}
                   </figcaption>
                 </figure>
@@ -328,81 +323,61 @@ export default async function Home() {
 
         {/* ---------- Features ---------- */}
         <section
-          className="bg-secondary/40 relative overflow-hidden border-y"
+          className="mx-auto w-full max-w-6xl px-6 pb-20 sm:pb-28"
           id="fonctionnalites"
           aria-labelledby="features-h"
         >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-32 right-0 h-96 w-[560px] rounded-full opacity-15 blur-3xl"
-            style={{ background: "radial-gradient(closest-side, var(--primary), transparent 70%)" }}
+          <SectionHead
+            id="features-h"
+            title={t("landing.features.title")}
+            lead={t("landing.features.subtitle")}
           />
-          <div className="relative mx-auto w-full max-w-6xl px-6 py-20">
-            <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
-              <Eyebrow>{t("landing.nav.features")}</Eyebrow>
-              <h2 id="features-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                {t("landing.features.title")}
-              </h2>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {t("landing.features.subtitle")}
-              </p>
-            </Reveal>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {FEATURES.map((f, i) => (
-                <li key={f.title} className="min-w-0">
-                  <Reveal
-                    delay={(i % 3) * 0.08}
-                    className="group bg-card/80 hover:border-primary/30 flex h-full flex-col gap-3 rounded-lg border p-5 shadow-sm backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none"
-                  >
-                    <span
-                      className="text-primary ring-primary/15 flex size-10 items-center justify-center rounded-full ring-1 transition-transform ring-inset group-hover:scale-105 motion-reduce:transition-none"
-                      style={{
-                        background:
-                          "linear-gradient(140deg, color-mix(in oklab, var(--primary) 22%, transparent), color-mix(in oklab, var(--primary) 6%, transparent))",
-                      }}
-                    >
-                      <FeatureIcon {...f.icon} />
-                    </span>
-                    <h3 className="font-medium">{t(f.title)}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{t(f.body)}</p>
-                  </Reveal>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map((f, i) => (
+              <li key={f.title} className="min-w-0">
+                <Reveal
+                  delay={(i % 3) * 0.08}
+                  className="bg-card flex h-full flex-col gap-3 rounded-lg p-7"
+                >
+                  <FeatureIcon {...f.icon} />
+                  <h3 className="mt-3 text-[17px] font-semibold tracking-tight">{t(f.title)}</h3>
+                  <p className="text-muted-foreground text-[15px] leading-relaxed">{t(f.body)}</p>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* ---------- Use cases ---------- */}
-        <section className="mx-auto w-full max-w-6xl px-6 py-20" aria-labelledby="metiers-h">
-          <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
-            <Eyebrow>{t("landing.useCases.eyebrow")}</Eyebrow>
-            <h2 id="metiers-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              {t("landing.useCases.title")}
-            </h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {t("landing.useCases.subtitle")}
-            </p>
-          </Reveal>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section
+          className="mx-auto w-full max-w-6xl px-6 pb-20 sm:pb-28"
+          aria-labelledby="metiers-h"
+        >
+          <SectionHead
+            id="metiers-h"
+            title={t("landing.useCases.title")}
+            lead={t("landing.useCases.subtitle")}
+          />
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-4">
             {USE_CASES.map((u, i) => (
               <li key={u.slug} className="min-w-0">
                 <Reveal delay={(i % 4) * 0.07} className="h-full">
                   <Link
                     href={localizedPath(`/cas-usage/${u.slug}`, locale)}
-                    className="group border-border bg-card block h-full overflow-hidden rounded-md border transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
+                    className="group focus-visible:ring-ring focus-visible:ring-offset-background flex h-full flex-col gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-offset-4"
                   >
-                    <div className="relative aspect-4/3 overflow-hidden">
+                    <div className="bg-card relative aspect-4/5 overflow-hidden rounded-md">
                       <Image
                         src={u.img}
                         alt={t(u.cardTitle)}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+                        sizes="(max-width: 1024px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
                       />
                     </div>
-                    <div className="flex flex-col gap-1.5 p-4">
-                      <h3 className="text-sm font-medium">{t(u.cardTitle)}</h3>
-                      <p className="text-muted-foreground text-xs leading-relaxed">
+                    <div className="flex flex-col gap-1">
+                      <h3 className="text-[15px] font-semibold">{t(u.cardTitle)}</h3>
+                      <p className="text-muted-foreground text-[13px] leading-relaxed">
                         {t(u.cardBody)}
                       </p>
                     </div>
@@ -415,41 +390,23 @@ export default async function Home() {
 
         {/* ---------- How it works ---------- */}
         <section
-          className="mx-auto w-full max-w-6xl px-6 py-20"
+          className="mx-auto w-full max-w-6xl px-6 pb-20 sm:pb-28"
           id="comment"
           aria-labelledby="how-h"
         >
-          <Reveal className="mb-10 flex flex-col gap-3">
-            <Eyebrow>{t("landing.how.eyebrow")}</Eyebrow>
-            <h2 id="how-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              {t("landing.how.title")}
-            </h2>
-          </Reveal>
-          <ol className="grid gap-4 sm:grid-cols-3">
+          <SectionHead id="how-h" title={t("landing.how.title")} />
+          <ol className="grid gap-10 sm:grid-cols-3 sm:gap-8">
             {STEPS.map((s, i) => (
               <li key={s.n} className="min-w-0">
-                <Reveal
-                  delay={(i % 3) * 0.08}
-                  className="group bg-card/80 hover:border-primary/30 relative flex h-full flex-col gap-3 overflow-hidden rounded-lg border p-5 shadow-sm backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none"
-                >
+                <Reveal delay={(i % 3) * 0.08} className="flex h-full flex-col gap-3">
                   <span
-                    aria-hidden
-                    className="text-primary/10 pointer-events-none absolute -top-3 right-2 text-7xl font-bold"
-                  >
-                    {s.n}
-                  </span>
-                  <span
-                    className="text-primary-foreground flex size-9 items-center justify-center rounded-full text-sm font-semibold shadow-md ring-1 ring-white/20 ring-inset"
-                    style={{
-                      background:
-                        "linear-gradient(140deg, var(--primary), color-mix(in oklab, var(--primary) 70%, black))",
-                    }}
+                    className="text-muted-foreground text-5xl font-semibold tracking-[-0.04em]"
                     aria-hidden
                   >
                     {s.n}
                   </span>
-                  <h3 className="font-medium">{t(s.title)}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{t(s.body)}</p>
+                  <h3 className="mt-2 text-xl font-semibold tracking-tight">{t(s.title)}</h3>
+                  <p className="text-muted-foreground text-[15px] leading-relaxed">{t(s.body)}</p>
                 </Reveal>
               </li>
             ))}
@@ -458,71 +415,53 @@ export default async function Home() {
 
         {/* ---------- Pricing ---------- */}
         <section
-          className="bg-secondary/40 relative overflow-hidden border-y"
+          className="mx-auto w-full max-w-6xl px-6 pb-20 sm:pb-28"
           id="tarifs"
           aria-labelledby="tarifs-h"
         >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute top-0 left-1/2 h-80 w-[640px] -translate-x-1/2 rounded-full opacity-15 blur-3xl"
-            style={{ background: "radial-gradient(closest-side, var(--primary), transparent 70%)" }}
+          <SectionHead
+            id="tarifs-h"
+            title={t("landing.pricing.title")}
+            lead={t("landing.pricing.subtitle")}
           />
-          <div className="relative mx-auto w-full max-w-6xl px-6 py-20">
-            <Reveal className="mb-10 flex max-w-2xl flex-col gap-3">
-              <Eyebrow>{t("landing.nav.pricing")}</Eyebrow>
-              <h2 id="tarifs-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                {t("landing.pricing.title")}
-              </h2>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {t("landing.pricing.subtitle")}
-              </p>
-            </Reveal>
-            <PricingCards t={t} />
-          </div>
+          <PricingCards t={t} />
         </section>
 
         {/* ---------- FAQ ---------- */}
-        <section className="mx-auto w-full max-w-3xl px-6 py-20" id="faq" aria-labelledby="faq-h">
-          <Reveal className="mb-8 flex flex-col gap-3">
-            <Eyebrow>FAQ</Eyebrow>
-            <h2 id="faq-h" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              {t("landing.faq.title")}
-            </h2>
-          </Reveal>
+        <section
+          className="mx-auto grid w-full max-w-6xl gap-8 px-6 pb-20 sm:pb-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-16"
+          id="faq"
+          aria-labelledby="faq-h"
+        >
+          <SectionHead id="faq-h" title={t("landing.faq.title")} className="mb-0" />
           <Reveal delay={0.08}>
             <FaqAccordion items={faqItems} />
           </Reveal>
         </section>
 
-        {/* ---------- CTA band — bright, friendly creative-team clip (Pexels 7413698) ---------- */}
+        {/* ---------- Closing CTA — copy on an opaque surface, the field beside it ---------- */}
         <section className="mx-auto w-full max-w-6xl px-6 pb-24">
-          <Reveal className="border-border relative overflow-hidden rounded-lg border text-center shadow-xl">
-            <LandingVideo
-              src="/media/cta.mp4"
-              poster="/media/cta.jpg"
-              className="absolute inset-0 size-full object-cover"
-            />
-            {/* Scrim — the footage is bright, so keep the copy readable (AA). */}
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-linear-to-b from-black/55 via-black/45 to-black/65"
-            />
-            <div className="relative z-10 px-8 py-16 sm:py-20">
-              <h2 className="mx-auto max-w-xl text-2xl font-semibold tracking-tight text-balance text-white sm:text-3xl">
+          <Reveal className="bg-card grid overflow-hidden rounded-lg lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+            <div className="flex flex-col items-start gap-5 p-8 sm:p-14">
+              <h2 className="max-w-xl text-3xl leading-tight font-semibold tracking-[-0.03em] text-balance sm:text-5xl sm:leading-[1.05]">
                 {t("landing.ctaBand.title")}
               </h2>
-              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/80">
+              <p className="text-muted-foreground max-w-md text-base leading-relaxed">
                 {t("landing.ctaBand.subtitle")}
               </p>
-              <div className="mt-7 flex justify-center">
-                <TrackedLink
-                  href="/sign-in"
-                  location="cta-band"
-                  className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
-                >
-                  {t("landing.pricing.startFree")}
-                </TrackedLink>
-              </div>
+              <TrackedLink
+                href="/sign-in"
+                location="cta-band"
+                className={cn(buttonVariants({ variant: "brand", size: "lg" }), "mt-2")}
+              >
+                {t("landing.pricing.startFree")}
+              </TrackedLink>
+            </div>
+            <div
+              aria-hidden
+              className="field-aube grain flex min-h-48 items-center justify-center lg:min-h-full"
+            >
+              <LogoMark className="text-foreground size-20 sm:size-28" />
             </div>
           </Reveal>
         </section>

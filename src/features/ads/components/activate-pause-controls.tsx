@@ -46,7 +46,10 @@ export function ActivatePauseControls({
 
   if (!isLaunched(campaign)) {
     return (
-      <p className="text-muted-foreground text-xs" data-testid="campaign-draft-note">
+      <p
+        className="text-muted-foreground text-[13px] leading-relaxed"
+        data-testid="campaign-draft-note"
+      >
         {t("ads.activate.draftNote")}
       </p>
     );
@@ -59,10 +62,10 @@ export function ActivatePauseControls({
   const canActivate = campaign.status === "in_review" || campaign.status === "en_pause";
 
   return (
-    <div className="flex flex-col gap-2" data-testid="activate-pause">
+    <div className="flex flex-col items-start gap-3" data-testid="activate-pause">
       {campaign.status === "active" ? (
         <Button
-          variant="outline"
+          variant="secondary"
           onClick={() => void run("pause")}
           disabled={pending}
           data-testid="pause-btn"
@@ -75,14 +78,15 @@ export function ActivatePauseControls({
         </Button>
       ) : canActivate && confirming ? (
         <div
-          className="border-warning/40 bg-warning/10 flex flex-col gap-2 rounded-lg border p-3"
+          className="bg-warning-subtle flex w-full flex-col gap-4 rounded-lg p-5"
           data-testid="activate-confirm"
         >
-          <p className="text-sm">
-            {t("ads.activate.confirmBefore")} <strong>{t("ads.activate.confirmBold")}</strong>{" "}
+          <p className="text-[15px] leading-relaxed">
+            {t("ads.activate.confirmBefore")}{" "}
+            <strong className="font-semibold">{t("ads.activate.confirmBold")}</strong>{" "}
             {t("ads.activate.confirmAfter")}
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               onClick={() => void run("activate")}
               disabled={pending}
@@ -98,7 +102,7 @@ export function ActivatePauseControls({
       ) : null}
 
       {error ? (
-        <p role="alert" className="text-destructive text-sm" data-testid="activate-error">
+        <p role="alert" className="text-destructive text-[13px]" data-testid="activate-error">
           {error}
         </p>
       ) : null}

@@ -7,8 +7,8 @@ import type { TFunction } from "@/lib/i18n";
 function LockGlyph() {
   return (
     <svg
-      width="40"
-      height="40"
+      width="32"
+      height="32"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -30,13 +30,14 @@ function LockGlyph() {
  */
 export function AnalyticsLocked({ t }: { t: TFunction }) {
   return (
-    <div className="bg-card mt-6 max-w-2xl rounded-2xl border p-8" data-testid="analytics-locked">
+    <div className="w-full max-w-3xl" data-testid="analytics-locked">
       <EmptyState
+        className="py-16"
         icon={<LockGlyph />}
         title={t("analytics.locked.title")}
         description={t("analytics.locked.body")}
         action={
-          <Link href="/billing" className={buttonVariants({ className: "rounded-full" })}>
+          <Link href="/billing" className={buttonVariants()}>
             {t("common.upgrade")}
           </Link>
         }

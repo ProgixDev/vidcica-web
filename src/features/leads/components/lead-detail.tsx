@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -17,6 +17,7 @@ import {
 } from "@/lib/vidcica/lead";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import { useLeadsStore } from "../provider";
 
 const CONTACT_LABEL: Record<ContactKind, MessageKey> = {
@@ -73,18 +74,20 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
   }
 
   return (
-    <div className="flex flex-col gap-6" data-testid="lead-detail">
+    <div className="flex flex-col gap-10" data-testid="lead-detail">
       <header className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-lg font-semibold tracking-tight">
+        <div className="flex min-w-0 flex-col gap-2">
+          <h1 className="text-[28px] leading-9 font-semibold tracking-[-0.03em] sm:text-[32px] sm:leading-10">
             {lead.firstName} {lead.lastName}
           </h1>
-          <p className="text-muted-foreground text-sm">{lead.campaignName}</p>
+          <p className="text-muted-foreground text-[15px] leading-relaxed">{lead.campaignName}</p>
         </div>
-        <Badge variant={score.variant}>{t(LEAD_SCORE_KEY[lead.scoreBucket])}</Badge>
+        <Badge variant={score.variant} className="mt-2 shrink-0">
+          {t(LEAD_SCORE_KEY[lead.scoreBucket])}
+        </Badge>
       </header>
 
-      <Card className="flex flex-col gap-1.5 p-4 text-sm">
+      <Card className="flex flex-col px-6 py-3">
         <ContactRow
           label={t("leads.fieldEmail")}
           value={lead.email}
@@ -113,14 +116,17 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
 
       {/* Source campaign — the ad that captured this lead. */}
       {lead.campaignId ? (
-        <Card className="flex flex-col gap-2 p-4 text-sm" data-testid="lead-source">
-          <h2 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-            {t("leads.sourceHeading")}
-          </h2>
-          <span className="font-medium">{lead.campaignName}</span>
+        <Card
+          className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4 p-6"
+          data-testid="lead-source"
+        >
+          <div className="flex min-w-0 flex-col gap-1">
+            <h2 className="text-muted-foreground text-[13px]">{t("leads.sourceHeading")}</h2>
+            <span className="truncate text-[15px] font-semibold">{lead.campaignName}</span>
+          </div>
           <Link
             href={`/ads/${lead.campaignId}`}
-            className="text-primary self-start text-sm font-medium hover:underline"
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
             data-testid="lead-open-campaign"
           >
             {t("leads.openCampaign")} →
@@ -128,8 +134,8 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
         </Card>
       ) : null}
 
-      <section className="flex flex-col gap-2" data-testid="status-pipeline">
-        <h2 className="text-sm font-medium">{t("leads.statusHeading")}</h2>
+      <section className="flex flex-col gap-4" data-testid="status-pipeline">
+        <h2 className="text-xl font-semibold tracking-tight">{t("leads.statusHeading")}</h2>
         <div className="flex flex-wrap gap-2">
           {STATUS_ORDER.map((s) => {
             const active = lead.status === s;
@@ -140,11 +146,12 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
                 onClick={() => requestStatus(s)}
                 aria-pressed={active}
                 data-testid={`status-${s}`}
-                className={
+                className={cn(
+                  "focus-visible:ring-ring focus-visible:ring-offset-background inline-flex h-9 items-center rounded-full px-4 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                   active
-                    ? "bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-medium"
-                    : "border-input hover:bg-accent rounded-full border px-3 py-1 text-xs"
-                }
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-foreground hover:bg-accent",
+                )}
               >
                 {t(LEAD_STATUS_KEY[s])}
               </button>
@@ -153,13 +160,13 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
         </div>
       </section>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">{t("leads.contactHeading")}</h2>
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">{t("leads.contactHeading")}</h2>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(CONTACT_LABEL) as ContactKind[]).map((k) => (
             <Button
               key={k}
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => logContact(lead.id, k)}
               data-testid={`contact-${k}`}
@@ -170,25 +177,25 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
         </div>
       </section>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">{t("leads.notesHeading")}</h2>
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">{t("leads.notesHeading")}</h2>
         {lead.notes.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {lead.notes.map((n) => (
-              <li key={n.id} className="bg-muted/50 rounded-lg p-2 text-sm">
-                <p>{n.body}</p>
-                <span className="text-muted-foreground text-xs">{fmt(n.at)}</span>
+              <li key={n.id} className="bg-card flex flex-col gap-1 rounded-md px-5 py-4">
+                <p className="text-[15px] leading-relaxed">{n.body}</p>
+                <span className="text-muted-foreground text-[13px]">{fmt(n.at)}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-muted-foreground text-xs">{t("leads.noNotes")}</p>
+          <p className="text-muted-foreground text-[13px]">{t("leads.noNotes")}</p>
         )}
         <Textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder={t("leads.notePlaceholder")}
-          className="min-h-20"
+          className="min-h-24"
           aria-label={t("leads.noteAriaLabel")}
           data-testid="note-input"
         />
@@ -203,19 +210,22 @@ export function LeadDetail({ id, fallback }: { id: string; fallback: Lead }) {
         </Button>
       </section>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">{t("leads.historyHeading")}</h2>
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">{t("leads.historyHeading")}</h2>
         {timeline.length > 0 ? (
-          <ul className="flex flex-col gap-2" data-testid="timeline">
+          <ul className="divide-border flex flex-col divide-y" data-testid="timeline">
             {timeline.map((i) => (
-              <li key={i.id} className="flex justify-between gap-4 text-xs">
-                <span>{i.message}</span>
-                <span className="text-muted-foreground shrink-0">{fmt(i.at)}</span>
+              <li
+                key={i.id}
+                className="flex items-baseline justify-between gap-6 py-3 text-[15px] first:pt-0"
+              >
+                <span className="min-w-0">{i.message}</span>
+                <span className="text-muted-foreground shrink-0 text-[13px]">{fmt(i.at)}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-muted-foreground text-xs">{t("leads.noInteractions")}</p>
+          <p className="text-muted-foreground text-[13px]">{t("leads.noInteractions")}</p>
         )}
       </section>
     </div>
@@ -238,20 +248,20 @@ function ContactRow({
   testId?: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-muted-foreground shrink-0">{label}</span>
+    <div className="flex min-h-12 items-center justify-between gap-6">
+      <span className="text-muted-foreground shrink-0 text-[13px]">{label}</span>
       {href ? (
         <a
           href={href}
           onClick={onOpen}
           data-testid={testId}
           {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-          className="min-w-0 truncate text-right font-medium underline-offset-2 hover:underline"
+          className="focus-visible:ring-ring min-w-0 truncate rounded-sm text-right text-[15px] font-semibold underline underline-offset-4 outline-none focus-visible:ring-2"
         >
           {value}
         </a>
       ) : (
-        <span className="min-w-0 truncate text-right font-medium">{value}</span>
+        <span className="min-w-0 truncate text-right text-[15px] font-semibold">{value}</span>
       )}
     </div>
   );

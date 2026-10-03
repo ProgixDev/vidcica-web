@@ -42,8 +42,12 @@ export function AnalyticsNav() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-2" role="tablist" data-testid="analytics-tabs">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div
+        className="bg-secondary inline-flex max-w-full gap-1 overflow-x-auto rounded-full p-1"
+        role="tablist"
+        data-testid="analytics-tabs"
+      >
         {TABS.map((tab) => {
           const isActive = tab.key === active;
           return (
@@ -54,10 +58,10 @@ export function AnalyticsNav() {
               aria-selected={isActive}
               data-testid={`analytics-tab-${tab.key}`}
               className={cn(
-                "rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-colors",
+                "focus-visible:ring-ring inline-flex h-9 shrink-0 items-center rounded-full px-4 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2",
                 isActive
-                  ? "border-primary/40 bg-primary/10 text-primary"
-                  : "bg-muted text-muted-foreground hover:text-foreground border-transparent",
+                  ? "bg-background text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {t(tab.labelKey)}
@@ -67,7 +71,7 @@ export function AnalyticsNav() {
       </div>
 
       <div
-        className="bg-muted inline-flex w-fit gap-0.5 rounded-full p-0.5"
+        className="bg-secondary inline-flex w-fit gap-1 rounded-full p-1"
         role="group"
         aria-label={t("analytics.range.label")}
         data-testid="analytics-range"
@@ -82,9 +86,9 @@ export function AnalyticsNav() {
               aria-pressed={isActive}
               data-testid={`analytics-range-${r}`}
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-semibold transition-colors",
+                "focus-visible:ring-ring inline-flex h-9 items-center rounded-full px-3.5 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2",
                 isActive
-                  ? "bg-card text-foreground shadow-sm"
+                  ? "bg-background text-foreground"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >

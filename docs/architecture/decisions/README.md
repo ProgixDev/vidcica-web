@@ -20,3 +20,4 @@ ADRs capture decisions that shape the codebase: what we chose, what we rejected,
 | [0004](0004-ai-harness.md)                | Repo-as-harness: agent docs, skills, hooks, persona review in CI                                                   | Accepted                     |
 | [0005](0005-progix-operating-system.md)   | Progix operating system: /progix front door, four surfaces, R2R loop, default automations                          | Partially superseded by 0006 |
 | [0006](0006-repo-only-operating-model.md) | Repo-only operating model (drop cloud CI/CD + Notion/Slack)                                                        | Accepted                     |
+| [0009](0009-identity-01-design-tokens.md) | Adopt identity 01 “Rémanence”; role tokens remapped to ink-first, citron as `brand`                                | Accepted                     |

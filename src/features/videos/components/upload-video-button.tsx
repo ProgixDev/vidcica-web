@@ -115,8 +115,7 @@ export function UploadVideoButton() {
     <>
       <Button
         type="button"
-        variant="outline"
-        className="rounded-full"
+        variant="secondary"
         onClick={() => setOpen(true)}
         data-testid="videos-import-button"
       >
@@ -136,7 +135,7 @@ export function UploadVideoButton() {
               type="button"
               aria-label={t("videos.upload.close")}
               onClick={close}
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="bg-scrim absolute inset-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -147,12 +146,14 @@ export function UploadVideoButton() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 16, scale: 0.97 }}
               transition={{ type: "spring", stiffness: 320, damping: 30 }}
-              className="bg-card relative flex w-full max-w-md flex-col gap-4 rounded-3xl border p-6 shadow-2xl"
+              className="bg-popover text-popover-foreground relative flex w-full max-w-md flex-col gap-5 rounded-lg p-6"
               data-testid="videos-import-dialog"
             >
-              <div className="flex flex-col gap-1">
-                <h2 className="text-base font-semibold">{t("videos.upload.title")}</h2>
-                <p className="text-muted-foreground text-sm">{t("videos.upload.desc")}</p>
+              <div className="flex flex-col gap-1.5">
+                <h2 className="text-xl font-semibold">{t("videos.upload.title")}</h2>
+                <p className="text-muted-foreground text-[13px] leading-relaxed">
+                  {t("videos.upload.desc")}
+                </p>
               </div>
 
               <button
@@ -172,28 +173,30 @@ export function UploadVideoButton() {
                 }}
                 data-testid="videos-import-dropzone"
                 className={cn(
-                  "flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-10 text-center transition-colors",
-                  dragging
-                    ? "border-primary bg-accent"
-                    : "border-input hover:border-primary/60 hover:bg-accent/40",
+                  "focus-visible:ring-ring focus-visible:ring-offset-popover flex flex-col items-center justify-center gap-1.5 rounded-md px-5 py-12 text-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                  dragging ? "bg-accent" : "bg-card hover:bg-accent",
                   busy && "pointer-events-none opacity-60",
                 )}
               >
                 {busy ? (
                   <>
                     <Spinner />
-                    <span className="text-sm font-medium">{phaseLabel}</span>
-                    <span className="text-muted-foreground text-xs">
+                    <span className="mt-2 text-[15px] font-semibold">{phaseLabel}</span>
+                    <span className="text-muted-foreground text-[13px]">
                       {t("videos.upload.dontClose")}
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-full">
+                    <span className="text-muted-foreground">
                       <UploadIcon big />
                     </span>
-                    <span className="text-sm font-medium">{t("videos.upload.dropzone")}</span>
-                    <span className="text-muted-foreground text-xs">{t("videos.upload.hint")}</span>
+                    <span className="mt-2 text-[15px] font-semibold">
+                      {t("videos.upload.dropzone")}
+                    </span>
+                    <span className="text-muted-foreground text-[13px]">
+                      {t("videos.upload.hint")}
+                    </span>
                   </>
                 )}
               </button>
@@ -214,7 +217,7 @@ export function UploadVideoButton() {
               {error ? (
                 <p
                   role="alert"
-                  className="text-destructive text-sm"
+                  className="text-destructive text-[13px]"
                   data-testid="videos-import-error"
                 >
                   {error}
@@ -222,13 +225,7 @@ export function UploadVideoButton() {
               ) : null}
 
               <div className="flex justify-end">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="rounded-full"
-                  onClick={close}
-                  disabled={busy}
-                >
+                <Button type="button" variant="ghost" onClick={close} disabled={busy}>
                   {t("videos.upload.close")}
                 </Button>
               </div>
@@ -323,7 +320,12 @@ function cleanTitle(name: string): string {
 
 function Spinner() {
   return (
-    <svg className="text-primary size-6 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg
+      className="text-foreground size-6 animate-spin"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+    >
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" opacity="0.25" />
       <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
     </svg>

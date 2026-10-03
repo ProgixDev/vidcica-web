@@ -35,12 +35,12 @@ export function ManagePortalButton() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col items-start gap-3">
       <Button onClick={manage} disabled={pending} data-testid="open-billing-portal">
         {pending ? t("billing.opening") : t("billing.managePlan")}
       </Button>
       {message ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {message}
         </p>
       ) : null}

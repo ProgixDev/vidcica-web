@@ -10,7 +10,7 @@ export type GenderSplitProps = {
 /**
  * Stacked horizontal bar (female / male / other) + legend. When every share is 0
  * (no collection yet) it renders a neutral empty bar and "—" legend values —
- * honest, never fabricated. Token colours only.
+ * honest, never fabricated. Series are tones of the neutral scale.
  */
 export function GenderSplit({ t, female, male, other = 0 }: GenderSplitProps) {
   const sum = female + male + other;
@@ -22,30 +22,28 @@ export function GenderSplit({ t, female, male, other = 0 }: GenderSplitProps) {
   const pct = (v: number) => (has ? `${Math.round(v * 100)} %` : "—");
 
   return (
-    <div className="flex flex-col gap-3" data-testid="analytics-gender-split">
-      <div className="bg-muted flex h-3.5 overflow-hidden rounded-full">
+    <div className="flex flex-col gap-4" data-testid="analytics-gender-split">
+      <div className="bg-secondary flex h-3 overflow-hidden rounded-full">
         {has ? (
           <>
-            <div className="bg-primary h-full" style={{ width: `${fp * 100}%` }} />
-            <div className="bg-primary/50 h-full" style={{ width: `${mp * 100}%` }} />
-            {op > 0 ? (
-              <div className="bg-muted-foreground/40 h-full" style={{ width: `${op * 100}%` }} />
-            ) : null}
+            <div className="bg-foreground h-full" style={{ width: `${fp * 100}%` }} />
+            <div className="bg-muted-foreground h-full" style={{ width: `${mp * 100}%` }} />
+            {op > 0 ? <div className="bg-accent h-full" style={{ width: `${op * 100}%` }} /> : null}
           </>
         ) : null}
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-        <Legend swatch="bg-primary" label={t("analytics.audience.gender.female")} value={pct(fp)} />
+      <div className="flex flex-wrap gap-x-5 gap-y-2">
         <Legend
-          swatch="bg-primary/50"
+          swatch="bg-foreground"
+          label={t("analytics.audience.gender.female")}
+          value={pct(fp)}
+        />
+        <Legend
+          swatch="bg-muted-foreground"
           label={t("analytics.audience.gender.male")}
           value={pct(mp)}
         />
-        <Legend
-          swatch="bg-muted-foreground/40"
-          label={t("analytics.audience.gender.other")}
-          value={pct(op)}
-        />
+        <Legend swatch="bg-accent" label={t("analytics.audience.gender.other")} value={pct(op)} />
       </div>
     </div>
   );
@@ -53,10 +51,10 @@ export function GenderSplit({ t, female, male, other = 0 }: GenderSplitProps) {
 
 function Legend({ swatch, label, value }: { swatch: string; label: string; value: string }) {
   return (
-    <span className="flex items-center gap-1.5 text-[11px]">
+    <span className="flex items-center gap-2 text-[13px]">
       <span className={`size-2.5 rounded-full ${swatch}`} />
       <span className="font-medium">{label}</span>
-      <span className="text-muted-foreground">· {value}</span>
+      <span className="text-muted-foreground tabular-nums">{value}</span>
     </span>
   );
 }

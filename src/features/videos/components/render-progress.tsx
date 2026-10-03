@@ -53,9 +53,15 @@ export function RenderProgress({
 
   if (view.failed) {
     return (
-      <div role="alert" className="border-destructive/40 flex flex-col gap-3 rounded-xl border p-5">
-        <h2 className="text-base font-semibold">{t("videos.renderFailedTitle")}</h2>
-        <p className="text-muted-foreground text-sm">{t("videos.renderFailedBody")}</p>
+      <div role="alert" className="bg-destructive-subtle flex flex-col gap-5 rounded-lg p-6">
+        <div className="flex flex-col gap-1.5">
+          <h2 className="text-destructive text-[17px] font-semibold">
+            {t("videos.renderFailedTitle")}
+          </h2>
+          <p className="text-subtle-foreground text-[13px] leading-relaxed">
+            {t("videos.renderFailedBody")}
+          </p>
+        </div>
         <Button onClick={() => router.push("/create")} className="self-start">
           {t("videos.newVideo")}
         </Button>
@@ -64,28 +70,35 @@ export function RenderProgress({
   }
 
   return (
-    <div className="flex flex-col gap-5" data-testid="render-progress">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium">{t(view.labelKey)}</p>
-          <p className="text-muted-foreground text-xs">{view.pct}%</p>
+    <div className="bg-card flex flex-col gap-6 rounded-lg p-6" data-testid="render-progress">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-0.5">
+          <p className="text-[15px] font-semibold">{t(view.labelKey)}</p>
+          <p className="text-muted-foreground text-[13px] tabular-nums">{view.pct}%</p>
         </div>
         <Progress value={view.pct} label={t(view.labelKey)} />
       </div>
-      <ol className="flex flex-col gap-2">
+      <ol className="flex flex-col gap-3">
         {RENDER_STAGES.map((stage, i) => {
           const state = i < view.index ? "done" : i === view.index ? "active" : "pending";
           return (
-            <li key={stage.status} className="flex items-center gap-3 text-sm">
+            <li key={stage.status} className="flex items-center gap-3 text-[13px]">
               <span
+                aria-hidden
                 className={cn(
-                  "size-2 rounded-full",
-                  state === "done" && "bg-success",
-                  state === "active" && "bg-primary animate-pulse",
-                  state === "pending" && "bg-muted",
+                  "size-2 shrink-0 rounded-full",
+                  state === "done" && "bg-muted-foreground",
+                  state === "active" && "bg-foreground animate-pulse motion-reduce:animate-none",
+                  state === "pending" && "bg-accent",
                 )}
               />
-              <span className={cn(state === "pending" && "text-muted-foreground")}>
+              <span
+                className={cn(
+                  state === "done" && "text-subtle-foreground",
+                  state === "active" && "font-semibold",
+                  state === "pending" && "text-muted-foreground",
+                )}
+              >
                 {t(stage.labelKey)}
               </span>
             </li>

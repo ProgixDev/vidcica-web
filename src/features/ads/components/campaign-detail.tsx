@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import {
   budgetText,
   formatAdMoney,
@@ -57,52 +56,57 @@ export function CampaignDetail({
   const objectiveKey = CAMPAIGN_OBJECTIVE_KEY[campaign.objective as SupportedObjective];
 
   return (
-    <div className="flex flex-col gap-6" data-testid="campaign-detail">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-lg font-semibold tracking-tight">{campaign.name}</h1>
-          <p className="text-muted-foreground text-sm">
-            {objectiveKey ? t(objectiveKey) : objectiveLabel(campaign.objective)} ·{" "}
-            {budgetText(t, campaign, currency)}
-          </p>
+    <div className="flex flex-col gap-10" data-testid="campaign-detail">
+      <div className="flex flex-col gap-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex min-w-0 flex-col gap-2">
+            <h1 className="text-[28px] leading-9 font-semibold tracking-[-0.03em] sm:text-[32px] sm:leading-10">
+              {campaign.name}
+            </h1>
+            <p className="text-muted-foreground text-[15px] leading-relaxed">
+              {objectiveKey ? t(objectiveKey) : objectiveLabel(campaign.objective)} ·{" "}
+              {budgetText(t, campaign, currency)}
+            </p>
+          </div>
+          <Badge variant={meta.variant} className="mt-2 shrink-0" data-testid="detail-status">
+            {t(CAMPAIGN_STATUS_KEY[campaign.status])}
+          </Badge>
         </div>
-        <Badge variant={meta.variant} data-testid="detail-status">
-          {t(CAMPAIGN_STATUS_KEY[campaign.status])}
-        </Badge>
+
+        <ActivatePauseControls campaign={campaign} />
       </div>
 
-      <ActivatePauseControls campaign={campaign} />
-
-      <Card className="flex flex-col gap-4 p-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium">{t("ads.performance")}</h2>
+      <section className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 className="text-xl font-semibold tracking-tight">{t("ads.performance")}</h2>
           {noData ? (
-            <span className="text-muted-foreground text-xs" data-testid="metrics-pending">
+            <span className="text-muted-foreground text-[13px]" data-testid="metrics-pending">
               {t("ads.metricsPending")}
             </span>
           ) : (
-            <span className="text-muted-foreground text-xs">
+            <span className="text-muted-foreground text-[13px]">
               {t("ads.updatedAt", {
                 date: new Date(campaign.metrics.updatedAt!).toLocaleString("fr-FR"),
               })}
             </span>
           )}
         </div>
-        <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {METRICS.map((m) => (
-            <div key={m.key} className="flex flex-col">
-              <dd className="text-lg font-semibold">{m.fmt(campaign.metrics[m.key], currency)}</dd>
-              <dt className="text-muted-foreground text-xs">{t(m.label)}</dt>
+            <div key={m.key} className="bg-card flex min-w-0 flex-col gap-3 rounded-lg p-5">
+              <dt className="text-muted-foreground truncate text-[13px]">{t(m.label)}</dt>
+              <dd className="truncate text-[28px] leading-none font-semibold tracking-[-0.03em] tabular-nums">
+                {m.fmt(campaign.metrics[m.key], currency)}
+              </dd>
             </div>
           ))}
         </dl>
-      </Card>
-
-      {campaign.lastError ? (
-        <p className="text-muted-foreground text-xs">
-          {t("ads.lastError", { error: campaign.lastError })}
-        </p>
-      ) : null}
+        {campaign.lastError ? (
+          <p className="text-muted-foreground text-[13px] leading-relaxed">
+            {t("ads.lastError", { error: campaign.lastError })}
+          </p>
+        ) : null}
+      </section>
 
       <CampaignManageControls campaign={campaign} />
     </div>

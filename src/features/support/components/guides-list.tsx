@@ -9,24 +9,21 @@ export function GuidesList() {
   const t = useT();
   return (
     <div className="flex flex-col gap-4" data-testid="guides-list">
-      <div className="bg-card divide-border/60 flex flex-col divide-y rounded-2xl border">
+      <div className="bg-card flex flex-col rounded-lg py-2">
         {GUIDES.map((g) => (
           <div
             key={g.id}
-            className="flex items-start gap-3 px-4 py-3.5"
+            className="flex min-h-14 items-start gap-4 px-5 py-3"
             data-testid={`guide-${g.id}`}
           >
-            <span
-              aria-hidden
-              className="bg-accent text-accent-foreground mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full"
-            >
+            <span aria-hidden className="text-foreground mt-0.5 shrink-0">
               <svg
-                width="16"
-                height="16"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.75"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
@@ -35,13 +32,15 @@ export function GuidesList() {
               </svg>
             </span>
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="text-sm font-medium">{t(g.titleKey)}</span>
-              <span className="text-muted-foreground text-xs leading-relaxed">{t(g.descKey)}</span>
+              <span className="text-[15px] leading-snug font-semibold">{t(g.titleKey)}</span>
+              <span className="text-muted-foreground text-[13px] leading-relaxed">
+                {t(g.descKey)}
+              </span>
             </span>
           </div>
         ))}
       </div>
-      <p className="text-muted-foreground px-1 text-xs">{t("help.guide.comingSoon")}</p>
+      <p className="text-muted-foreground text-[13px]">{t("help.guide.comingSoon")}</p>
     </div>
   );
 }

@@ -33,7 +33,7 @@ export default async function AnalyticsLayout({ children }: { children: React.Re
   return (
     <>
       <PageHeader title={t("analytics.title")} subtitle={t("analytics.subtitle")} />
-      <div className="flex w-full max-w-3xl flex-col gap-5">
+      <div className="flex w-full max-w-3xl flex-col gap-10">
         <Suspense fallback={null}>
           <AnalyticsNav />
         </Suspense>

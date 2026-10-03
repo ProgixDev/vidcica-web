@@ -92,12 +92,12 @@ export function ChangePhoneForm({ currentPhone }: { currentPhone: string | null 
   if (step === "done") {
     return (
       <div
-        className="border-success/40 bg-success/10 flex flex-col gap-1.5 rounded-2xl border p-4"
+        className="bg-success-subtle flex flex-col gap-1 rounded-md p-4"
         role="status"
         data-testid="security-phone-done"
       >
-        <p className="text-sm font-semibold">{t("security.phone.successTitle")}</p>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-success text-[15px] font-semibold">{t("security.phone.successTitle")}</p>
+        <p className="text-subtle-foreground text-[13px] leading-relaxed">
           {t("security.phone.successBody", { phone: submittedPhone })}
         </p>
       </div>
@@ -106,12 +106,12 @@ export function ChangePhoneForm({ currentPhone }: { currentPhone: string | null 
 
   if (step === "verify") {
     return (
-      <form onSubmit={verify} className="flex flex-col gap-4" data-testid="security-phone-verify">
-        <p className="text-muted-foreground text-sm">
+      <form onSubmit={verify} className="flex flex-col gap-5" data-testid="security-phone-verify">
+        <p className="text-muted-foreground text-[15px] leading-relaxed">
           {t("security.phone.codeSentTo", { phone: submittedPhone })}{" "}
           <button
             type="button"
-            className="text-foreground underline underline-offset-2"
+            className="text-foreground focus-visible:ring-ring rounded-sm font-semibold underline underline-offset-4 outline-none focus-visible:ring-2"
             onClick={() => {
               setStep("request");
               setCode("");
@@ -122,7 +122,7 @@ export function ChangePhoneForm({ currentPhone }: { currentPhone: string | null 
             {t("security.phone.editPhone")}
           </button>
         </p>
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="sec-phone-code">{t("security.phone.codeLabel")}</Label>
           <Input
             id="sec-phone-code"
@@ -140,14 +140,14 @@ export function ChangePhoneForm({ currentPhone }: { currentPhone: string | null 
           />
         </div>
         {error ? (
-          <p role="alert" className="text-destructive text-sm">
+          <p role="alert" className="text-destructive text-[13px]">
             {error}
           </p>
         ) : null}
         <Button
           type="submit"
           disabled={pending || code.length < 6}
-          className="self-start rounded-full"
+          className="self-start"
           data-testid="security-phone-verify-submit"
         >
           {pending ? t("common.sending") : t("security.phone.verifyCta")}
@@ -159,10 +159,10 @@ export function ChangePhoneForm({ currentPhone }: { currentPhone: string | null 
   return (
     <form
       onSubmit={requestChange}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-5"
       data-testid="security-phone-form"
     >
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="sec-current-phone">{t("security.phone.currentLabel")}</Label>
         <Input
           id="sec-current-phone"
@@ -173,7 +173,7 @@ export function ChangePhoneForm({ currentPhone }: { currentPhone: string | null 
           disabled
         />
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="sec-new-phone">{t("security.phone.newLabel")}</Label>
         <Input
           id="sec-new-phone"
@@ -190,16 +190,18 @@ export function ChangePhoneForm({ currentPhone }: { currentPhone: string | null 
           data-testid="security-phone-input"
         />
       </div>
-      <p className="text-muted-foreground text-xs">{t("security.phone.note")}</p>
+      <p className="text-muted-foreground text-[13px] leading-relaxed">
+        {t("security.phone.note")}
+      </p>
       {error ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-[13px]">
           {error}
         </p>
       ) : null}
       <Button
         type="submit"
         disabled={pending || phone.trim().length === 0}
-        className="self-start rounded-full"
+        className="self-start"
         data-testid="security-phone-submit"
       >
         {pending ? t("common.sending") : t("security.phone.cta")}

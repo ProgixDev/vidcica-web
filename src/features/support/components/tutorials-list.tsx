@@ -3,12 +3,12 @@
 import { useT } from "@/lib/i18n/provider";
 import { TUTORIALS, type TutorialAccent } from "../faq-data";
 
-/** Token-driven gradient per accent — placeholder thumbnail, no external art. */
-const ACCENT_GRADIENT: Record<TutorialAccent, string> = {
-  brand: "from-primary to-primary/50",
-  success: "from-success to-success/50",
-  warning: "from-warning to-warning/50",
-  neutral: "from-muted to-muted-foreground/20",
+/** One atmospheric field per accent — placeholder thumbnail, no external art. */
+const ACCENT_FIELD: Record<TutorialAccent, string> = {
+  brand: "field-aube",
+  success: "field-contre-jour",
+  warning: "field-apres-image",
+  neutral: "field-papier",
 };
 
 function formatDuration(sec: number, t: ReturnType<typeof useT>): string {
@@ -30,30 +30,30 @@ export function TutorialsList() {
           <div
             key={tut.id}
             data-testid={`tutorial-${tut.id}`}
-            className="bg-card flex flex-col overflow-hidden rounded-2xl border"
+            className="bg-card flex flex-col overflow-hidden rounded-lg"
           >
             <div
-              className={`relative flex aspect-video items-center justify-center bg-gradient-to-br ${ACCENT_GRADIENT[tut.accent]}`}
+              className={`grain relative flex aspect-video items-center justify-center ${ACCENT_FIELD[tut.accent]}`}
             >
-              <span className="flex size-11 items-center justify-center rounded-full bg-black/45 text-white">
+              <span className="bg-scrim flex size-12 items-center justify-center rounded-full text-white">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </span>
-              <span className="absolute right-2 bottom-2 rounded-full bg-black/55 px-2 py-0.5 text-xs font-medium text-white">
+              <span className="bg-scrim absolute right-3 bottom-3 rounded-full px-2.5 py-1 text-xs leading-none font-semibold text-white">
                 {formatDuration(tut.durationSec, t)}
               </span>
             </div>
-            <div className="flex flex-col gap-1 p-3">
-              <span className="text-sm font-semibold">{t(tut.titleKey)}</span>
-              <span className="text-muted-foreground text-xs leading-relaxed">
+            <div className="flex flex-col gap-1 p-5">
+              <span className="text-[15px] leading-snug font-semibold">{t(tut.titleKey)}</span>
+              <span className="text-muted-foreground text-[13px] leading-relaxed">
                 {t(tut.bodyKey)}
               </span>
             </div>
           </div>
         ))}
       </div>
-      <p className="text-muted-foreground px-1 text-xs">{t("help.tutorials.player.comingSoon")}</p>
+      <p className="text-muted-foreground text-[13px]">{t("help.tutorials.player.comingSoon")}</p>
     </div>
   );
 }

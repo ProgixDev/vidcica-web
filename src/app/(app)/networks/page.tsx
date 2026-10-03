@@ -24,7 +24,7 @@ export default async function NetworksPage() {
   return (
     <>
       <PageHeader title={t("networks.title")} subtitle={t("networks.subtitle")} />
-      <div className="w-full max-w-5xl">
+      <div className="w-full max-w-3xl">
         <NetworkList initial={networks} reviewAccess={reviewAccess} />
       </div>
     </>

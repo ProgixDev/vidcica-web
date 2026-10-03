@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getT } from "@/lib/i18n/server";
 import { PageHeader } from "@/components/app-shell";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChangeEmailForm, ChangePhoneForm } from "@/features/account-security";
 
@@ -24,31 +25,27 @@ export default async function AccountSecurityPage() {
   const currentPhone = user.phone && user.phone.trim().length > 0 ? user.phone : null;
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-10">
       <PageHeader
         title={t("security.title")}
         subtitle={t("security.subtitle")}
         actions={
-          <Link href="/account" className="text-muted-foreground hover:text-foreground text-sm">
+          <Link href="/account" className={buttonVariants({ variant: "ghost", size: "sm" })}>
             ← {t("common.back")}
           </Link>
         }
       />
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
-          {t("security.section.email")}
-        </h2>
-        <Card className="rounded-2xl p-5">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold">{t("security.section.email")}</h2>
+        <Card className="p-6">
           <ChangeEmailForm currentEmail={user.email ?? ""} />
         </Card>
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-muted-foreground px-1 text-[11px] font-semibold tracking-widest uppercase">
-          {t("security.section.phone")}
-        </h2>
-        <Card className="rounded-2xl p-5">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold">{t("security.section.phone")}</h2>
+        <Card className="p-6">
           <ChangePhoneForm currentPhone={currentPhone} />
         </Card>
       </section>

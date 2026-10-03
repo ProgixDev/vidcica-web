@@ -29,10 +29,7 @@ export default async function AdsPage() {
         title={t("ads.title")}
         subtitle={t("ads.subtitle")}
         actions={
-          <Link
-            href="/ads/new"
-            className={buttonVariants({ size: "sm", className: "rounded-full" })}
-          >
+          <Link href="/ads/new" className={buttonVariants()}>
             {t("ads.boostVideo")}
           </Link>
         }

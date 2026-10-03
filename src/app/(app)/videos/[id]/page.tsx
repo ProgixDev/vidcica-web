@@ -34,7 +34,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
       <PageHeader
         title={t("videos.detailTitle")}
         actions={
-          <Link href="/videos" className="text-muted-foreground hover:text-foreground text-sm">
+          <Link href="/videos" className={buttonVariants({ variant: "ghost" })}>
             ← {t("videos.title")}
           </Link>
         }
@@ -50,8 +50,10 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
           {job ? (
             <RenderProgress videoId={video.id} jobId={job.jobId} initialStatus={job.status} />
           ) : (
-            <div className="flex flex-col gap-3">
-              <p className="text-muted-foreground text-sm">{t("videos.draftNotGenerated")}</p>
+            <div className="bg-card flex flex-col gap-5 rounded-lg p-6">
+              <p className="text-subtle-foreground text-[15px] leading-relaxed">
+                {t("videos.draftNotGenerated")}
+              </p>
               <Link href="/create" className={cn(buttonVariants(), "self-start")}>
                 {t("videos.create")}
               </Link>

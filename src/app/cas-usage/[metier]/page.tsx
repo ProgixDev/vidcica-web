@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/marketing-chrome";
 import { TrackedLink } from "@/components/tracked-link";
@@ -77,72 +76,93 @@ export default async function UseCasePage({ params }: Params) {
       />
       <MarketingHeader t={t} locale={locale} />
       <main className="flex-1">
-        <section className="mx-auto w-full max-w-3xl px-6 py-16" aria-labelledby="usecase-h">
-          <nav className="text-muted-foreground mb-6 text-sm" aria-label="Breadcrumb">
-            <Link href={localizedPath("/cas-usage", locale)} className="hover:text-foreground">
+        <section
+          className="mx-auto w-full max-w-6xl px-6 pt-20 pb-16 sm:pt-28 sm:pb-20"
+          aria-labelledby="usecase-h"
+        >
+          <nav className="text-muted-foreground mb-8 text-[13px]" aria-label="Breadcrumb">
+            <Link
+              href={localizedPath("/cas-usage", locale)}
+              className="hover:text-foreground underline-offset-4 transition-colors hover:underline"
+            >
               {t("page.useCases.h1")}
             </Link>
             <span aria-hidden> / </span>
             <span>{t(useCase.cardTitle)}</span>
           </nav>
 
-          <h1 id="usecase-h" className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            {t(useCase.h1)}
-          </h1>
-          <p className="text-muted-foreground mt-4 leading-relaxed">{t(useCase.intro)}</p>
+          <div className="flex max-w-3xl flex-col gap-5">
+            <h1 id="usecase-h" className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+              {t(useCase.h1)}
+            </h1>
+            <p className="text-muted-foreground text-[17px] leading-relaxed">{t(useCase.intro)}</p>
+          </div>
 
-          <h2 className="mt-12 text-xl font-semibold tracking-tight">
-            {t("page.useCases.ideasTitle")}
-          </h2>
-          <ul className="mt-4 flex flex-col gap-3">
-            {useCase.ideas.map((idea) => (
-              <li key={idea} className="border-border flex gap-3 rounded-lg border p-4 text-sm">
-                <span aria-hidden className="text-primary">
-                  →
-                </span>
-                <span>{t(idea)}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-10 flex flex-wrap gap-3">
-            <TrackedLink
-              href={localizedPath("/sign-in", locale)}
-              location={`use-case:${useCase.slug}`}
-              className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
-            >
-              {t("landing.pricing.startFree")}
-            </TrackedLink>
-            <Link
-              href={localizedPath("/tarifs", locale)}
-              className={cn(
-                buttonVariants({ variant: "outline", size: "lg" }),
-                "rounded-full px-8",
-              )}
-            >
-              {t("landing.nav.pricing")}
-            </Link>
+          <div className="mt-16 grid gap-x-12 gap-y-6 sm:mt-24 lg:grid-cols-[1fr_1.6fr]">
+            <h2 className="text-3xl font-semibold tracking-[-0.03em]">
+              {t("page.useCases.ideasTitle")}
+            </h2>
+            <ol className="bg-card divide-border flex flex-col divide-y rounded-lg px-6 sm:px-8">
+              {useCase.ideas.map((idea, i) => (
+                <li key={idea} className="flex items-baseline gap-5 py-5">
+                  <span aria-hidden className="text-muted-foreground text-[13px] tabular-nums">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-[15px] leading-relaxed">{t(idea)}</span>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
-        <section className="bg-secondary/40 border-t" aria-labelledby="others-h">
-          <div className="mx-auto w-full max-w-3xl px-6 py-14">
-            <h2 id="others-h" className="text-lg font-semibold tracking-tight">
-              {t("page.useCases.otherTitle")}
-            </h2>
-            <ul className="mt-4 flex flex-wrap gap-3 text-sm">
-              {others.map((u) => (
-                <li key={u.slug}>
-                  <Link
-                    href={localizedPath(`/cas-usage/${u.slug}`, locale)}
-                    className="border-border hover:border-primary/60 inline-flex rounded-full border px-4 py-2 transition-colors"
-                  >
-                    {t(u.cardTitle)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+        <section className="mx-auto w-full max-w-6xl px-6">
+          <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+            <div className="bg-card flex flex-col items-start gap-8 rounded-lg p-8 sm:p-12">
+              <p className="max-w-md text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+                {t("page.pricing.ctaTitle")}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <TrackedLink
+                  href={localizedPath("/sign-in", locale)}
+                  location={`use-case:${useCase.slug}`}
+                  className={buttonVariants({ variant: "brand", size: "lg" })}
+                >
+                  {t("landing.pricing.startFree")}
+                </TrackedLink>
+                <Link
+                  href={localizedPath("/tarifs", locale)}
+                  className={buttonVariants({ variant: "ghost", size: "lg" })}
+                >
+                  {t("landing.nav.pricing")}
+                </Link>
+              </div>
+            </div>
+            <div
+              aria-hidden
+              className="field-contre-jour grain hidden min-h-56 rounded-lg lg:block"
+            />
           </div>
+        </section>
+
+        <section
+          className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-20"
+          aria-labelledby="others-h"
+        >
+          <h2 id="others-h" className="text-xl font-semibold tracking-[-0.02em]">
+            {t("page.useCases.otherTitle")}
+          </h2>
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {others.map((u) => (
+              <li key={u.slug}>
+                <Link
+                  href={localizedPath(`/cas-usage/${u.slug}`, locale)}
+                  className={buttonVariants({ variant: "secondary" })}
+                >
+                  {t(u.cardTitle)}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       </main>
       <MarketingFooter t={t} locale={locale} />

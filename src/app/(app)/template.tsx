@@ -10,7 +10,7 @@ import { m } from "@/components/motion";
 export default function AppTemplate({ children }: { children: React.ReactNode }) {
   return (
     <m.div
-      className="flex w-full flex-1 flex-col gap-8"
+      className="flex w-full flex-1 flex-col gap-10"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.24, ease: "easeOut" }}

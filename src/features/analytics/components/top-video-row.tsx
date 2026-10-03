@@ -20,10 +20,10 @@ export function TopVideoRow({ video, platform }: TopVideoRowProps) {
   return (
     <Link
       href={`/videos/${video.id}`}
-      className="hover:bg-muted/60 flex items-center gap-3 px-4 py-2.5 transition-colors first:rounded-t-2xl last:rounded-b-2xl"
+      className="hover:bg-accent focus-visible:bg-accent flex items-center gap-4 px-5 py-3 transition-colors outline-none"
       data-testid={`analytics-video-${video.id}`}
     >
-      <span className="bg-muted relative h-14 w-10 shrink-0 overflow-hidden rounded-md">
+      <span className="bg-secondary relative aspect-[9/16] w-10 shrink-0 overflow-hidden rounded-sm">
         {video.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -34,8 +34,8 @@ export function TopVideoRow({ video, platform }: TopVideoRowProps) {
         ) : null}
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="truncate text-sm font-medium">{video.title}</span>
-        <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
+        <span className="truncate text-[15px] font-semibold">{video.title}</span>
+        <span className="text-muted-foreground flex items-center gap-2 text-[13px] tabular-nums">
           {platform ? <PlatformIcon platform={platform} size={14} /> : null}
           {hasEngagement ? (
             <span className="flex items-center gap-2.5">
