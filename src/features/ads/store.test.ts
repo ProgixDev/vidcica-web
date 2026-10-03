@@ -8,6 +8,9 @@ const readyDraft: Partial<BoostDraft> = {
   countries: ["FR"],
   ageMin: 18,
   ageMax: 45,
+  budgetMode: "quotidien",
+  budgetDaily: 20,
+  budgetTotal: 200,
 };
 
 function make(over: Partial<BoostDeps> = {}) {
@@ -102,5 +105,13 @@ describe("isDraftReady", () => {
     expect(isDraftReady({ ...(readyDraft as BoostDraft), videoId: "" })).toBe(false);
     expect(isDraftReady({ ...(readyDraft as BoostDraft), name: "  " })).toBe(false);
     expect(isDraftReady({ ...(readyDraft as BoostDraft), ageMax: 10, ageMin: 20 })).toBe(false);
+  });
+
+  it("refuses a daily budget activation would reject, but not a total budget", () => {
+    expect(isDraftReady({ ...(readyDraft as BoostDraft), budgetDaily: 2 })).toBe(false);
+    expect(isDraftReady({ ...(readyDraft as BoostDraft), budgetDaily: 5 })).toBe(true);
+    expect(
+      isDraftReady({ ...(readyDraft as BoostDraft), budgetMode: "total", budgetDaily: 2 }),
+    ).toBe(true);
   });
 });

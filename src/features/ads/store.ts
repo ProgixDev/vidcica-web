@@ -1,6 +1,7 @@
 import { createStore } from "zustand/vanilla";
 import type { AdAccountOutcome, CreateCampaignOutcome } from "@/lib/vidcica/ads";
 import { adsErrorMessage } from "@/lib/vidcica/ads";
+import { MIN_DAILY_BUDGET } from "@/lib/vidcica/campaign";
 import type {
   BoostDraft,
   CampaignGender,
@@ -78,7 +79,8 @@ export function isDraftReady(d: BoostDraft): boolean {
     d.videoId.length > 0 &&
     d.name.trim().length > 0 &&
     d.ageMax >= d.ageMin &&
-    d.countries.length > 0
+    d.countries.length > 0 &&
+    (d.budgetMode === "total" ? d.budgetTotal > 0 : d.budgetDaily >= MIN_DAILY_BUDGET)
   );
 }
 

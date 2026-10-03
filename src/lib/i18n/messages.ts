@@ -1013,6 +1013,7 @@ export const fr = {
   "ads.review.budget": "Budget",
   "ads.budgetTotalValue": "{amount} au total",
   "ads.budgetDailyValue": "{amount} par jour",
+  "ads.budgetDailyMin": "Minimum {amount} par jour.",
   "ads.review.note":
     "La campagne est créée en pause. Aucune dépense tant que vous ne l’activez pas.",
   "ads.activate.draftNote":
@@ -2400,6 +2401,7 @@ export const en: Partial<Record<MessageKey, string>> = {
   "ads.review.budget": "Budget",
   "ads.budgetTotalValue": "{amount} total",
   "ads.budgetDailyValue": "{amount} per day",
+  "ads.budgetDailyMin": "Minimum {amount} per day.",
   "ads.review.note": "The campaign is created paused. No spend until you activate it.",
   "ads.activate.draftNote":
     "This draft hasn't been created on Meta yet. Ads must be available on your account (ad account + Facebook Page) to launch it.",

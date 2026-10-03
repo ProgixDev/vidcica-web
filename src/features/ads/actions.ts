@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { entityId } from "@/lib/vidcica/id";
 import {
   boostDraftToRow,
+  MIN_DAILY_BUDGET,
   SUPPORTED_OBJECTIVES,
   type BoostDraft,
   type CampaignInsert,
@@ -39,6 +40,10 @@ export async function createDraftCampaign(input: BoostDraft): Promise<CreateDraf
   if (!parsed.success) return { ok: false, message: "Paramètres de campagne invalides." };
   if (parsed.data.ageMax < parsed.data.ageMin) {
     return { ok: false, message: "L’âge maximum doit être supérieur à l’âge minimum." };
+  }
+  // Activation refuses a smaller daily budget, so don't save a campaign that can't run.
+  if (parsed.data.budgetMode === "quotidien" && parsed.data.budgetDaily < MIN_DAILY_BUDGET) {
+    return { ok: false, message: `Le budget quotidien doit être d’au moins ${MIN_DAILY_BUDGET}.` };
   }
 
   const supabase = await createClient();

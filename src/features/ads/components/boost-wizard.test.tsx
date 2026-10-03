@@ -47,6 +47,20 @@ describe("<BoostWizard /> (AC-2)", () => {
     expect(screen.getByTestId("boost-checking")).toBeInTheDocument();
   });
 
+  // Regression: the budget step accepted any daily budget from 1, but activation
+  // refuses anything under 5, so a CA$2 campaign was created that could never run.
+  it("won't continue with a daily budget below the activation minimum", async () => {
+    renderWizard({});
+    fireEvent.change(await screen.findByTestId("bw-video"), { target: { value: "v1" } });
+    for (let i = 0; i < 3; i++) fireEvent.click(screen.getByTestId("boost-next"));
+    const budget = screen.getByTestId("bw-budget-daily");
+    fireEvent.change(budget, { target: { value: "2" } });
+    expect(screen.getByTestId("boost-next")).toBeDisabled();
+    expect(screen.getByTestId("bw-budget-min")).toHaveTextContent(/Minimum .*5.* par jour/);
+    fireEvent.change(budget, { target: { value: "5" } });
+    expect(screen.getByTestId("boost-next")).toBeEnabled();
+  });
+
   it("walks the steps and renders the created/in-review success (AC-3)", async () => {
     renderWizard({});
     // video step: pick a video (auto-fills the name) → then next through each step

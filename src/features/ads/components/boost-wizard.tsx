@@ -13,6 +13,7 @@ import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   CAMPAIGN_OBJECTIVE_KEY,
+  MIN_DAILY_BUDGET,
   SUPPORTED_OBJECTIVES,
   type BoostDraft,
   type CampaignGender,
@@ -315,7 +316,9 @@ function stepValid(key: (typeof BOOST_STEPS)[number], draft: BoostDraft): boolea
     case "audience":
       return draft.countries.length > 0 && draft.ageMax >= draft.ageMin;
     case "budget":
-      return draft.budgetMode === "total" ? draft.budgetTotal > 0 : draft.budgetDaily > 0;
+      return draft.budgetMode === "total"
+        ? draft.budgetTotal > 0
+        : draft.budgetDaily >= MIN_DAILY_BUDGET;
     default:
       return true;
   }
@@ -517,10 +520,21 @@ function BudgetStep({ draft, setDraft }: StepProps) {
             id="bw-budget-daily"
             data-testid="bw-budget-daily"
             type="number"
-            min={1}
+            min={MIN_DAILY_BUDGET}
             value={draft.budgetDaily}
             onChange={(e) => setDraft({ budgetDaily: Number(e.target.value) })}
+            aria-describedby="bw-budget-daily-min"
           />
+          <p
+            id="bw-budget-daily-min"
+            data-testid="bw-budget-min"
+            className={cn(
+              "text-[13px]",
+              draft.budgetDaily < MIN_DAILY_BUDGET ? "text-destructive" : "text-muted-foreground",
+            )}
+          >
+            {t("ads.budgetDailyMin", { amount: format(MIN_DAILY_BUDGET) })}
+          </p>
         </div>
       )}
 

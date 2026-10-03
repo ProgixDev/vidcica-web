@@ -70,6 +70,12 @@ describe("createDraftCampaign (AC-3)", () => {
     expect(calls.find((c) => c.method === "insert")).toBeUndefined();
   });
 
+  it("rejects a daily budget below the activation minimum", async () => {
+    const out = await createDraftCampaign({ ...valid, budgetDaily: 2 });
+    expect(out.ok).toBe(false);
+    expect(calls.find((c) => c.method === "insert")).toBeUndefined();
+  });
+
   it("fails closed with no session", async () => {
     user = null;
     const out = await createDraftCampaign(valid);

@@ -28,6 +28,14 @@ export type CampaignObjective =
 export const SUPPORTED_OBJECTIVES = ["notoriete", "trafic", "engagement"] as const;
 export type SupportedObjective = (typeof SUPPORTED_OBJECTIVES)[number];
 
+/**
+ * The smallest daily budget a campaign can be activated with, in the ad
+ * account's currency. Mirrors app_config `ads_min_daily_budget_cents` (500),
+ * which `set-campaign-status` enforces on activation: the wizard used to accept
+ * anything from 1, so a campaign could be created that could never run.
+ */
+export const MIN_DAILY_BUDGET = 5;
+
 export type CampaignStatus =
   | "brouillon"
   | "in_review"
