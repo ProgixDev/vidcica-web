@@ -191,6 +191,10 @@ export function AppShell({
                 <ShellIcon name="close" className="size-5" />
               </button>
               {sidebarBody}
+              <div className="flex items-center gap-2 sm:hidden" data-testid="drawer-preferences">
+                <LanguageToggle />
+                <ThemeToggle />
+              </div>
             </m.div>
           </div>
         ) : null}
@@ -220,8 +224,12 @@ export function AppShell({
                 monthlyCredits={monthlyCredits}
                 className="lg:hidden"
               />
-              <LanguageToggle />
-              <ThemeToggle />
+              {/* On a phone the bar can't fit these too (the bell was pushed off
+                  screen and the page scrolled sideways); they live in the menu. */}
+              <div className="hidden items-center gap-2 sm:flex">
+                <LanguageToggle />
+                <ThemeToggle />
+              </div>
               {bell}
             </div>
           </div>

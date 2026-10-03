@@ -21,7 +21,9 @@ export function PageHeader({
           <p className="text-muted-foreground max-w-xl text-[15px] leading-relaxed">{subtitle}</p>
         ) : null}
       </div>
-      {actions ? <div className="flex items-center gap-3">{actions}</div> : null}
+      {/* Wraps on a phone: the videos page's three buttons ran 460 px wide at
+          390 px and the whole page scrolled sideways. */}
+      {actions ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
     </header>
   );
 }
