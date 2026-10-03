@@ -9,7 +9,7 @@ import type { Plan } from "@/lib/vidcica/tiers";
 import { useCreateStore } from "../provider";
 import { estimateCost } from "../cost";
 import { LENGTHS, MUSIC_MOODS, RATIOS, VOICES } from "../options";
-import { MAX_SCRIPT_WORDS, MAX_VIDEO_SEC, narrationEstimate } from "../script-length";
+import { MAX_SCRIPT_WORDS, MAX_VIDEO_SEC, lengthFor, narrationEstimate } from "../script-length";
 import { ModelMenu } from "./model-menu";
 
 /** Clickable starter ideas — kills the blank-page freeze on first visit. */
@@ -103,7 +103,7 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
         input.voiceover &&
         input.model !== "pexels" &&
         input.prompt.trim() ? (
-          <ScriptLength text={input.prompt} />
+          <ScriptLength text={input.prompt} length={input.length} />
         ) : null}
 
         {/* Cost line */}
@@ -252,21 +252,31 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
 }
 
 /** A pasted script's length and roughly how long the voice takes to say it. */
-function ScriptLength({ text }: { text: string }) {
+function ScriptLength({ text, length }: { text: string; length: number }) {
   const t = useT();
   const { words, seconds, tooLong } = narrationEstimate(text);
+  // Narrated word for word, a script longer than the chosen length stretches
+  // the video over too little footage: name the length that fits.
+  const fits = lengthFor(seconds);
+  const pickLength = !tooLong && fits !== null && fits > length ? fits : null;
   return (
     <p
       className={cn(
         "px-6 pb-2 text-[13px] tabular-nums",
-        tooLong ? "text-destructive" : "text-muted-foreground",
+        tooLong
+          ? "text-destructive"
+          : pickLength !== null
+            ? "text-foreground"
+            : "text-muted-foreground",
       )}
       data-testid="composer-script-length"
     >
       {t("create.scriptLength", { words, seconds })}
       {tooLong
         ? ` ${t("create.scriptTooLong", { max: MAX_VIDEO_SEC, words: MAX_SCRIPT_WORDS })}`
-        : null}
+        : pickLength !== null
+          ? ` ${t("create.scriptPickLength", { length: pickLength })}`
+          : null}
     </p>
   );
 }

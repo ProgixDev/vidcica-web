@@ -33,7 +33,7 @@ export default async function CreatePage({
   // Only the caller's own unrendered draft qualifies (RLS + status check).
   const draft = typeof params.draft === "string" ? await getMyDraft(params.draft) : null;
   const initial: ReturnType<typeof draftPrefill> = draft
-    ? draftPrefill(draft)
+    ? draftPrefill(draft, entitlement.plan)
     : { ...(kind ? { kind } : {}), ...(prompt ? { prompt } : {}) };
 
   return (

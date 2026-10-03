@@ -6,6 +6,8 @@
  * This is the composer's early warning, at the voices' typical pace.
  */
 
+import { LENGTHS } from "./options";
+
 /** The longest video the product makes; mirror of MAX_VIDEO_SEC server-side. */
 export const MAX_VIDEO_SEC = 60;
 /** The ElevenLabs voices' usual pace (measured 2026-10-03: 2.8 to 4.5 words/s). */
@@ -16,6 +18,15 @@ export const MAX_SCRIPT_WORDS = MAX_VIDEO_SEC * TYPICAL_WORDS_PER_SEC;
 /** Words as the voice says them: punctuation set apart ("vidéo ?") isn't one. */
 export function countWords(text: string): number {
   return text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+}
+
+/**
+ * The shortest length the composer offers that holds `seconds` of voice, or
+ * null past them all. A script is narrated word for word, so one longer than
+ * the chosen length stretches the video over too little footage.
+ */
+export function lengthFor(seconds: number): number | null {
+  return LENGTHS.find((l) => l >= seconds) ?? null;
 }
 
 export type NarrationEstimate = { words: number; seconds: number; tooLong: boolean };

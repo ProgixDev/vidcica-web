@@ -55,6 +55,10 @@ export type DraftSource = {
   script: string;
   format: string;
   durationSec: number;
+  /** The model, voice and music it was last rendered with, if it ever was. */
+  model: string | null;
+  voice: string | null;
+  music: string | null;
 };
 
 /**
@@ -69,17 +73,30 @@ export async function getMyDraft(id: string): Promise<DraftSource | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("videos")
-    .select("id, title, script, format, duration_sec, status")
+    .select("id, title, script, format, duration_sec, status, voice, music_mood")
     .eq("id", parsed.data)
     .is("deleted_at", null)
     .maybeSingle();
   if (error || !data || data.status !== "brouillon") return null;
+  // A draft back from a failed render ("script too long", a failed clip) reopens
+  // with the model it was rendered with; without it the composer fell back to
+  // Stock, losing the user's choice.
+  const { data: job } = await supabase
+    .from("generation_jobs")
+    .select("provider")
+    .eq("video_id", parsed.data)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
   return {
     id: data.id,
     title: data.title,
     script: data.script ?? "",
     format: data.format,
     durationSec: data.duration_sec,
+    model: job?.provider ?? null,
+    voice: data.voice ?? null,
+    music: data.music_mood ?? null,
   };
 }
 

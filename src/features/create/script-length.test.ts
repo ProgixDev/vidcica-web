@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { MAX_SCRIPT_WORDS, countWords, narrationEstimate } from "./script-length";
+import { MAX_SCRIPT_WORDS, countWords, lengthFor, narrationEstimate } from "./script-length";
+
+describe("lengthFor", () => {
+  // A script is narrated word for word: picking 15 s for 33 s of voice stretches
+  // the video over 15 s of footage, so the composer names the length that fits.
+  it("names the shortest length that holds the voice", () => {
+    expect(lengthFor(12)).toBe(15);
+    expect(lengthFor(15)).toBe(15);
+    expect(lengthFor(33)).toBe(60);
+    expect(lengthFor(61)).toBeNull();
+  });
+});
 
 describe("countWords", () => {
   it("counts spoken words, not punctuation set apart by French spacing", () => {

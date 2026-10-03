@@ -28,4 +28,23 @@ describe("draftPrefill", () => {
   it("drops a ratio the composer does not offer", () => {
     expect(draftPrefill({ ...base, format: "4:5" }).ratio).toBeUndefined();
   });
+
+  // Regression: “Shorten the script” reopened a failed Seedance render on the
+  // default Stock model, losing the user's choice (and hiding the length counter).
+  it("keeps the model, voice and music the draft was rendered with", () => {
+    expect(
+      draftPrefill({ ...base, model: "seedance", voice: "leo", music: "marketing" }, "studio"),
+    ).toMatchObject({ model: "seedance", voice: "leo", music: "marketing" });
+  });
+
+  it("drops a model the plan no longer covers, and unknown settings", () => {
+    const prefill = draftPrefill(
+      { ...base, model: "veo", voice: "nobody", music: "polka" },
+      "starter",
+    );
+    expect(prefill.model).toBeUndefined();
+    expect(prefill.voice).toBeUndefined();
+    expect(prefill.music).toBeUndefined();
+    expect(draftPrefill({ ...base, model: "not-a-model" }).model).toBeUndefined();
+  });
 });
