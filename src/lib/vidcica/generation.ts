@@ -56,7 +56,11 @@ export type GeneratePlanInput = {
 
 export type GeneratePlanOutcome =
   | { ok: true; plan: VideoPlan }
-  | { ok: false; reason: "not_configured" | "unauthenticated" | "error"; message?: string };
+  | {
+      ok: false;
+      reason: "not_configured" | "unauthenticated" | "content_blocked" | "error";
+      message?: string;
+    };
 
 export async function generatePlan(
   supabase: DB,
@@ -76,6 +80,11 @@ export async function generatePlan(
       error?: string;
     };
     if (res.status === 503) return { ok: false, reason: "not_configured" };
+    // The content filter, or OpenAI itself, refused the request: a rule the user
+    // can act on, not a raw code to print.
+    if (body.error === "content_blocked" || body.error === "ai_refused") {
+      return { ok: false, reason: "content_blocked" };
+    }
     if (!res.ok || !body.ok || !body.plan) {
       return { ok: false, reason: "error", message: body.error ?? `HTTP ${res.status}` };
     }
@@ -115,6 +124,7 @@ export type EnqueueGenerationFailReason =
   | "model_locked"
   | "image_not_supported"
   | "script_too_long"
+  | "content_blocked"
   | "error";
 
 export type EnqueueGenerationOutcome =
@@ -174,6 +184,8 @@ export function mapEnqueueReason(error: string | undefined): EnqueueGenerationFa
       return "image_not_supported";
     case "script_too_long":
       return "script_too_long";
+    case "content_blocked":
+      return "content_blocked";
     default:
       return "error";
   }

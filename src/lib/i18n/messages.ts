@@ -116,6 +116,8 @@ export const fr = {
   "create.errPlanUnavailable":
     "La génération de plan est momentanément indisponible. Réessayez plus tard.",
   "create.errGeneric": "Une erreur est survenue. Réessayez.",
+  "create.errContentBlocked":
+    "Vidcica ne crée pas ce type de contenu : rien de sexuel, violent, haineux ou trompeur. Modifiez votre demande puis réessayez.",
 
   // ── profile / account ───────────────────────────────────────────────
   "profile.memberSince": "Membre depuis {date}",
@@ -584,6 +586,8 @@ export const fr = {
   "create.blockImageNotSupported": "Ce modèle ne prend pas en charge l’image de départ.",
   "create.blockScriptTooLong":
     "Ce script est trop long pour une vidéo de 60 s. Raccourcissez-le puis relancez : rien n’a été débité.",
+  "create.blockContentBlocked":
+    "Ce plan enfreint nos règles de contenu : rien de sexuel, violent, haineux ou trompeur. Modifiez-le puis relancez : rien n’a été débité.",
   "create.blockUnauthenticated": "Votre session a expiré. Reconnectez-vous.",
   "create.blockError": "Une erreur est survenue. Réessayez.",
   "create.enqueuing": "Lancement…",
@@ -1522,6 +1526,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   // ── create store errors ──
   "create.errPlanUnavailable": "Plan generation is temporarily unavailable. Try again later.",
   "create.errGeneric": "Something went wrong. Try again.",
+  "create.errContentBlocked":
+    "Vidcica doesn’t make this kind of content: nothing sexual, violent, hateful or deceptive. Change your request and try again.",
 
   // ── profile / account ──
   "profile.memberSince": "Member since {date}",
@@ -1983,6 +1989,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "create.blockImageNotSupported": "This model doesn’t support a starting image.",
   "create.blockScriptTooLong":
     "This script is too long for a 60-second video. Shorten it and try again: nothing was charged.",
+  "create.blockContentBlocked":
+    "This plan breaks our content rules: nothing sexual, violent, hateful or deceptive. Change it and try again: nothing was charged.",
   "create.blockUnauthenticated": "Your session has expired. Please sign in again.",
   "create.blockError": "Something went wrong. Try again.",
   "create.enqueuing": "Launching…",

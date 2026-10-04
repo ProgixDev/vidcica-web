@@ -41,6 +41,23 @@ describe("create store (AC-8..AC-11)", () => {
     expect(s.getState().errorKey).toBe("create.errPlanUnavailable");
   });
 
+  it("a prompt the content filter refuses → error phase with its own message", async () => {
+    const s = makeStore({ plan: async () => ({ ok: false, reason: "content_blocked" }) });
+    await s.getState().requestPlan();
+    expect(s.getState().phase).toBe("error");
+    expect(s.getState().plan).toBeNull();
+    expect(s.getState().errorKey).toBe("create.errContentBlocked");
+  });
+
+  it("a plan the content filter refuses at launch → blocked on the review screen", async () => {
+    const s = makeStore({ enqueue: async () => ({ ok: false, reason: "content_blocked" }) });
+    await s.getState().requestPlan();
+    await s.getState().confirmEnqueue();
+    expect(s.getState().phase).toBe("blocked");
+    expect(s.getState().blockedReason).toBe("content_blocked");
+    expect(s.getState().result).toBeNull();
+  });
+
   it("AC-10: enqueue success → done with jobId + charged", async () => {
     const s = makeStore();
     await s.getState().requestPlan();

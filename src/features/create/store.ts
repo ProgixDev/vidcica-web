@@ -69,6 +69,8 @@ export function createCreateStore(deps: CreateDeps, initial?: Partial<ComposerIn
       // not_configured / unauthenticated / error → an actionable message, no enqueue.
       if (outcome.reason === "not_configured") {
         set({ phase: "error", error: null, errorKey: "create.errPlanUnavailable" });
+      } else if (outcome.reason === "content_blocked") {
+        set({ phase: "error", error: null, errorKey: "create.errContentBlocked" });
       } else {
         set({
           phase: "error",
