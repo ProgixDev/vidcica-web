@@ -975,6 +975,9 @@ export const fr = {
   "ads.step.budget": "Budget",
   "ads.step.review": "Vérification",
   "ads.country.worldwide": "Monde entier",
+  "ads.country.worldwideNote":
+    "Sauf Singapour et Taïwan, où Meta exige une déclaration d’annonceur.",
+  "ads.country.worldwideReview": "Monde entier (sauf Singapour et Taïwan)",
   "ads.country.search": "Rechercher un pays…",
   "ads.country.none": "Aucun pays ne correspond.",
   "ads.country.max": "{max} pays maximum par campagne.",
@@ -1052,6 +1055,8 @@ export const fr = {
     "La vidéo n’est pas encore disponible. Réessayez une fois le rendu terminé.",
   "ads.err.objectiveUnsupported": "Cet objectif n’est pas encore pris en charge.",
   "ads.err.missingUrl": "L’objectif Trafic a besoin du lien de votre site.",
+  "ads.err.countryUnavailable":
+    "Meta exige une déclaration d’annonceur pour Singapour et Taïwan. Retirez ces pays de l’audience.",
   "ads.err.campaignNotCreated": "Créez d’abord la campagne avant de l’activer.",
   "ads.err.belowMinBudget": "Le budget quotidien est en dessous du minimum autorisé.",
   "ads.err.monthlyCap":
@@ -2404,6 +2409,9 @@ export const en: Partial<Record<MessageKey, string>> = {
   "ads.step.budget": "Budget",
   "ads.step.review": "Review",
   "ads.country.worldwide": "Worldwide",
+  "ads.country.worldwideNote":
+    "Except Singapore and Taiwan, where Meta requires an advertiser declaration.",
+  "ads.country.worldwideReview": "Worldwide (except Singapore and Taiwan)",
   "ads.country.search": "Search for a country…",
   "ads.country.none": "No country matches.",
   "ads.country.max": "Up to {max} countries per campaign.",
@@ -2478,6 +2486,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "ads.err.noVideoUrl": "The video isn't ready yet. Try again once it has finished rendering.",
   "ads.err.objectiveUnsupported": "This objective isn't supported yet.",
   "ads.err.missingUrl": "The Traffic objective needs your website link.",
+  "ads.err.countryUnavailable":
+    "Meta requires an advertiser declaration for Singapore and Taiwan. Remove them from the audience.",
   "ads.err.campaignNotCreated": "Create the campaign before activating it.",
   "ads.err.belowMinBudget": "The daily budget is below the allowed minimum.",
   "ads.err.monthlyCap": "Monthly spending cap reached. Pause a campaign to continue.",

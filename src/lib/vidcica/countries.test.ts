@@ -26,6 +26,16 @@ describe("countryOptions", () => {
     }
   });
 
+  // Meta refused a live ad set reaching either one (subcodes 3858498, 3858550):
+  // both need an advertiser declaration a boost can't make. Thailand and Brazil
+  // passed the same test, so they stay.
+  it("leaves out the countries that need a Meta advertiser declaration", () => {
+    expect(codes.has("TW")).toBe(false);
+    expect(codes.has("SG")).toBe(false);
+    expect(codes.has("TH")).toBe(true);
+    expect(codes.has("BR")).toBe(true);
+  });
+
   it("names countries in the interface language and sorts by that name", () => {
     expect(fr.find((o) => o.code === "BE")?.name).toBe("Belgique");
     expect(countryOptions("en").find((o) => o.code === "BE")?.name).toBe("Belgium");

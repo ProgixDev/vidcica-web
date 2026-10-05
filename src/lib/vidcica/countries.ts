@@ -15,6 +15,14 @@ export const WORLDWIDE = "ALL";
 /** Matches the server action's cap on one campaign. */
 export const MAX_COUNTRIES = 25;
 
+/**
+ * Meta refuses any ad there unless it carries a regional advertiser
+ * declaration backed by identities verified in the advertiser's Business
+ * settings, which a boost can't make for a creator. create-ad-campaign leaves
+ * them out of Worldwide and refuses them as picks (`country_unavailable`).
+ */
+export const NEEDS_DECLARATION: readonly string[] = ["SG", "TW"];
+
 const NOT_TARGETABLE = new Set([
   // Not countries: groupings, private-use and unknown regions in CLDR.
   "EU",
@@ -48,6 +56,7 @@ const NOT_TARGETABLE = new Set([
   "KP",
   "RU",
   "SY",
+  ...NEEDS_DECLARATION,
 ]);
 
 /** Shown only where the runtime has no Intl.DisplayNames (very old browsers). */

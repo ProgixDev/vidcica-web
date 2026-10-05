@@ -153,6 +153,8 @@ export function adsErrorKey(reason: string): MessageKey {
       return "ads.err.objectiveUnsupported";
     case "missing_url":
       return "ads.err.missingUrl";
+    case "country_unavailable":
+      return "ads.err.countryUnavailable";
     case "campaign_not_created":
       return "ads.err.campaignNotCreated";
     case "below_min_budget":

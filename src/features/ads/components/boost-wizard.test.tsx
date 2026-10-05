@@ -66,9 +66,18 @@ describe("<BoostWizard /> (AC-2)", () => {
     expect(selected()).toHaveTextContent("France");
     expect(selected()).toHaveTextContent("Japon");
 
+    expect(screen.queryByTestId("bw-country-worldwide-note")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("bw-country-ALL"));
     expect(selected()).toHaveTextContent("Monde entier");
     expect(selected()).not.toHaveTextContent("Japon");
+    // Worldwide leaves out Singapore and Taiwan, and says so before money is spent.
+    expect(screen.getByTestId("bw-country-worldwide-note")).toHaveTextContent(
+      "Sauf Singapour et Taïwan",
+    );
+    for (let i = 0; i < 2; i++) fireEvent.click(screen.getByTestId("boost-next"));
+    expect(screen.getByTestId("bw-review")).toHaveTextContent(
+      "Monde entier (sauf Singapour et Taïwan)",
+    );
   });
 
   // Regression: the budget step accepted any daily budget from 1, but activation

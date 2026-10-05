@@ -77,6 +77,15 @@ describe("createDraftCampaign (AC-3)", () => {
     expect((await createDraftCampaign({ ...valid, countries: ["US", "SN", "JP"] })).ok).toBe(true);
   });
 
+  it("refuses the countries Meta only serves with an advertiser declaration", async () => {
+    for (const countries of [["TW"], ["FR", "SG"]]) {
+      calls = [];
+      const out = await createDraftCampaign({ ...valid, countries });
+      expect(out).toEqual({ ok: false, errorKey: "ads.err.countryUnavailable" });
+      expect(calls.find((c) => c.method === "insert")).toBeUndefined();
+    }
+  });
+
   it("rejects worldwide mixed with countries, and malformed codes", async () => {
     for (const countries of [["ALL", "FR"], ["FRA"], ["fr"], []]) {
       calls = [];

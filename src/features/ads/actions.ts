@@ -14,7 +14,7 @@ import {
   type CampaignInsert,
   type CampaignStatus,
 } from "@/lib/vidcica/campaign";
-import { MAX_COUNTRIES, WORLDWIDE } from "@/lib/vidcica/countries";
+import { MAX_COUNTRIES, NEEDS_DECLARATION, WORLDWIDE } from "@/lib/vidcica/countries";
 import type { MessageKey } from "@/lib/i18n";
 
 /** Boost draft validated at the trust boundary before it becomes a `campaigns` row. */
@@ -61,6 +61,10 @@ export async function createDraftCampaign(input: BoostDraft): Promise<CreateDraf
   // Same for a Traffic ad with nowhere to send people: Meta would refuse it.
   if (needsWebsite(parsed.data.objective) && !isWebLink(parsed.data.url)) {
     return { ok: false, errorKey: "ads.err.missingUrl" };
+  }
+  // And for a country Meta only serves with a declaration we can't make.
+  if (parsed.data.countries.some((c) => NEEDS_DECLARATION.includes(c))) {
+    return { ok: false, errorKey: "ads.err.countryUnavailable" };
   }
 
   const supabase = await createClient();

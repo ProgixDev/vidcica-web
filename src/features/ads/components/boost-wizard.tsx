@@ -494,6 +494,11 @@ function AudienceStep({ draft, setDraft }: StepProps) {
           />
           {worldwideLabel}
         </label>
+        {worldwide ? (
+          <p className="text-muted-foreground text-[13px]" data-testid="bw-country-worldwide-note">
+            {t("ads.country.worldwideNote")}
+          </p>
+        ) : null}
         <Input
           type="search"
           value={query}
@@ -656,7 +661,9 @@ function ReviewStep({ draft, videos }: { draft: StepProps["draft"]; videos: Vide
   const locale = useLocale();
   const { format } = useMoney();
   const video = videos.find((v) => v.id === draft.videoId);
-  const worldwideLabel = t("ads.country.worldwide");
+  // The review is where the user confirms what they pay for, so it names
+  // what Worldwide leaves out (see NEEDS_DECLARATION).
+  const worldwideLabel = t("ads.country.worldwideReview");
   const rows: [string, string][] = [
     [t("ads.review.video"), video?.title ?? "—"],
     [t("ads.review.name"), draft.name],

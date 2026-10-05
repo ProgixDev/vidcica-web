@@ -117,6 +117,7 @@ describe("adsErrorKey", () => {
     expect(adsErrorKey("objective_unsupported_phase1")).toBe("ads.err.objectiveUnsupported");
     expect(adsErrorKey("below_min_budget")).toBe("ads.err.belowMinBudget");
     expect(adsErrorKey("missing_url")).toBe("ads.err.missingUrl");
+    expect(adsErrorKey("country_unavailable")).toBe("ads.err.countryUnavailable");
     expect(adsErrorKey("meta_error")).toBe("ads.err.generic");
     expect(adsErrorKey("weird")).toBe("ads.err.generic");
   });
