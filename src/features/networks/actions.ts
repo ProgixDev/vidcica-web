@@ -24,7 +24,10 @@ async function updateOwnNetwork(rowId: string, patch: NetworkUpdate): Promise<Ac
   return { ok: true };
 }
 
-/** Disconnect an account (keeps the row; clears connected + publish). */
+/** Disconnect an account (keeps the row; clears connected + publish). The
+ *  database trigger networks_drop_tokens_on_disconnect (vidcica migration
+ *  20261005092829) deletes the stored tokens on this update, so a disconnect
+ *  ends our access to the account, not just its display. */
 export async function disconnectNetwork(rowId: string): Promise<ActionResult> {
   return updateOwnNetwork(rowId, {
     connected: false,
