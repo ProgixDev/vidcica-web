@@ -2,8 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { listMyVideos } from "@/lib/vidcica/queries";
-import { isReady } from "@/lib/vidcica/video";
-import { BoostStoreProvider, BoostWizard, type VideoOption } from "@/features/ads";
+import { BoostStoreProvider, BoostWizard, boostOptions, type VideoOption } from "@/features/ads";
 import { PageHeader } from "@/components/app-shell";
 import { getT } from "@/lib/i18n/server";
 
@@ -25,13 +24,12 @@ export default async function BoostPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/ads/new");
 
-  // Only finished videos can be boosted (Meta pulls the MP4).
-  const videos: VideoOption[] = (await listMyVideos())
-    .filter(isReady)
-    .map((v) => ({ id: v.id, title: v.title }));
+  // Any video with a finished file can be boosted, published or not (Meta
+  // pulls the MP4); see boostOptions.
+  const videos: VideoOption[] = boostOptions(await listMyVideos());
 
   // ?videoId= arrives from a video's "Booster" action. Resolve it against the
-  // user's own ready videos rather than trusting the URL: an unknown or
+  // user's own boostable videos rather than trusting the URL: an unknown or
   // someone else's id simply falls through to the normal picker instead of
   // seeding a draft that would fail at create time.
   const { videoId } = await searchParams;
