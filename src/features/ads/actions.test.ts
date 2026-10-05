@@ -70,6 +70,19 @@ describe("createDraftCampaign (AC-3)", () => {
     expect(calls.find((c) => c.method === "insert")).toBeUndefined();
   });
 
+  it("accepts worldwide on its own, and any two-letter country", async () => {
+    expect((await createDraftCampaign({ ...valid, countries: ["ALL"] })).ok).toBe(true);
+    expect((await createDraftCampaign({ ...valid, countries: ["US", "SN", "JP"] })).ok).toBe(true);
+  });
+
+  it("rejects worldwide mixed with countries, and malformed codes", async () => {
+    for (const countries of [["ALL", "FR"], ["FRA"], ["fr"], []]) {
+      calls = [];
+      expect((await createDraftCampaign({ ...valid, countries })).ok).toBe(false);
+      expect(calls.find((c) => c.method === "insert")).toBeUndefined();
+    }
+  });
+
   it("rejects a daily budget below the activation minimum", async () => {
     const out = await createDraftCampaign({ ...valid, budgetDaily: 2 });
     expect(out.ok).toBe(false);

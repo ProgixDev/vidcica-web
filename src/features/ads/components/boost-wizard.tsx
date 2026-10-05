@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, m } from "@/components/motion";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -19,6 +19,14 @@ import {
   type CampaignGender,
   type SupportedObjective,
 } from "@/lib/vidcica/campaign";
+import {
+  MAX_COUNTRIES,
+  WORLDWIDE,
+  countryLabel,
+  countryOptions,
+  matchesCountry,
+  toggleCountry,
+} from "@/lib/vidcica/countries";
 import { useLocale, useT } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 import type { MessageKey } from "@/lib/i18n";
@@ -44,14 +52,6 @@ function useMoney() {
       }).format(Number.isFinite(amount) ? amount : 0),
   };
 }
-
-const COUNTRIES: [string, MessageKey][] = [
-  ["FR", "ads.country.FR"],
-  ["BE", "ads.country.BE"],
-  ["CH", "ads.country.CH"],
-  ["LU", "ads.country.LU"],
-  ["CA", "ads.country.CA"],
-];
 
 const GENDER_KEY: Record<CampaignGender, MessageKey> = {
   tous: "ads.gender.tous",
@@ -405,42 +405,102 @@ function ObjectiveStep({ draft, setDraft }: StepProps) {
 
 function AudienceStep({ draft, setDraft }: StepProps) {
   const t = useT();
-  function toggleCountry(code: string, on: boolean) {
-    const set = new Set(draft.countries);
-    if (on) set.add(code);
-    else set.delete(code);
-    setDraft({ countries: [...set] });
-  }
+  const locale = useLocale();
+  const [query, setQuery] = useState("");
+  const options = useMemo(() => countryOptions(locale), [locale]);
+  const shown = options.filter((o) => matchesCountry(o, query));
+  const worldwide = draft.countries.includes(WORLDWIDE);
+  const atMax = !worldwide && draft.countries.length >= MAX_COUNTRIES;
+  const worldwideLabel = t("ads.country.worldwide");
+  const toggle = (code: string, on: boolean) =>
+    setDraft({ countries: toggleCountry(draft.countries, code, on) });
   return (
     <div className="flex flex-col gap-5">
-      <fieldset className="flex flex-col">
+      <fieldset className="flex flex-col gap-3">
         <legend className="mb-3 text-[13px] font-semibold">{t("ads.field.countries")}</legend>
-        <div className="flex flex-wrap gap-2">
-          {COUNTRIES.map(([code, nameKey]) => {
-            const checked = draft.countries.includes(code);
-            return (
-              <label
-                key={code}
-                className={cn(
-                  CHOICE_FOCUS,
-                  "relative inline-flex h-10 cursor-pointer items-center rounded-full px-4 text-sm font-semibold transition-colors",
-                  checked
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-foreground hover:bg-accent",
-                )}
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={(e) => toggleCountry(code, e.target.checked)}
-                  data-testid={`bw-country-${code}`}
-                  className="absolute inset-0 cursor-pointer opacity-0"
-                />
-                {t(nameKey)}
-              </label>
-            );
-          })}
+        {draft.countries.length > 0 ? (
+          <ul className="flex flex-wrap gap-2" data-testid="bw-countries-selected">
+            {draft.countries.map((code) => {
+              const name = countryLabel(code, locale, worldwideLabel);
+              return (
+                <li
+                  key={code}
+                  className="bg-primary text-primary-foreground inline-flex h-9 items-center gap-1 rounded-full pr-1 pl-4 text-sm font-semibold"
+                >
+                  {name}
+                  <button
+                    type="button"
+                    onClick={() => toggle(code, false)}
+                    aria-label={t("ads.country.remove", { name })}
+                    data-testid={`bw-country-remove-${code}`}
+                    className="hover:bg-primary-foreground/15 focus-visible:ring-ring inline-flex size-7 items-center justify-center rounded-full outline-none focus-visible:ring-2"
+                  >
+                    <span aria-hidden>×</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+        <label
+          className={cn(
+            CHOICE_FOCUS,
+            "relative inline-flex h-10 cursor-pointer items-center self-start rounded-full px-4 text-sm font-semibold transition-colors",
+            worldwide
+              ? "bg-primary text-primary-foreground"
+              : "bg-secondary text-foreground hover:bg-accent",
+          )}
+        >
+          <input
+            type="checkbox"
+            checked={worldwide}
+            onChange={(e) => toggle(WORLDWIDE, e.target.checked)}
+            data-testid={`bw-country-${WORLDWIDE}`}
+            className="absolute inset-0 cursor-pointer opacity-0"
+          />
+          {worldwideLabel}
+        </label>
+        <Input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t("ads.country.search")}
+          aria-label={t("ads.country.search")}
+          data-testid="bw-country-search"
+        />
+        <div
+          className="bg-secondary max-h-56 overflow-y-auto rounded-md p-1"
+          data-testid="bw-country-list"
+        >
+          {shown.length === 0 ? (
+            <p className="text-muted-foreground px-3 py-2 text-sm">{t("ads.country.none")}</p>
+          ) : (
+            shown.map(({ code, name }) => {
+              const checked = draft.countries.includes(code);
+              return (
+                <label
+                  key={code}
+                  className="hover:bg-accent flex cursor-pointer items-center gap-3 rounded px-3 py-2 text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={!checked && atMax}
+                    onChange={(e) => toggle(code, e.target.checked)}
+                    data-testid={`bw-country-${code}`}
+                    className="accent-primary size-4 shrink-0 cursor-pointer"
+                  />
+                  {name}
+                </label>
+              );
+            })
+          )}
         </div>
+        {atMax ? (
+          <p className="text-muted-foreground text-[13px]" data-testid="bw-country-max">
+            {t("ads.country.max", { max: MAX_COUNTRIES })}
+          </p>
+        ) : null}
       </fieldset>
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-2">
@@ -559,13 +619,18 @@ function BudgetStep({ draft, setDraft }: StepProps) {
 
 function ReviewStep({ draft, videos }: { draft: StepProps["draft"]; videos: VideoOption[] }) {
   const t = useT();
+  const locale = useLocale();
   const { format } = useMoney();
   const video = videos.find((v) => v.id === draft.videoId);
+  const worldwideLabel = t("ads.country.worldwide");
   const rows: [string, string][] = [
     [t("ads.review.video"), video?.title ?? "—"],
     [t("ads.review.name"), draft.name],
     [t("ads.review.objective"), t(CAMPAIGN_OBJECTIVE_KEY[draft.objective])],
-    [t("ads.review.countries"), draft.countries.join(", ")],
+    [
+      t("ads.review.countries"),
+      draft.countries.map((c) => countryLabel(c, locale, worldwideLabel)).join(", "),
+    ],
     [t("ads.review.age"), `${draft.ageMin}–${draft.ageMax}`],
     [t("ads.review.gender"), t(GENDER_KEY[draft.gender])],
     [

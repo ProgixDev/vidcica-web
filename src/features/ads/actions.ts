@@ -12,13 +12,20 @@ import {
   type CampaignInsert,
   type CampaignStatus,
 } from "@/lib/vidcica/campaign";
+import { MAX_COUNTRIES, WORLDWIDE } from "@/lib/vidcica/countries";
 
 /** Boost draft validated at the trust boundary before it becomes a `campaigns` row. */
 const boostSchema = z.object({
   name: z.string().trim().min(1).max(120),
   videoId: entityId,
   objective: z.enum(SUPPORTED_OBJECTIVES),
-  countries: z.array(z.string().length(2)).min(1).max(25),
+  // Two-letter country codes, or WORLDWIDE on its own: create-ad-campaign turns
+  // it into Meta's worldwide group, which can't be combined with countries.
+  countries: z
+    .array(z.union([z.literal(WORLDWIDE), z.string().regex(/^[A-Z]{2}$/)]))
+    .min(1)
+    .max(MAX_COUNTRIES)
+    .refine((cs) => !cs.includes(WORLDWIDE) || cs.length === 1),
   ageMin: z.number().int().min(13).max(65),
   ageMax: z.number().int().min(13).max(65),
   gender: z.enum(["tous", "hommes", "femmes"]),

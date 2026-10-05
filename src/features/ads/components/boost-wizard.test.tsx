@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { BoostWizard, type VideoOption } from "./boost-wizard";
 import { BoostStoreProvider } from "../provider";
@@ -45,6 +45,24 @@ describe("<BoostWizard /> (AC-2)", () => {
   it("shows the checking skeleton while the gate resolves (AC-12)", () => {
     renderWizard({ resolveAccount: () => new Promise(() => {}) }); // never resolves
     expect(screen.getByTestId("boost-checking")).toBeInTheDocument();
+  });
+
+  // Regression: the audience step offered five francophone countries only.
+  it("searches every country and keeps worldwide exclusive", async () => {
+    renderWizard({});
+    fireEvent.change(await screen.findByTestId("bw-video"), { target: { value: "v1" } });
+    for (let i = 0; i < 2; i++) fireEvent.click(screen.getByTestId("boost-next"));
+
+    fireEvent.change(screen.getByTestId("bw-country-search"), { target: { value: "japon" } });
+    expect(within(screen.getByTestId("bw-country-list")).getAllByRole("checkbox")).toHaveLength(1);
+    fireEvent.click(screen.getByTestId("bw-country-JP"));
+    const selected = () => screen.getByTestId("bw-countries-selected");
+    expect(selected()).toHaveTextContent("France");
+    expect(selected()).toHaveTextContent("Japon");
+
+    fireEvent.click(screen.getByTestId("bw-country-ALL"));
+    expect(selected()).toHaveTextContent("Monde entier");
+    expect(selected()).not.toHaveTextContent("Japon");
   });
 
   // Regression: the budget step accepted any daily budget from 1, but activation
