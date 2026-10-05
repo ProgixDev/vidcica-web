@@ -1,7 +1,8 @@
 import { createStore } from "zustand/vanilla";
 import type { AdAccountOutcome, CreateCampaignOutcome } from "@/lib/vidcica/ads";
-import { adsErrorMessage } from "@/lib/vidcica/ads";
-import { MIN_DAILY_BUDGET } from "@/lib/vidcica/campaign";
+import { adsErrorKey } from "@/lib/vidcica/ads";
+import { MIN_DAILY_BUDGET, isWebLink, needsWebsite } from "@/lib/vidcica/campaign";
+import type { MessageKey } from "@/lib/i18n";
 import type {
   BoostDraft,
   CampaignGender,
@@ -27,7 +28,7 @@ export type BoostDeps = {
   resolveAccount: () => Promise<AdAccountOutcome>;
   createDraft: (
     draft: BoostDraft,
-  ) => Promise<{ ok: true; id: string } | { ok: false; message: string }>;
+  ) => Promise<{ ok: true; id: string } | { ok: false; errorKey: MessageKey }>;
   createCampaign: (campaignId: string) => Promise<CreateCampaignOutcome>;
 };
 
@@ -45,6 +46,7 @@ export const EMPTY_DRAFT: BoostDraft = {
   budgetMode: "quotidien",
   budgetDaily: 20,
   budgetTotal: 200,
+  url: "",
 };
 
 export type BoostState = {
@@ -57,7 +59,8 @@ export type BoostState = {
    *  deriving it in the component would mean reading a ref during render. */
   dir: 1 | -1;
   draft: BoostDraft;
-  error: string | null;
+  /** What went wrong, as an i18n key: the wizard renders it in the page's language. */
+  errorKey: MessageKey | null;
   /** Set once a campaigns row exists (real in_review OR a saved draft) — the UI links to it. */
   campaignId: string | null;
   /** True when the created campaign is a real Meta in_review (vs a saved draft). */
@@ -80,6 +83,7 @@ export function isDraftReady(d: BoostDraft): boolean {
     d.name.trim().length > 0 &&
     d.ageMax >= d.ageMin &&
     d.countries.length > 0 &&
+    (!needsWebsite(d.objective) || isWebLink(d.url)) &&
     (d.budgetMode === "total" ? d.budgetTotal > 0 : d.budgetDaily >= MIN_DAILY_BUDGET)
   );
 }
@@ -107,12 +111,12 @@ export function createBoostStore(
       ...(init?.videoId ? { videoId: init.videoId } : {}),
       ...(init?.name ? { name: init.name } : {}),
     },
-    error: null,
+    errorKey: null,
     campaignId: null,
     launched: false,
 
     init: async () => {
-      set({ phase: "checking", error: null });
+      set({ phase: "checking", errorKey: null });
       const gate = await deps.resolveAccount();
       const canLaunch = gate.ok && gate.hasAccount && gate.hasPage;
       set({ gate, phase: canLaunch ? "ready" : "draftOnly" });
@@ -128,10 +132,10 @@ export function createBoostStore(
     submit: async () => {
       const { draft } = get();
       if (!isDraftReady(draft)) return;
-      set({ phase: "creating", error: null });
+      set({ phase: "creating", errorKey: null });
       const created = await deps.createDraft(draft);
       if (!created.ok) {
-        set({ phase: "error", error: created.message });
+        set({ phase: "error", errorKey: created.errorKey });
         return;
       }
       const out = await deps.createCampaign(created.id);
@@ -140,16 +144,16 @@ export function createBoostStore(
         return;
       }
       // The draft IS saved (created.id) — surface the reason but keep it resumable.
-      set({ phase: "error", error: adsErrorMessage(out.reason), campaignId: created.id });
+      set({ phase: "error", errorKey: adsErrorKey(out.reason), campaignId: created.id });
     },
 
     saveDraft: async () => {
       const { draft } = get();
       if (!isDraftReady(draft)) return;
-      set({ phase: "creating", error: null });
+      set({ phase: "creating", errorKey: null });
       const created = await deps.createDraft(draft);
       if (!created.ok) {
-        set({ phase: "error", error: created.message });
+        set({ phase: "error", errorKey: created.errorKey });
         return;
       }
       set({ phase: "created", campaignId: created.id, launched: false });

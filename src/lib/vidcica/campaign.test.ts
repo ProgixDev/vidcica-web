@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   boostDraftToRow,
   isLaunched,
+  isWebLink,
+  needsWebsite,
   rowToCampaign,
   SUPPORTED_OBJECTIVES,
   type BoostDraft,
@@ -88,6 +90,7 @@ describe("boostDraftToRow (AC-3)", () => {
     budgetDaily: 30,
     budgetTotal: 200,
     startDate: "2026-08-01T00:00:00Z",
+    url: "",
   };
 
   it("always drafts as brouillon with the server-set id/user", () => {
@@ -115,6 +118,38 @@ describe("boostDraftToRow (AC-3)", () => {
   it("copies countries (no shared reference)", () => {
     const r = boostDraftToRow(draft, "u", "i");
     expect(r.countries).not.toBe(draft.countries);
+  });
+
+  it("keeps the website link for Traffic only", () => {
+    const withLink = { ...draft, url: " https://monsite.fr/offre " };
+    expect(boostDraftToRow({ ...withLink, objective: "trafic" }, "u", "i").url).toBe(
+      "https://monsite.fr/offre",
+    );
+    expect(boostDraftToRow({ ...withLink, objective: "engagement" }, "u", "i").url).toBeNull();
+    expect(boostDraftToRow(withLink, "u", "i").url).toBeNull();
+  });
+});
+
+describe("needsWebsite / isWebLink", () => {
+  it("only Traffic sends people to a website", () => {
+    expect(needsWebsite("trafic")).toBe(true);
+    expect(needsWebsite("notoriete")).toBe(false);
+    expect(needsWebsite("engagement")).toBe(false);
+  });
+
+  it("accepts a full http(s) address with a real domain, nothing else", () => {
+    for (const ok of ["https://monsite.fr", "http://monsite.fr/a?b=1", " https://x.co "]) {
+      expect(isWebLink(ok)).toBe(true);
+    }
+    for (const bad of [
+      "",
+      "monsite.fr",
+      "https://monsite",
+      "ftp://monsite.fr",
+      "javascript:alert(1)",
+    ]) {
+      expect(isWebLink(bad)).toBe(false);
+    }
   });
 });
 

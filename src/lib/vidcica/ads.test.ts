@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
-import { adsErrorMessage, createAdCampaign, resolveAdAccount, setCampaignStatus } from "./ads";
+import { adsErrorKey, createAdCampaign, resolveAdAccount, setCampaignStatus } from "./ads";
+import { translate } from "@/lib/i18n";
 
 type DB = SupabaseClient<Database>;
 type InvokeResult = { data: unknown; error: unknown };
@@ -108,17 +109,26 @@ describe("setCampaignStatus (AC-5/6)", () => {
   });
 });
 
-describe("adsErrorMessage", () => {
-  it("maps known reasons to distinct French copy and falls back", () => {
-    expect(adsErrorMessage("monthly_cap_exceeded")).toMatch(/plafond/i);
-    expect(adsErrorMessage("needs_reconnect")).toMatch(/facebook/i);
-    expect(adsErrorMessage("no_video_url")).toMatch(/vidéo/i);
-    expect(adsErrorMessage("objective_unsupported_phase1")).toMatch(/objectif/i);
-    expect(adsErrorMessage("below_min_budget")).toMatch(/budget/i);
-    // distinct reasons must not collapse into the generic fallback
-    const generic = adsErrorMessage("weird");
-    expect(adsErrorMessage("no_video_url")).not.toBe(generic);
-    expect(adsErrorMessage("objective_unsupported_phase1")).not.toBe(generic);
-    expect(generic).toMatch(/erreur/i);
+describe("adsErrorKey", () => {
+  it("maps known reasons to distinct keys and falls back", () => {
+    expect(adsErrorKey("monthly_cap_exceeded")).toBe("ads.err.monthlyCap");
+    expect(adsErrorKey("needs_reconnect")).toBe("ads.err.needsReconnect");
+    expect(adsErrorKey("no_video_url")).toBe("ads.err.noVideoUrl");
+    expect(adsErrorKey("objective_unsupported_phase1")).toBe("ads.err.objectiveUnsupported");
+    expect(adsErrorKey("below_min_budget")).toBe("ads.err.belowMinBudget");
+    expect(adsErrorKey("missing_url")).toBe("ads.err.missingUrl");
+    expect(adsErrorKey("meta_error")).toBe("ads.err.generic");
+    expect(adsErrorKey("weird")).toBe("ads.err.generic");
+  });
+
+  // The bug this replaced: a French sentence on an English page.
+  it("reads in the page's language", () => {
+    const reasons = ["monthly_cap_exceeded", "needs_reconnect", "missing_url", "weird"];
+    for (const reason of reasons) {
+      const key = adsErrorKey(reason);
+      expect(translate("en", key)).not.toBe(translate("fr", key));
+    }
+    expect(translate("en", adsErrorKey("weird"))).toBe("Something went wrong. Try again.");
+    expect(translate("fr", adsErrorKey("weird"))).toBe("Une erreur est survenue. Réessayez.");
   });
 });

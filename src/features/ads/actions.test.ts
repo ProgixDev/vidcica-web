@@ -34,6 +34,7 @@ const valid: BoostDraft = {
   budgetMode: "quotidien",
   budgetDaily: 25,
   budgetTotal: 200,
+  url: "https://example.com/offre",
 };
 
 beforeEach(() => {
@@ -51,6 +52,7 @@ describe("createDraftCampaign (AC-3)", () => {
     expect(row.user_id).toBe("user-1"); // never from client input
     expect(row.status).toBe("brouillon");
     expect(row.objective).toBe("trafic");
+    expect(row.url).toBe("https://example.com/offre");
     expect(row.audience_mode).toBe("advantage");
     expect(typeof row.id).toBe("string");
   });
@@ -85,8 +87,34 @@ describe("createDraftCampaign (AC-3)", () => {
 
   it("rejects a daily budget below the activation minimum", async () => {
     const out = await createDraftCampaign({ ...valid, budgetDaily: 2 });
-    expect(out.ok).toBe(false);
+    expect(out).toEqual({ ok: false, errorKey: "ads.err.belowMinBudget" });
     expect(calls.find((c) => c.method === "insert")).toBeUndefined();
+  });
+
+  // Meta refuses a Traffic ad with no website, but only at its last step, after
+  // the campaign, ad set and creative exist. Never let one get that far.
+  it("refuses a Traffic draft without a full website link", async () => {
+    for (const url of ["", "   ", "monsite", "monsite.fr", "ftp://monsite.fr", "https://monsite"]) {
+      calls = [];
+      const out = await createDraftCampaign({ ...valid, url });
+      expect(out).toEqual({ ok: false, errorKey: "ads.err.missingUrl" });
+      expect(calls.find((c) => c.method === "insert")).toBeUndefined();
+    }
+  });
+
+  it("drops a link left over from Traffic when another objective is chosen", async () => {
+    const out = await createDraftCampaign({ ...valid, objective: "engagement" });
+    expect(out.ok).toBe(true);
+    const row = calls.find((c) => c.method === "insert")?.args[0] as Record<string, unknown>;
+    expect(row.objective).toBe("engagement");
+    expect(row.url).toBeNull();
+  });
+
+  it("still saves a draft sent by a page loaded before the link field existed", async () => {
+    const legacy: Partial<BoostDraft> = { ...valid, objective: "notoriete" };
+    delete legacy.url;
+    const out = await createDraftCampaign(legacy as BoostDraft);
+    expect(out.ok).toBe(true);
   });
 
   it("fails closed with no session", async () => {
@@ -99,6 +127,6 @@ describe("createDraftCampaign (AC-3)", () => {
   it("reports a DB failure generically", async () => {
     insertError = { message: "boom" };
     const out = await createDraftCampaign(valid);
-    expect(out).toEqual({ ok: false, message: "La création du brouillon a échoué. Réessayez." });
+    expect(out).toEqual({ ok: false, errorKey: "ads.err.draftFailed" });
   });
 });

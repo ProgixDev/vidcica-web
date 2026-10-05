@@ -67,12 +67,14 @@ describe("boost store — submit (AC-3/4)", () => {
     await store.getState().submit();
     const s = store.getState();
     expect(s.phase).toBe("error");
-    expect(s.error).toMatch(/facebook/i);
+    expect(s.errorKey).toBe("ads.err.needsReconnect");
     expect(s.campaignId).toBe("camp-1"); // draft saved → resumable
   });
 
   it("errors without a campaignId when the draft insert itself fails", async () => {
-    const { store, deps } = make({ createDraft: async () => ({ ok: false, message: "échec" }) });
+    const { store, deps } = make({
+      createDraft: async () => ({ ok: false, errorKey: "ads.err.draftFailed" }),
+    });
     store.getState().setDraft(readyDraft);
     await store.getState().submit();
     expect(store.getState().phase).toBe("error");
@@ -105,6 +107,14 @@ describe("isDraftReady", () => {
     expect(isDraftReady({ ...(readyDraft as BoostDraft), videoId: "" })).toBe(false);
     expect(isDraftReady({ ...(readyDraft as BoostDraft), name: "  " })).toBe(false);
     expect(isDraftReady({ ...(readyDraft as BoostDraft), ageMax: 10, ageMin: 20 })).toBe(false);
+  });
+
+  it("needs a full website link for Traffic only", () => {
+    const d: BoostDraft = { ...(readyDraft as BoostDraft), objective: "trafic", url: "" };
+    expect(isDraftReady(d)).toBe(false);
+    expect(isDraftReady({ ...d, url: "monsite.fr" })).toBe(false);
+    expect(isDraftReady({ ...d, url: "https://monsite.fr" })).toBe(true);
+    expect(isDraftReady({ ...d, objective: "engagement" })).toBe(true);
   });
 
   it("refuses a daily budget activation would reject, but not a total budget", () => {

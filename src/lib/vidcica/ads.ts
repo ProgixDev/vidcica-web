@@ -11,6 +11,7 @@
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
+import type { MessageKey } from "@/lib/i18n";
 
 type DB = SupabaseClient<Database>;
 
@@ -132,30 +133,33 @@ export async function setCampaignStatus(
   };
 }
 
-/** Map an ads edge-fn `reason` to a French, user-facing message. */
-export function adsErrorMessage(reason: string): string {
+/** Map an ads edge-fn `reason` to the i18n key of its user-facing message, so it
+ *  reads in the page's language (a hardcoded French string showed on English pages). */
+export function adsErrorKey(reason: string): MessageKey {
   switch (reason) {
     case "ads_not_configured":
-      return "La publicité n’est pas encore disponible sur votre compte.";
+      return "ads.err.notConfigured";
     case "unauthenticated":
-      return "Session expirée. Reconnectez-vous.";
+      return "ads.err.sessionExpired";
     case "needs_reconnect":
-      return "Reconnectez votre compte Facebook (autorisations publicité requises).";
+      return "ads.err.needsReconnect";
     case "no_ad_account":
-      return "Aucun compte publicitaire Meta n’est associé à votre compte.";
+      return "ads.err.noAdAccount";
     case "no_page":
-      return "Aucune Page Facebook n’est associée à votre compte.";
+      return "ads.err.noPage";
     case "no_video_url":
-      return "La vidéo n’est pas encore disponible. Réessayez une fois le rendu terminé.";
+      return "ads.err.noVideoUrl";
     case "objective_unsupported_phase1":
-      return "Cet objectif n’est pas encore pris en charge.";
+      return "ads.err.objectiveUnsupported";
+    case "missing_url":
+      return "ads.err.missingUrl";
     case "campaign_not_created":
-      return "Créez d’abord la campagne avant de l’activer.";
+      return "ads.err.campaignNotCreated";
     case "below_min_budget":
-      return "Le budget quotidien est en dessous du minimum autorisé.";
+      return "ads.err.belowMinBudget";
     case "monthly_cap_exceeded":
-      return "Plafond de dépenses mensuel atteint. Mettez une campagne en pause pour continuer.";
+      return "ads.err.monthlyCap";
     default:
-      return "Une erreur est survenue. Réessayez.";
+      return "ads.err.generic";
   }
 }

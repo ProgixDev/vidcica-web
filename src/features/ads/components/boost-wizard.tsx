@@ -15,6 +15,8 @@ import {
   CAMPAIGN_OBJECTIVE_KEY,
   MIN_DAILY_BUDGET,
   SUPPORTED_OBJECTIVES,
+  isWebLink,
+  needsWebsite,
   type BoostDraft,
   type CampaignGender,
   type SupportedObjective,
@@ -131,7 +133,7 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
   const setStep = useBoostStore((s) => s.setStep);
   const draft = useBoostStore((s) => s.draft);
   const setDraft = useBoostStore((s) => s.setDraft);
-  const error = useBoostStore((s) => s.error);
+  const errorKey = useBoostStore((s) => s.errorKey);
   const submit = useBoostStore((s) => s.submit);
   const saveDraft = useBoostStore((s) => s.saveDraft);
   const campaignId = useBoostStore((s) => s.campaignId);
@@ -186,9 +188,9 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
         </AnimatePresence>
       </Card>
 
-      {error ? (
+      {errorKey ? (
         <p role="alert" className="text-destructive text-[13px]" data-testid="boost-error">
-          {error}
+          {t(errorKey)}
           {campaignId ? (
             <>
               {" "}
@@ -313,6 +315,8 @@ function stepValid(key: (typeof BOOST_STEPS)[number], draft: BoostDraft): boolea
   switch (key) {
     case "video":
       return draft.videoId.length > 0 && draft.name.trim().length > 0;
+    case "objective":
+      return !needsWebsite(draft.objective) || isWebLink(draft.url);
     case "audience":
       return draft.countries.length > 0 && draft.ageMax >= draft.ageMin;
     case "budget":
@@ -371,35 +375,65 @@ function VideoStep({ videos, draft, setDraft }: StepProps & { videos: VideoOptio
 
 function ObjectiveStep({ draft, setDraft }: StepProps) {
   const t = useT();
+  const askLink = needsWebsite(draft.objective);
+  // Only flag the link once something is typed: an empty field already keeps
+  // Next disabled, and a red message before the first keystroke reads as a scold.
+  const badLink = draft.url.trim().length > 0 && !isWebLink(draft.url);
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="mb-3 text-[13px] font-semibold">{t("ads.objectiveLegend")}</legend>
-      {SUPPORTED_OBJECTIVES.map((o) => {
-        const selected = draft.objective === o;
-        return (
-          <label
-            key={o}
-            className={cn(
-              CHOICE_FOCUS,
-              "relative flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-md px-4 text-[15px] font-medium transition-colors",
-              selected ? "bg-secondary" : "hover:bg-accent",
-            )}
+    <div className="flex flex-col gap-5">
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-3 text-[13px] font-semibold">{t("ads.objectiveLegend")}</legend>
+        {SUPPORTED_OBJECTIVES.map((o) => {
+          const selected = draft.objective === o;
+          return (
+            <label
+              key={o}
+              className={cn(
+                CHOICE_FOCUS,
+                "relative flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-md px-4 text-[15px] font-medium transition-colors",
+                selected ? "bg-secondary" : "hover:bg-accent",
+              )}
+            >
+              <input
+                type="radio"
+                name="objective"
+                value={o}
+                checked={selected}
+                onChange={() => setDraft({ objective: o as SupportedObjective })}
+                data-testid={`bw-objective-${o}`}
+                className="absolute inset-0 cursor-pointer opacity-0"
+              />
+              {t(CAMPAIGN_OBJECTIVE_KEY[o])}
+              {selected ? <CheckMark /> : null}
+            </label>
+          );
+        })}
+      </fieldset>
+      {askLink ? (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="bw-url">{t("ads.field.url")}</Label>
+          <Input
+            id="bw-url"
+            type="url"
+            inputMode="url"
+            autoComplete="url"
+            data-testid="bw-url"
+            value={draft.url}
+            onChange={(e) => setDraft({ url: e.target.value })}
+            placeholder={t("ads.urlPlaceholder")}
+            aria-invalid={badLink || undefined}
+            aria-describedby="bw-url-hint"
+          />
+          <p
+            id="bw-url-hint"
+            className={cn("text-[13px]", badLink ? "text-destructive" : "text-muted-foreground")}
+            data-testid="bw-url-hint"
           >
-            <input
-              type="radio"
-              name="objective"
-              value={o}
-              checked={selected}
-              onChange={() => setDraft({ objective: o as SupportedObjective })}
-              data-testid={`bw-objective-${o}`}
-              className="absolute inset-0 cursor-pointer opacity-0"
-            />
-            {t(CAMPAIGN_OBJECTIVE_KEY[o])}
-            {selected ? <CheckMark /> : null}
-          </label>
-        );
-      })}
-    </fieldset>
+            {badLink ? t("ads.urlInvalid") : t("ads.urlHint")}
+          </p>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -627,6 +661,9 @@ function ReviewStep({ draft, videos }: { draft: StepProps["draft"]; videos: Vide
     [t("ads.review.video"), video?.title ?? "—"],
     [t("ads.review.name"), draft.name],
     [t("ads.review.objective"), t(CAMPAIGN_OBJECTIVE_KEY[draft.objective])],
+    ...(needsWebsite(draft.objective)
+      ? ([[t("ads.review.url"), draft.url.trim()]] as [string, string][])
+      : []),
     [
       t("ads.review.countries"),
       draft.countries.map((c) => countryLabel(c, locale, worldwideLabel)).join(", "),

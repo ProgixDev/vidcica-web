@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import { adsErrorMessage, setCampaignStatus, type StatusOutcome } from "@/lib/vidcica/ads";
+import { adsErrorKey, setCampaignStatus, type StatusOutcome } from "@/lib/vidcica/ads";
 import { isLaunched, type Campaign } from "@/lib/vidcica/campaign";
 import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 
 /** DI'd for tests; defaults to the real edge client. */
 export type SetStatusFn = (id: string, action: "activate" | "pause") => Promise<StatusOutcome>;
@@ -16,7 +17,7 @@ const realSetStatus: SetStatusFn = (id, action) => setCampaignStatus(createClien
 /**
  * Activate (real spend, behind a confirmation) / pause a created Meta campaign.
  * `set-campaign-status` enforces the server-side monthly spend cap; its errors are
- * surfaced as French messages. A brouillon (not yet created on Meta) shows a note.
+ * surfaced in the page's language. A brouillon (not yet created on Meta) shows a note.
  */
 export function ActivatePauseControls({
   campaign,
@@ -29,11 +30,11 @@ export function ActivatePauseControls({
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<MessageKey | null>(null);
 
   async function run(action: "activate" | "pause") {
     setPending(true);
-    setError(null);
+    setErrorKey(null);
     const out = await onSetStatus(campaign.id, action);
     setPending(false);
     setConfirming(false);
@@ -41,7 +42,7 @@ export function ActivatePauseControls({
       router.refresh();
       return;
     }
-    setError(adsErrorMessage(out.reason));
+    setErrorKey(adsErrorKey(out.reason));
   }
 
   if (!isLaunched(campaign)) {
@@ -101,9 +102,9 @@ export function ActivatePauseControls({
         </div>
       ) : null}
 
-      {error ? (
+      {errorKey ? (
         <p role="alert" className="text-destructive text-[13px]" data-testid="activate-error">
-          {error}
+          {t(errorKey)}
         </p>
       ) : null}
     </div>

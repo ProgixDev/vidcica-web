@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { deleteCampaign, duplicateCampaign } from "../actions";
 import { type Campaign, type CampaignStatus } from "@/lib/vidcica/campaign";
 import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 
 /** Statuses safe to delete — mirrors the server guard in actions.ts. */
 const DELETABLE: readonly CampaignStatus[] = ["brouillon", "terminee", "rejected"];
@@ -24,25 +25,25 @@ export function CampaignManageControls({
   const router = useRouter();
   const [pending, setPending] = useState<"duplicate" | "delete" | null>(null);
   const [confirming, setConfirming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<MessageKey | null>(null);
 
   const canDelete = DELETABLE.includes(campaign.status);
 
   async function onDuplicate() {
     setPending("duplicate");
-    setError(null);
+    setErrorKey(null);
     const out = await duplicateCampaign({ id: campaign.id });
     setPending(null);
     if (out.ok) {
       router.push(`/ads/${out.id}`);
       return;
     }
-    setError(out.message);
+    setErrorKey(out.errorKey);
   }
 
   async function onDelete() {
     setPending("delete");
-    setError(null);
+    setErrorKey(null);
     const out = await deleteCampaign({ id: campaign.id });
     setPending(null);
     setConfirming(false);
@@ -51,7 +52,7 @@ export function CampaignManageControls({
       router.refresh();
       return;
     }
-    setError(out.message);
+    setErrorKey(out.errorKey);
   }
 
   return (
@@ -113,9 +114,9 @@ export function CampaignManageControls({
         </div>
       ) : null}
 
-      {error ? (
+      {errorKey ? (
         <p role="alert" className="text-destructive text-[13px]" data-testid="manage-error">
-          {error}
+          {t(errorKey)}
         </p>
       ) : null}
     </section>

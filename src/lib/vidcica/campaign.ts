@@ -142,7 +142,27 @@ export type BoostDraft = {
   budgetDaily: number;
   budgetTotal: number;
   startDate?: string;
+  /** Where a Traffic ad sends people. Only Traffic asks for it (see needsWebsite). */
+  url: string;
 };
+
+/**
+ * Does this objective's ad send people to a website? Then it can't run without
+ * one: Meta refuses the ad, and create-ad-campaign refuses it first (`missing_url`).
+ */
+export function needsWebsite(objective: SupportedObjective): boolean {
+  return objective === "trafic";
+}
+
+/** A full http(s) address with a real domain — the only kind of link an ad can carry. */
+export function isWebLink(value: string): boolean {
+  try {
+    const u = new URL(value.trim());
+    return (u.protocol === "http:" || u.protocol === "https:") && u.hostname.includes(".");
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Build a `campaigns` Insert row from a boost draft. Status is always `brouillon`
@@ -161,6 +181,9 @@ export function boostDraftToRow(draft: BoostDraft, userId: string, id: string): 
     budget_total: draft.budgetMode === "total" ? draft.budgetTotal : 0,
     start_date: draft.startDate ?? new Date().toISOString(),
     video_id: draft.videoId,
+    // Only Traffic shows the field, so a link typed there and left behind when
+    // switching objective must not ride along on an Awareness/Engagement ad.
+    url: needsWebsite(draft.objective) ? draft.url.trim() : null,
     audience_mode: "advantage",
     gender: draft.gender,
     age_min: draft.ageMin,
