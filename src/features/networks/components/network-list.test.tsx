@@ -131,3 +131,49 @@ describe("<NetworkList /> — Meta", () => {
     expect(actions.disconnectMeta).not.toHaveBeenCalled();
   });
 });
+
+describe("<NetworkList /> — plan allowance", () => {
+  const free = { limit: 1, planLabel: "Gratuit" };
+
+  it("says what the plan includes, Facebook and Instagram counted once", () => {
+    render(<NetworkList allowance={free} initial={[net("facebook"), net("instagram")]} />);
+    expect(screen.getByTestId("network-allowance")).toHaveTextContent("1 sur 1");
+  });
+
+  it("at the limit, offers the plans instead of a new connection, and keeps reconnects", () => {
+    render(
+      <NetworkList
+        allowance={free}
+        initial={[net("youtube", { needsReconnect: true }), net("tiktok", { connected: false })]}
+      />,
+    );
+    expect(screen.getByTestId("upgrade-tiktok")).toHaveAttribute("href", "/billing");
+    expect(screen.queryByTestId("connect-tiktok")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reconnecter" })).toBeInTheDocument();
+  });
+
+  it("still connects the other Meta card: it is the same Meta login", () => {
+    render(
+      <NetworkList
+        allowance={free}
+        initial={[net("facebook"), net("instagram", { connected: false })]}
+      />,
+    );
+    expect(screen.getByTestId("connect-instagram")).toBeInTheDocument();
+  });
+
+  it("below the limit, connects as usual", () => {
+    render(
+      <NetworkList allowance={{ limit: 3, planLabel: "Starter" }} initial={[net("youtube")]} />,
+    );
+    expect(screen.getByTestId("network-allowance")).toHaveTextContent("1 sur 3");
+    expect(screen.getByTestId("connect-tiktok")).toBeInTheDocument();
+  });
+
+  it("shows no limit on plans with every network", () => {
+    render(
+      <NetworkList allowance={{ limit: null, planLabel: "Pro" }} initial={[net("youtube")]} />,
+    );
+    expect(screen.queryByTestId("network-allowance")).not.toBeInTheDocument();
+  });
+});

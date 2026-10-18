@@ -108,6 +108,15 @@ describe("runNetworkOAuth (AC-2/3/4)", () => {
     expect(out).toEqual({ ok: true });
   });
 
+  it("a used-up plan allowance closes the popup before any consent screen", async () => {
+    const d = deps({ start: async () => ({ ok: false, reason: "network_limit" }) });
+    const pop = popup();
+    const out = await runNetworkOAuth(d, pop);
+    expect(out).toEqual({ ok: false, reason: "network_limit" });
+    expect(d.navigate).not.toHaveBeenCalled();
+    expect(pop.close).toHaveBeenCalled();
+  });
+
   it("an aborted signal → cancelled and the popup is closed", async () => {
     const controller = new AbortController();
     controller.abort();

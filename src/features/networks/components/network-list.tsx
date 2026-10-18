@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { startNetworkOAuth } from "@/lib/vidcica/oauth";
 import {
   CONNECT_REASON_KEY,
   connectablePlatforms,
+  heldConnections,
   isMetaConnectReason,
   isMetaPlatform,
   networkStatus,
@@ -54,12 +56,16 @@ function NetworkCard({
   platform,
   net,
   soleAction = false,
+  blocked = false,
 }: {
   platform: PlatformMeta;
   net?: Network;
   /** True when this row holds the only connect/reconnect action in the list —
    *  it then gets the ink pill; several side by side stay pale. */
   soleAction?: boolean;
+  /** The plan's network allowance is used up and this would be a NEW
+   *  connection: offer the plans instead of a connect the server refuses. */
+  blocked?: boolean;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -128,6 +134,10 @@ function NetworkCard({
       router.refresh();
     } else if (out.reason === "platform_not_configured") {
       setMessage(t("common.comingSoon"));
+    } else if (out.reason === "network_limit") {
+      // The server counts again (a page open since before another connect).
+      setMessage(t("networks.limit.reached"));
+      router.refresh();
     } else if (out.reason !== "cancelled") {
       setMessage(t("networks.connectFailed"));
     }
@@ -325,6 +335,14 @@ function NetworkCard({
         <Button variant={actionVariant} size="sm" onClick={connect} disabled={pending}>
           {pending ? "…" : t("common.reconnect")}
         </Button>
+      ) : status === "disconnected" && blocked ? (
+        <Link
+          href="/billing"
+          className={buttonVariants({ variant: "secondary", size: "sm" })}
+          data-testid={`upgrade-${platform.id}`}
+        >
+          {t("networks.limit.upgrade")}
+        </Link>
       ) : status === "disconnected" ? (
         <Button
           variant={actionVariant}
@@ -340,6 +358,14 @@ function NetworkCard({
   );
 }
 
+/** What the person's plan allows, from the server page. */
+export type NetworkAllowance = {
+  /** Connected networks the plan allows; null = every network. */
+  limit: number | null;
+  /** The plan's name, in the page's language. */
+  planLabel: string;
+};
+
 /**
  * The networks screen — a fixed catalog of platforms rendered from the
  * server-seeded rows. Connect (via popup) / disconnect / toggle each call
@@ -347,27 +373,67 @@ function NetworkCard({
  * `networks` realtime channel because it would stream token-ciphertext columns
  * to the browser (RLS gates rows, not columns).
  */
-export function NetworkList({ initial }: { initial: Network[] }) {
+export function NetworkList({
+  initial,
+  allowance,
+}: {
+  initial: Network[];
+  /** Absent or limit null: the plan includes every network. */
+  allowance?: NetworkAllowance;
+}) {
+  const t = useT();
   const byPlatform = new Map(initial.map((n) => [n.platform, n]));
   // X is dropped (paid API, provider === null) and Threads is held back — see
   // PUBLISHING_PLATFORMS. Instagram and Facebook are open to every account
   // since Meta approved the App Review (2026-10-18).
   const platforms = connectablePlatforms();
+  // The plan's allowance, counted like the server (Facebook + Instagram = one).
+  // The server enforces it (oauth-start, oauth-callback); this only says so
+  // before anyone clicks, and keeps reconnects available.
+  const held = heldConnections(initial);
+  const limit = allowance?.limit ?? null;
+  const atLimit = limit !== null && held.size >= limit;
+  const isBlocked = (p: PlatformMeta) => atLimit && !!p.provider && !held.has(p.provider);
   // One filled action per group: the ink pill only when a single row can act.
   const actionable = platforms.filter((p) => {
     const st = networkStatus(p, byPlatform.get(p.id));
-    return st === "disconnected" || st === "needs_reconnect";
+    return (st === "disconnected" && !isBlocked(p)) || st === "needs_reconnect";
   }).length;
   return (
-    <ul className="bg-card flex flex-col rounded-lg py-2" data-testid="network-list">
-      {platforms.map((p) => (
-        <NetworkCard
-          key={p.id}
-          platform={p}
-          net={byPlatform.get(p.id)}
-          soleAction={actionable === 1}
-        />
-      ))}
-    </ul>
+    <div className="flex flex-col gap-3">
+      {limit !== null && allowance ? (
+        <p
+          className="text-muted-foreground text-[13px] leading-relaxed"
+          data-testid="network-allowance"
+        >
+          {limit === 1
+            ? t("networks.limit.one", { plan: allowance.planLabel, used: String(held.size) })
+            : t("networks.limit.many", {
+                plan: allowance.planLabel,
+                used: String(held.size),
+                limit: String(limit),
+              })}{" "}
+          {atLimit ? (
+            <Link
+              href="/billing"
+              className="text-foreground font-semibold underline underline-offset-4"
+            >
+              {t("networks.limit.upgrade")}
+            </Link>
+          ) : null}
+        </p>
+      ) : null}
+      <ul className="bg-card flex flex-col rounded-lg py-2" data-testid="network-list">
+        {platforms.map((p) => (
+          <NetworkCard
+            key={p.id}
+            platform={p}
+            net={byPlatform.get(p.id)}
+            soleAction={actionable === 1}
+            blocked={isBlocked(p)}
+          />
+        ))}
+      </ul>
+    </div>
   );
 }

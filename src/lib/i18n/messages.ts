@@ -233,6 +233,13 @@ export const fr = {
   "networks.meta.stillRunning":
     "Déconnecté. Des Boosts tournent encore ({count}) : mets-les en pause dans le Gestionnaire de publicités.",
   "networks.meta.disconnectFailed": "La déconnexion a échoué. Réessaie.",
+  "networks.limit.one":
+    "Ton offre {plan} inclut 1 réseau connecté ({used} sur 1). Facebook et Instagram comptent pour un.",
+  "networks.limit.many":
+    "Ton offre {plan} inclut {limit} réseaux connectés ({used} sur {limit}). Facebook et Instagram comptent pour un.",
+  "networks.limit.reached":
+    "Tu as atteint la limite de ton offre. Déconnecte un réseau ou passe à une offre supérieure.",
+  "networks.limit.upgrade": "Voir les offres",
 
   // ── oauth return page (popup landing after oauth-callback) ─────────
   "oauth.successTitle": "Compte connecté",
@@ -1743,6 +1750,12 @@ export const en: Partial<Record<MessageKey, string>> = {
   "networks.meta.stillRunning":
     "Disconnected. Boosts are still running ({count}): pause them in Ads Manager.",
   "networks.meta.disconnectFailed": "Couldn’t disconnect. Try again.",
+  "networks.limit.one":
+    "Your {plan} plan includes 1 connected network ({used} of 1). Facebook and Instagram count as one.",
+  "networks.limit.many":
+    "Your {plan} plan includes {limit} connected networks ({used} of {limit}). Facebook and Instagram count as one.",
+  "networks.limit.reached": "You’ve reached your plan’s limit. Disconnect a network or upgrade.",
+  "networks.limit.upgrade": "See plans",
 
   // ── oauth return page (popup landing after oauth-callback) ─────────
   "oauth.successTitle": "Account connected",

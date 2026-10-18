@@ -177,6 +177,18 @@ export function platformToProvider(id: PlatformId): OAuthProvider | null {
   return PLATFORMS.find((p) => p.id === id)?.provider ?? null;
 }
 
+/**
+ * The connections a person holds, counted the way the server counts them for a
+ * plan's network allowance (oauth-start / oauth-callback, `_shared/plan-limits.ts`
+ * in vidcica): one per OAuth provider, so Facebook + Instagram (one Meta login)
+ * count as ONE. A row awaiting a reconnect still counts: it is still theirs.
+ */
+export function heldConnections(nets: ReadonlyArray<Network>): Set<string> {
+  return new Set(
+    nets.filter((n) => n.connected).map((n) => platformToProvider(n.platform) ?? n.platform),
+  );
+}
+
 export type NetworkStatus = "connected" | "needs_reconnect" | "disconnected" | "unavailable";
 
 /** Presentation status for a platform given its (optional) row. */

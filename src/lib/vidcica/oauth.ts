@@ -41,7 +41,14 @@ export type OAuthOutcome =
   | { ok: true }
   | {
       ok: false;
-      reason: "cancelled" | "platform_not_configured" | "timeout" | "unauthenticated" | "error";
+      reason:
+        | "cancelled"
+        | "platform_not_configured"
+        /** The plan's network allowance is used up (oauth-start, 2026-10-18). */
+        | "network_limit"
+        | "timeout"
+        | "unauthenticated"
+        | "error";
       message?: string;
     }
   /** The provider round-trip finished, but the server could not mark this row
@@ -59,7 +66,7 @@ export type OAuthDeps = {
   /** Get the provider authorize URL (or a not-configured/err signal). */
   start: () => Promise<
     | { ok: true; url: string }
-    | { ok: false; reason: "platform_not_configured" | "error"; message?: string }
+    | { ok: false; reason: "platform_not_configured" | "network_limit" | "error"; message?: string }
   >;
   /** Point the already-open popup at the authorize URL. */
   navigate: (url: string) => void;
@@ -176,6 +183,10 @@ export async function startNetworkOAuth(
         };
         if (res.status === 503 && body.error === "platform_not_configured") {
           return { ok: false, reason: "platform_not_configured" };
+        }
+        // The plan's allowance is used up: refused before any consent screen.
+        if (res.status === 403 && body.error === "network_limit") {
+          return { ok: false, reason: "network_limit" };
         }
         if (!res.ok || !body.authorizeUrl) {
           return { ok: false, reason: "error", message: body.error ?? `HTTP ${res.status}` };

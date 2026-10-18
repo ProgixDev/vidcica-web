@@ -4,6 +4,7 @@ import {
   platformToProvider,
   PLATFORMS,
   connectablePlatforms,
+  heldConnections,
   isPublishingPlatformEnabled,
   rowToNetwork,
   type Network,
@@ -69,6 +70,29 @@ describe("rowToNetwork — stored Meta fields", () => {
     expect(n.pageId).toBeUndefined();
     expect(n.pages).toBeUndefined();
     expect(meta(null).pages).toBeUndefined();
+  });
+});
+
+describe("heldConnections (the plan allowance count)", () => {
+  const n = (platform: Network["platform"], connected = true): Network => ({
+    id: platform,
+    platform,
+    name: platform,
+    connected,
+    needsReconnect: false,
+    publishesEnabled: true,
+  });
+
+  it("counts one per provider: Facebook and Instagram are one Meta login", () => {
+    expect([...heldConnections([n("facebook"), n("instagram"), n("youtube")])].sort()).toEqual([
+      "google",
+      "meta",
+    ]);
+  });
+
+  it("ignores disconnected rows, counts a row awaiting a reconnect", () => {
+    const awaiting = { ...n("tiktok"), needsReconnect: true };
+    expect([...heldConnections([n("linkedin", false), awaiting])]).toEqual(["tiktok"]);
   });
 });
 

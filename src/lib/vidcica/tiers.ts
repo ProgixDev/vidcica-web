@@ -30,7 +30,11 @@ export type TierDef = {
   landingFeatureKeys: MessageKey[];
   /** AI voiceover + burned-in captions. Free is silent stock footage only. */
   voiceover: boolean;
-  /** Connectable social platforms. */
+  /** Connected networks the plan allows (Facebook + Instagram, one Meta login,
+   *  count as one). ENFORCED by the server since 2026-10-18: oauth-start and
+   *  oauth-callback refuse a new connection beyond it (`network_limit`,
+   *  vidcica `_shared/plan-limits.ts`: Free 1, Starter 3, Pro/Studio every
+   *  network). Change both together. */
   networks: number;
   /** Connected accounts per platform. -1 = unlimited. */
   accountsPerPlatform: number;

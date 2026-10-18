@@ -91,3 +91,13 @@ the `META_REVIEW_EMAILS` allowlist was deleted (AC-N6).
   in the publish picker and on the landing page (“5 réseaux”). There is no per-account
   allowlist any more. Tests: `network` (“offers Instagram and Facebook to every account”,
   `connectablePlatforms`).
+- **AC-N7 (plan allowance, 2026-10-18):** each plan's network allowance is enforced. Free
+  connects 1 network, Starter 3, Pro and Studio every network; Facebook + Instagram (one Meta
+  login) count as one.
+  - The server refuses a new connection beyond the plan: `oauth-start` before consent (403
+    `network_limit`), `oauth-callback` again before saving. Reconnecting a network already held
+    is always allowed, so a downgrade never cuts what is connected.
+  - Networks shows "{used} sur {limit}" for limited plans and, at the limit, "Voir les offres"
+    instead of "Connecter" on networks not held.
+  - Tests: `network-list` ("plan allowance"), `network` (`heldConnections`), `oauth` ("a used-up
+    plan allowance…").
