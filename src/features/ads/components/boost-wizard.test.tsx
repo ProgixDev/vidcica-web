@@ -30,6 +30,57 @@ function renderWizard(deps: Partial<BoostDeps>, vids: VideoOption[] = videos, lo
   render(locale ? <I18nProvider locale={locale}>{wizard}</I18nProvider> : wizard);
 }
 
+describe("<BoostWizard /> — why only a draft", () => {
+  function renderGate(resolveAccount: BoostDeps["resolveAccount"], canConnectMeta: boolean) {
+    const deps: BoostDeps = {
+      resolveAccount,
+      createDraft: async () => ({ ok: true, id: "camp-1" }),
+      createCampaign: async () => ({ ok: true, status: "in_review" }),
+    };
+    render(
+      <BoostStoreProvider deps={deps}>
+        <BoostWizard videos={videos} canConnectMeta={canConnectMeta} />
+      </BoostStoreProvider>,
+    );
+  }
+
+  it("points to Facebook when a (re)connect fixes it", async () => {
+    renderGate(async () => ({ ok: false, reason: "needs_reconnect" }), true);
+    const banner = await screen.findByTestId("boost-draft-banner");
+    expect(banner).toHaveTextContent("Connectez Facebook");
+    expect(screen.getByTestId("boost-connect-facebook")).toHaveAttribute("href", "/networks");
+  });
+
+  it("says Facebook is coming, with no dead link, while it isn’t offered yet", async () => {
+    renderGate(async () => ({ ok: false, reason: "needs_reconnect" }), false);
+    expect(await screen.findByTestId("boost-draft-banner")).toHaveTextContent("très bientôt");
+    expect(screen.queryByTestId("boost-connect-facebook")).not.toBeInTheDocument();
+  });
+
+  it("names a disabled ad account, which no reconnect fixes", async () => {
+    renderGate(async () => ({ ok: false, reason: "ad_account_disabled" }), true);
+    expect(await screen.findByTestId("boost-draft-banner")).toHaveTextContent("désactivé");
+    expect(screen.queryByTestId("boost-connect-facebook")).not.toBeInTheDocument();
+  });
+
+  it("shows the account’s own minimum on the budget step", async () => {
+    renderGate(
+      async () => ({
+        ok: true,
+        hasAccount: true,
+        hasPage: true,
+        currency: "XOF",
+        minDailyBudget: 3000,
+      }),
+      true,
+    );
+    fireEvent.change(await screen.findByTestId("bw-video"), { target: { value: "v1" } });
+    for (let i = 0; i < 3; i++) fireEvent.click(screen.getByTestId("boost-next"));
+    // Intl puts a narrow no-break space in "3 000"; match any space.
+    expect(screen.getByTestId("bw-budget-min")).toHaveTextContent(/3\s?000/);
+  });
+});
+
 describe("<BoostWizard /> (AC-2)", () => {
   it("shows the honest draft-only banner when ads aren't configured", async () => {
     renderWizard({ resolveAccount: async () => ({ ok: false, reason: "ads_not_configured" }) });
@@ -132,7 +183,9 @@ describe("<BoostWizard /> (AC-2)", () => {
     for (let i = 0; i < 4; i++) fireEvent.click(screen.getByTestId("boost-next"));
     fireEvent.click(screen.getByTestId("boost-submit"));
     const error = await screen.findByTestId("boost-error");
-    expect(error).toHaveTextContent("Something went wrong. Try again.");
+    expect(error).toHaveTextContent(
+      "Meta refused the campaign. The details are on the campaign page.",
+    );
     expect(error).toHaveTextContent("View draft");
   });
 

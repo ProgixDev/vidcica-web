@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { getT } from "@/lib/i18n/server";
 import { formatNumber } from "@/lib/format";
 import { getAnalyticsBundle } from "@/lib/vidcica/analytics-queries";
+import { getMyAdAccountCurrency } from "@/lib/vidcica/ads-queries";
+import { formatAdMoney } from "@/lib/vidcica/campaign";
+import { getLocale } from "@/lib/i18n/server";
 import { aggregateCampaigns } from "@/lib/vidcica/analytics";
 import { KpiTile, AdsCampaignRow, DataComingNotice } from "@/features/analytics";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -24,7 +27,14 @@ export default async function AnalyticsAdsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/analytics/ads");
 
-  const [t, bundle] = await Promise.all([getT(), getAnalyticsBundle()]);
+  const [t, bundle, currency, locale] = await Promise.all([
+    getT(),
+    getAnalyticsBundle(),
+    // Spend and cost per lead are in the AD ACCOUNT’s currency, never assumed euros.
+    getMyAdAccountCurrency(),
+    getLocale(),
+  ]);
+  const money = (n: number) => formatAdMoney(n, currency, locale === "en" ? "en-CA" : "fr-FR");
 
   const { campaigns } = bundle;
 
@@ -54,7 +64,7 @@ export default async function AnalyticsAdsPage() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <KpiTile
             label={t("analytics.kpi.adSpend")}
-            value={`${formatNumber(agg.totalSpend)} €`}
+            value={money(agg.totalSpend)}
             testId="ads-kpi-spend"
           />
           <KpiTile
@@ -79,7 +89,7 @@ export default async function AnalyticsAdsPage() {
           />
           <KpiTile
             label={t("analytics.kpi.cpl")}
-            value={agg.cpl > 0 ? `${agg.cpl.toFixed(2)} €` : "—"}
+            value={agg.cpl > 0 ? money(agg.cpl) : "—"}
             testId="ads-kpi-cpl"
           />
         </div>
@@ -96,7 +106,13 @@ export default async function AnalyticsAdsPage() {
         </div>
         <div className="bg-card divide-border flex flex-col divide-y overflow-hidden rounded-lg">
           {campaigns.map((c) => (
-            <AdsCampaignRow key={c.id} t={t} campaign={c} />
+            <AdsCampaignRow
+              key={c.id}
+              t={t}
+              campaign={c}
+              currency={currency}
+              moneyLocale={locale === "en" ? "en-CA" : "fr-FR"}
+            />
           ))}
         </div>
       </section>

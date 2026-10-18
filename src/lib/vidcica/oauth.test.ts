@@ -71,6 +71,43 @@ describe("runNetworkOAuth (AC-2/3/4)", () => {
     expect(out.ok).toBe(false);
   });
 
+  it("a self-closing popup after an incomplete Meta connect reports the stored reason", async () => {
+    // Before the flow: an older attempt. After: a new one, with a reason.
+    const attempts = [
+      { at: "2026-10-01T10:00:00Z", reason: null },
+      { at: "2026-10-18T12:00:00Z", reason: "instagram_not_linked" },
+    ];
+    let n = 0;
+    const out = await runNetworkOAuth(
+      deps({ isConnected: async () => false, lastAttempt: async () => attempts[n++]! }),
+      popup({ closed: true }),
+    );
+    expect(out).toEqual({ ok: false, reason: "incomplete", detail: "instagram_not_linked" });
+  });
+
+  it("a popup closed with no new attempt on record stays a cancel", async () => {
+    const same = { at: "2026-10-01T10:00:00Z", reason: "meta_no_page" };
+    const out = await runNetworkOAuth(
+      deps({ isConnected: async () => false, lastAttempt: async () => same }),
+      popup({ closed: true }),
+    );
+    expect(out).toEqual({ ok: false, reason: "cancelled" });
+  });
+
+  it("waits ten minutes by default, not two", async () => {
+    let t = 0;
+    let checks = 0;
+    const out = await runNetworkOAuth(
+      deps({
+        now: () => (t += 60_000),
+        isConnected: async () => ++checks >= 5, // connected after ~5 minutes
+      }),
+      popup(),
+      { pollMs: 1 },
+    );
+    expect(out).toEqual({ ok: true });
+  });
+
   it("an aborted signal → cancelled and the popup is closed", async () => {
     const controller = new AbortController();
     controller.abort();

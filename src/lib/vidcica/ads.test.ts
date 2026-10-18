@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
-import { adsErrorKey, createAdCampaign, resolveAdAccount, setCampaignStatus } from "./ads";
+import {
+  adsErrorKey,
+  adsErrorText,
+  createAdCampaign,
+  resolveAdAccount,
+  setCampaignStatus,
+} from "./ads";
 import { translate } from "@/lib/i18n";
 
 type DB = SupabaseClient<Database>;
@@ -46,6 +52,31 @@ describe("resolveAdAccount (AC-2 gate)", () => {
     );
     expect(out).toMatchObject({ ok: true, hasAccount: true, hasPage: true, adAccountId: "act_1" });
   });
+
+  it("carries the account’s live minimum and cap, in its currency", async () => {
+    const out = await resolveAdAccount(
+      db(
+        true,
+        ok({
+          ok: true,
+          hasAccount: true,
+          hasPage: true,
+          currency: "CAD",
+          minDailyBudget: 5,
+          monthlyCap: 500,
+        }),
+      ),
+    );
+    expect(out).toMatchObject({ ok: true, currency: "CAD", minDailyBudget: 5, monthlyCap: 500 });
+  });
+
+  it("an older answer without the minimum still parses (falls back later)", async () => {
+    const out = await resolveAdAccount(
+      db(true, ok({ ok: true, hasAccount: true, hasPage: true, minDailyBudget: "x" })),
+    );
+    expect(out).toMatchObject({ ok: true, hasAccount: true });
+    expect(out.ok && out.minDailyBudget).toBeFalsy();
+  });
 });
 
 describe("createAdCampaign (AC-3/4)", () => {
@@ -55,6 +86,27 @@ describe("createAdCampaign (AC-3/4)", () => {
       "camp-1",
     );
     expect(out).toEqual({ ok: true, status: "in_review", externalCampaignId: "123" });
+  });
+
+  it("a campaign launched already answers ok with its current status", async () => {
+    const out = await createAdCampaign(
+      db(true, ok({ ok: true, status: "en_pause", already: true })),
+      "camp-1",
+    );
+    expect(out).toMatchObject({ ok: true, status: "en_pause", already: true });
+  });
+
+  it("carries the minimum and currency of a below_min_budget refusal", async () => {
+    const out = await createAdCampaign(
+      db(true, httpError(422, { error: "below_min_budget", minDaily: 3000, currency: "XOF" })),
+      "camp-1",
+    );
+    expect(out).toMatchObject({
+      ok: false,
+      reason: "below_min_budget",
+      minDaily: 3000,
+      currency: "XOF",
+    });
   });
 
   it("surfaces a create error reason (stays a draft)", async () => {
@@ -118,8 +170,39 @@ describe("adsErrorKey", () => {
     expect(adsErrorKey("below_min_budget")).toBe("ads.err.belowMinBudget");
     expect(adsErrorKey("missing_url")).toBe("ads.err.missingUrl");
     expect(adsErrorKey("country_unavailable")).toBe("ads.err.countryUnavailable");
-    expect(adsErrorKey("meta_error")).toBe("ads.err.generic");
+    expect(adsErrorKey("meta_error")).toBe("ads.err.metaRefused");
     expect(adsErrorKey("weird")).toBe("ads.err.generic");
+  });
+
+  it("maps the reasons the 2026-10-18 functions added", () => {
+    expect(adsErrorKey("plan_required")).toBe("ads.err.planRequired");
+    expect(adsErrorKey("pause_in_ads_manager")).toBe("ads.err.pauseInAdsManager");
+    expect(adsErrorKey("currency_changed")).toBe("ads.err.currencyChanged");
+    expect(adsErrorKey("launch_in_progress")).toBe("ads.err.launchInProgress");
+    expect(adsErrorKey("ad_account_disabled")).toBe("ads.err.adAccountDisabled");
+    expect(adsErrorKey("no_ads_scope")).toBe("ads.err.noAdsScope");
+    expect(adsErrorKey("token_decrypt_failed")).toBe("ads.err.tokenDecrypt");
+    expect(adsErrorKey("meta_unreachable")).toBe("ads.err.metaUnreachable");
+  });
+
+  it("says the amount when the server named one, in the account’s currency", () => {
+    const t = (key: Parameters<typeof translate>[1], vars?: Record<string, string | number>) =>
+      translate("fr", key, vars);
+    expect(adsErrorText(t, { reason: "below_min_budget", minDaily: 5, currency: "CAD" })).toBe(
+      "Le budget quotidien minimum de votre compte publicitaire est de 5 $CA.",
+    );
+    expect(
+      adsErrorText(t, {
+        reason: "monthly_cap_exceeded",
+        cap: 500,
+        projected: 600,
+        currency: "EUR",
+      }),
+    ).toContain("500 €");
+    // Without amounts, the plain message.
+    expect(adsErrorText(t, { reason: "below_min_budget" })).toBe(
+      "Le budget quotidien est en dessous du minimum autorisé.",
+    );
   });
 
   // The bug this replaced: a French sentence on an English page.

@@ -103,6 +103,7 @@ export type Database = {
           created_at: string;
           cta: string | null;
           ctr: number;
+          currency: string | null;
           description: string | null;
           end_date: string | null;
           external_ad_id: string | null;
@@ -118,6 +119,7 @@ export type Database = {
           interests: string[] | null;
           languages: string[] | null;
           last_error: string | null;
+          launch_started_at: string | null;
           leads: number | null;
           lookalike_percent: number | null;
           lookalike_source_id: string | null;
@@ -161,6 +163,7 @@ export type Database = {
           created_at?: string;
           cta?: string | null;
           ctr?: number;
+          currency?: string | null;
           description?: string | null;
           end_date?: string | null;
           external_ad_id?: string | null;
@@ -176,6 +179,7 @@ export type Database = {
           interests?: string[] | null;
           languages?: string[] | null;
           last_error?: string | null;
+          launch_started_at?: string | null;
           leads?: number | null;
           lookalike_percent?: number | null;
           lookalike_source_id?: string | null;
@@ -219,6 +223,7 @@ export type Database = {
           created_at?: string;
           cta?: string | null;
           ctr?: number;
+          currency?: string | null;
           description?: string | null;
           end_date?: string | null;
           external_ad_id?: string | null;
@@ -234,6 +239,7 @@ export type Database = {
           interests?: string[] | null;
           languages?: string[] | null;
           last_error?: string | null;
+          launch_started_at?: string | null;
           leads?: number | null;
           lookalike_percent?: number | null;
           lookalike_source_id?: string | null;

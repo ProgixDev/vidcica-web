@@ -29,10 +29,11 @@ export const SUPPORTED_OBJECTIVES = ["notoriete", "trafic", "engagement"] as con
 export type SupportedObjective = (typeof SUPPORTED_OBJECTIVES)[number];
 
 /**
- * The smallest daily budget a campaign can be activated with, in the ad
- * account's currency. Mirrors app_config `ads_min_daily_budget_cents` (500),
- * which `set-campaign-status` enforces on activation: the wizard used to accept
- * anything from 1, so a campaign could be created that could never run.
+ * The FALLBACK smallest daily budget, used only until resolve-ad-account answers
+ * with the account's real one (`minDailyBudget`, in the account's currency since
+ * 2026-10-18: 5 for EUR/CAD/USD, but e.g. thousands for XOF). Mirrors app_config
+ * `ads_min_daily_budget_cents` (500); create-ad-campaign and set-campaign-status
+ * enforce the real minimum server-side.
  */
 export const MIN_DAILY_BUDGET = 5;
 
@@ -83,6 +84,8 @@ export type Campaign = {
   countries: string[];
   /** Set once create-ad-campaign has built the Meta objects (⇒ activatable). */
   externalCampaignId?: string;
+  /** The ad account's currency the budget was set in (null on older rows). */
+  currency?: string;
   lastError?: string;
   metrics: CampaignMetrics;
   createdAt: string;
@@ -111,6 +114,7 @@ export function rowToCampaign(r: CampaignRow): Campaign {
     ageMax: r.age_max ?? undefined,
     countries: r.countries ?? [],
     externalCampaignId: r.external_campaign_id ?? undefined,
+    currency: r.currency ?? undefined,
     lastError: r.last_error ?? undefined,
     metrics: {
       budgetSpent: r.budget_spent,
@@ -144,6 +148,10 @@ export type BoostDraft = {
   startDate?: string;
   /** Where a Traffic ad sends people. Only Traffic asks for it (see needsWebsite). */
   url: string;
+  /** The ad account's currency the person saw while setting the budget. Saved
+   *  on the row: create-ad-campaign refuses (`currency_changed`) if the account
+   *  bills in another one by launch time. Absent when no account is connected. */
+  currency?: string;
 };
 
 /**
@@ -189,6 +197,7 @@ export function boostDraftToRow(draft: BoostDraft, userId: string, id: string): 
     age_min: draft.ageMin,
     age_max: draft.ageMax,
     countries: [...draft.countries],
+    currency: draft.currency ?? null,
   };
 }
 

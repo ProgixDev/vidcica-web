@@ -3,9 +3,53 @@
  * the `networks` and `publish` slices). Ported from ClipFlow entities +
  * db-mappers `rowToNetwork`.
  */
+import { z } from "zod";
 import type { Database } from "@/lib/supabase/database.types";
+import type { MessageKey } from "@/lib/i18n";
 
 export type NetworkRow = Database["public"]["Tables"]["networks"]["Row"];
+
+/**
+ * Why the last Meta connect is incomplete. `oauth-callback` (and the Page
+ * picker, `meta-select-page`) write it into `platform_metadata.connectReason`
+ * on BOTH Meta rows; a row is marked connected only when it can be used.
+ */
+export type MetaConnectReason = "meta_no_page" | "instagram_not_linked" | "meta_error";
+
+/** A Facebook Page the person shared with Vidcica in the Facebook dialog. */
+export type MetaPageOption = { id: string; name: string | null; igUsername: string | null };
+
+/** The Meta fields stored on a row, parsed at the trust boundary. Each field
+ *  degrades to "absent" on its own, so an unknown future value never breaks
+ *  the whole card. Rows connected before 2026-10-18 have none of them. */
+const metaFieldsSchema = z.object({
+  connectReason: z
+    .enum(["meta_no_page", "instagram_not_linked", "meta_error"])
+    .nullish()
+    .catch(null),
+  pageId: z.string().nullish().catch(null),
+  pages: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string().nullish(),
+        igUsername: z.string().nullish(),
+      }),
+    )
+    .nullish()
+    .catch(null),
+});
+
+/** The message explaining a connect reason, with what to do about it. */
+export const CONNECT_REASON_KEY: Record<MetaConnectReason, MessageKey> = {
+  meta_no_page: "networks.reason.metaNoPage",
+  instagram_not_linked: "networks.reason.instagramNotLinked",
+  meta_error: "networks.reason.metaError",
+};
+
+export function isMetaConnectReason(v: unknown): v is MetaConnectReason {
+  return v === "meta_no_page" || v === "instagram_not_linked" || v === "meta_error";
+}
 
 /** The seven social platforms (brand names stay English). */
 export type PlatformId =
@@ -31,9 +75,17 @@ export type Network = {
   publishesEnabled: boolean;
   lastSync?: string;
   followers?: number;
+  /** Meta rows only: why the last connect is incomplete, if it is. */
+  connectReason?: MetaConnectReason;
+  /** Meta rows only: the Page posts and ads go to. */
+  pageId?: string;
+  /** Meta rows only: every Page the person shared that they can post to. */
+  pages?: MetaPageOption[];
 };
 
 export function rowToNetwork(r: NetworkRow): Network {
+  const meta = metaFieldsSchema.safeParse(r.platform_metadata ?? {});
+  const md = meta.success ? meta.data : null;
   return {
     id: r.id,
     platform: r.platform as PlatformId,
@@ -45,7 +97,19 @@ export function rowToNetwork(r: NetworkRow): Network {
     publishesEnabled: r.publishes_enabled,
     lastSync: r.last_sync ?? undefined,
     followers: r.followers ?? undefined,
+    connectReason: md?.connectReason ?? undefined,
+    pageId: md?.pageId ?? undefined,
+    pages: md?.pages?.map((p) => ({
+      id: p.id,
+      name: p.name ?? null,
+      igUsername: p.igUsername ?? null,
+    })),
   };
+}
+
+/** True for the two platforms one Meta login fills. */
+export function isMetaPlatform(platform: PlatformId): boolean {
+  return platform === "facebook" || platform === "instagram";
 }
 
 export type PlatformMeta = {

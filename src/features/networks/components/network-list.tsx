@@ -3,14 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { PlatformIcon } from "@/components/platform-icon";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { startNetworkOAuth } from "@/lib/vidcica/oauth";
 import {
+  CONNECT_REASON_KEY,
   connectablePlatforms,
+  isMetaConnectReason,
+  isMetaPlatform,
   networkStatus,
   type Network,
   type NetworkStatus,
@@ -19,7 +23,13 @@ import {
 } from "@/lib/vidcica/network";
 import { useT, useLocale } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
-import { disconnectNetwork, setNetworkPublish } from "../actions";
+import { disconnectMeta, disconnectNetwork, selectMetaPage, setNetworkPublish } from "../actions";
+
+/** What the Page picker says when the server refuses a choice. */
+const PAGE_ERROR_KEY: Record<string, MessageKey> = {
+  needs_reconnect: "networks.page.reconnect",
+  page_unavailable: "networks.page.unavailable",
+};
 
 /** Status label i18n key per connection state. */
 const STATUS_KEY: Record<NetworkStatus, MessageKey> = {
@@ -59,8 +69,18 @@ function NetworkCard({
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  /** Boosts meta-disconnect could not pause: nothing was disconnected yet. */
+  const [pauseFailed, setPauseFailed] = useState<{
+    campaigns: string[];
+    url: string | null;
+  } | null>(null);
   const status = networkStatus(platform, net, reviewAccess);
   const connected = status === "connected";
+  const meta = isMetaPlatform(platform.id);
+  // Why the last Meta connect left this card unconnected (no Page shared, no
+  // linked Instagram account…), stored by the server on the row.
+  const reason = !connected && net?.connectReason ? net.connectReason : null;
+  const pageChoices = platform.id === "facebook" && connected ? (net?.pages ?? []) : [];
 
   // Optimistic publish-toggle state so the switch flips instantly (a server
   // round-trip + router.refresh() otherwise leaves it frozen mid-click). Re-sync
@@ -97,6 +117,17 @@ function NetworkCard({
     setPending(false);
     if (out.ok) {
       router.refresh();
+    } else if (out.reason === "incomplete") {
+      // The round-trip finished but this card can't be used yet: say why. The
+      // other Meta card may have connected, so re-read the rows too.
+      setMessage(
+        t(
+          isMetaConnectReason(out.detail)
+            ? CONNECT_REASON_KEY[out.detail]
+            : "networks.connectFailed",
+        ),
+      );
+      router.refresh();
     } else if (out.reason === "platform_not_configured") {
       setMessage(t("common.comingSoon"));
     } else if (out.reason !== "cancelled") {
@@ -106,12 +137,52 @@ function NetworkCard({
 
   async function disconnect() {
     if (!net) return;
+    if (meta) {
+      // One Meta login fills both cards, and its running Boosts can only be
+      // paused while Vidcica still holds the token: say so before acting.
+      if (!window.confirm(t("networks.meta.disconnectConfirm"))) return;
+      await disconnectBothMeta(false);
+      return;
+    }
     setPending(true);
     setMessage(null);
     const res = await disconnectNetwork(net.id);
     setPending(false);
     if (!res.ok) {
       setMessage(res.message);
+      return;
+    }
+    router.refresh();
+  }
+
+  async function disconnectBothMeta(force: boolean) {
+    setPending(true);
+    setMessage(null);
+    setPauseFailed(null);
+    const res = await disconnectMeta(force);
+    setPending(false);
+    if (res.ok) {
+      if (res.stillRunning > 0) {
+        setMessage(t("networks.meta.stillRunning", { count: String(res.stillRunning) }));
+      }
+      router.refresh();
+      return;
+    }
+    if (res.reason === "pause_failed" && "campaigns" in res) {
+      setPauseFailed({ campaigns: res.campaigns, url: res.adsManagerUrl });
+      return;
+    }
+    setMessage(t("networks.meta.disconnectFailed"));
+  }
+
+  async function choosePage(pageId: string) {
+    if (!pageId || pageId === net?.pageId) return;
+    setPending(true);
+    setMessage(null);
+    const res = await selectMetaPage(pageId);
+    setPending(false);
+    if (!res.ok) {
+      setMessage(t(PAGE_ERROR_KEY[res.reason] ?? "networks.page.failed"));
       return;
     }
     router.refresh();
@@ -165,6 +236,14 @@ function NetworkCard({
               }`
             : t(TAGLINE_KEY[platform.id])}
         </p>
+        {reason && !message ? (
+          <p
+            className="text-warning text-[13px] leading-relaxed"
+            data-testid={`network-reason-${platform.id}`}
+          >
+            {t(CONNECT_REASON_KEY[reason])}
+          </p>
+        ) : null}
         {connected ? (
           <label className="text-subtle-foreground mt-2 flex w-fit items-center gap-2.5 text-[13px] font-medium">
             <Switch
@@ -175,10 +254,68 @@ function NetworkCard({
             {t("networks.publishAuto")}
           </label>
         ) : null}
+        {pageChoices.length > 1 ? (
+          // Several Pages shared: the person picks where posts and Boosts go.
+          // One Page needs no picker (the card already names it).
+          <div className="mt-2 flex max-w-xs flex-col gap-1.5">
+            <label
+              htmlFor={`page-${platform.id}`}
+              className="text-subtle-foreground text-[13px] font-medium"
+            >
+              {t("networks.page.label")}
+            </label>
+            <Select
+              id={`page-${platform.id}`}
+              value={net?.pageId ?? ""}
+              onChange={(e) => void choosePage(e.target.value)}
+              disabled={pending}
+              data-testid="network-page-select"
+            >
+              {net?.pageId ? null : <option value="">{t("networks.page.choose")}</option>}
+              {pageChoices.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name ?? p.id}
+                  {p.igUsername ? ` · @${p.igUsername}` : ""}
+                </option>
+              ))}
+            </Select>
+            <p className="text-muted-foreground text-[13px]">{t("networks.page.hint")}</p>
+          </div>
+        ) : null}
         {message ? (
           <p role="alert" className="text-destructive mt-1 text-[13px]">
             {message}
           </p>
+        ) : null}
+        {pauseFailed ? (
+          <div
+            role="alert"
+            className="bg-warning-subtle mt-2 flex flex-col gap-3 rounded-md p-4 text-[13px] leading-relaxed"
+            data-testid="meta-pause-failed"
+          >
+            <p>{t("networks.meta.pauseFailed", { campaigns: pauseFailed.campaigns.join(", ") })}</p>
+            <div className="flex flex-wrap gap-2">
+              {pauseFailed.url ? (
+                <a
+                  href={pauseFailed.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={buttonVariants({ variant: "secondary", size: "sm" })}
+                >
+                  {t("networks.meta.openAdsManager")}
+                </a>
+              ) : null}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => void disconnectBothMeta(true)}
+                disabled={pending}
+                data-testid="meta-disconnect-anyway"
+              >
+                {t("networks.meta.disconnectAnyway")}
+              </Button>
+            </div>
+          </div>
         ) : null}
       </div>
 

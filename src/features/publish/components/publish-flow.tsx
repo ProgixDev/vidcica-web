@@ -42,6 +42,9 @@ export type PublishPreviewVideo = {
 
 const REASON_LABEL: Record<string, MessageKey> = {
   auth_expired: "publish.reasonAuthExpired",
+  meta_no_page: "publish.reasonMetaNoPage",
+  instagram_not_linked: "publish.reasonInstagramNotLinked",
+  permission: "publish.reasonPermission",
   encoding: "publish.reasonEncoding",
   rate_limited: "publish.reasonRateLimited",
   rejected: "publish.reasonRejected",

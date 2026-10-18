@@ -52,3 +52,37 @@ Resolved before `/plan-feature` proceeds.
 - [x] **OAuth completion mechanism** — decided: **popup + detect via the `networks` table** (no backend change; token is persisted server-side before the `vidcica://` 302). Follow-up (needs sign-off, not this slice): enhance `oauth-callback` to honor the already-stored `redirect_after` for web (backwards-compatible: mobile sends none → keeps the deep link) for a cleaner redirect UX.
 - [ ] **Networks realtime vs poll for connect detection** — confirm whether the `networks` table is in a realtime publication; if not, the popup-detect falls back to short polling (2s) while the popup is open. Plan will verify and pick.
 - [ ] **Publish surface** — a dedicated route `/videos/[id]/publish` vs a dialog on the detail view. Plan decides; behavior is identical.
+
+## Update 2026-10-18 — Meta approved the App Review: Facebook and Instagram for every account
+
+Meta approved Vidcica's App Review on 2026-10-18. The backend changed the same day (vidcica
+commit `a6af3b2`, functions README "Meta launch hardening"). `oauth-callback` now marks a Meta
+row connected only when it can be used, and stores why not otherwise
+(`platform_metadata.connectReason`: `meta_no_page`, `instagram_not_linked`, `meta_error`).
+New functions: `meta-select-page` and `meta-disconnect`.
+
+Changed requirements (gate still on: `META_REVIEW_EMAILS` until the canary week ends; then
+Facebook and Instagram move into `PUBLISHING_PLATFORMS`):
+
+- **AC-N1 (connect reasons):** a Meta card that couldn't connect says why and what to do (share a
+  Page, link an Instagram professional account, try again). The reason is read from the row, not
+  the URL. A popup that closes itself after an incomplete connect reports the reason instead of
+  being treated as a cancel. The connect wait is 10 minutes, not 2. Tests: `network-list` ("says
+  why…"), `oauth` ("a self-closing popup…", "waits ten minutes…"), `network` ("stored Meta
+  fields").
+- **AC-N2 (Page picker):** when several Pages were shared, the Facebook card offers a picker. The
+  server checks the choice and moves posts, Instagram and Boost to that Page together
+  (`meta-select-page`). Tests: `network-list` ("offers a Page picker…", "sends a new Page
+  choice…"), `actions` ("Meta actions").
+- **AC-N3 (Meta disconnect):** disconnecting Facebook or Instagram asks first. The prompt says
+  both cards go and running Boosts are paused. `meta-disconnect` pauses them before dropping the
+  token. If one won't pause, nothing is disconnected, and the card lists the campaigns with an
+  Ads Manager link and "Déconnecter quand même". Tests: `network-list` ("asks before a Meta
+  disconnect…", "does nothing when the person cancels…").
+- **AC-N4 (publish reasons):** publish failures map like the database's `publish_failure_info()`.
+  Meta reasons are read first (`meta_no_page`, `instagram_not_linked`, `permission`), so a Meta
+  error whose text mentions a token no longer reads "reconnect". Removing a Facebook post whose
+  Page is no longer shared says so (`page_unavailable`). Tests: `publishing`.
+- **AC-N5 (views):** a video's views read "—" when no platform reported any. A video on
+  Instagram carries a note: Instagram shares no view count without `instagram_manage_insights`,
+  which isn't requested.

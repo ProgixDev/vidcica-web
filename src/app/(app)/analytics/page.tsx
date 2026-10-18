@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { getT } from "@/lib/i18n/server";
 import { formatNumber } from "@/lib/format";
 import { getAnalyticsBundle } from "@/lib/vidcica/analytics-queries";
+import { getMyAdAccountCurrency } from "@/lib/vidcica/ads-queries";
+import { formatAdMoney } from "@/lib/vidcica/campaign";
+import { getLocale } from "@/lib/i18n/server";
 import { deriveAnalytics, buildTopVideos, parseRange } from "@/lib/vidcica/analytics";
 import { AnalyticsHero, KpiTile, TopVideoRow, DataComingNotice } from "@/features/analytics";
 import { ProfileSection, ProfileLinkRow } from "@/features/profile";
@@ -27,7 +30,14 @@ export default async function AnalyticsOverviewPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/analytics");
 
-  const [t, bundle, params] = await Promise.all([getT(), getAnalyticsBundle(), searchParams]);
+  const [t, bundle, params, currency, locale] = await Promise.all([
+    getT(),
+    getAnalyticsBundle(),
+    searchParams,
+    // Ad spend is in the AD ACCOUNT’s currency (a CAD account spends CAD).
+    getMyAdAccountCurrency(),
+    getLocale(),
+  ]);
   const range = parseRange(params.range);
   const derived = deriveAnalytics({ range, ...bundle });
   const topVideos = buildTopVideos(derived.publishedVideos, 5);
@@ -86,7 +96,11 @@ export default async function AnalyticsOverviewPage({
           />
           <KpiTile
             label={t("analytics.kpi.adSpend")}
-            value={`${formatNumber(derived.totals.adSpend)} €`}
+            value={formatAdMoney(
+              derived.totals.adSpend,
+              currency,
+              locale === "en" ? "en-CA" : "fr-FR",
+            )}
             testId="kpi-adspend"
           />
         </div>

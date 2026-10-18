@@ -37,6 +37,42 @@ describe("rowToNetwork", () => {
   });
 });
 
+describe("rowToNetwork — stored Meta fields", () => {
+  const meta = (platform_metadata: unknown) =>
+    rowToNetwork({ ...row, platform: "facebook", platform_metadata } as unknown as NetworkRow);
+
+  it("reads the connect reason, the chosen Page and the shared Pages", () => {
+    const n = meta({
+      pageId: "111",
+      connectReason: "instagram_not_linked",
+      pages: [
+        { id: "111", name: "Vidcica", igUsername: null },
+        { id: "222", name: "Autre", igUsername: "autre" },
+      ],
+    });
+    expect(n.connectReason).toBe("instagram_not_linked");
+    expect(n.pageId).toBe("111");
+    expect(n.pages).toEqual([
+      { id: "111", name: "Vidcica", igUsername: null },
+      { id: "222", name: "Autre", igUsername: "autre" },
+    ]);
+  });
+
+  it("ignores an unknown reason without dropping the other fields", () => {
+    const n = meta({ connectReason: "something_new", pageId: "111" });
+    expect(n.connectReason).toBeUndefined();
+    expect(n.pageId).toBe("111");
+  });
+
+  it("rows connected before the Meta fields existed have none of them", () => {
+    const n = meta({ pageName: "Vidcica", userName: "Kenn" });
+    expect(n.connectReason).toBeUndefined();
+    expect(n.pageId).toBeUndefined();
+    expect(n.pages).toBeUndefined();
+    expect(meta(null).pages).toBeUndefined();
+  });
+});
+
 describe("platformToProvider (AC-2/AC-4 mapping)", () => {
   it("maps platforms to their OAuth provider", () => {
     expect(platformToProvider("youtube")).toBe("google");

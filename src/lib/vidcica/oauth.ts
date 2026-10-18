@@ -43,7 +43,14 @@ export type OAuthOutcome =
       ok: false;
       reason: "cancelled" | "platform_not_configured" | "timeout" | "unauthenticated" | "error";
       message?: string;
-    };
+    }
+  /** The provider round-trip finished, but the server could not mark this row
+   *  connected (Meta: no Page shared, no linked Instagram account, Meta down). */
+  | { ok: false; reason: "incomplete"; detail: string };
+
+/** The server's record of the last connect attempt on the row (Meta only:
+ *  `platform_metadata.connectAttemptAt` / `connectReason`). */
+export type ConnectAttempt = { at: string | null; reason: string | null };
 
 /** A live handle to the pre-opened popup (`closed` is read each poll). */
 export type PopupHandle = { readonly closed: boolean; close: () => void };
@@ -58,11 +65,17 @@ export type OAuthDeps = {
   navigate: (url: string) => void;
   /** True once the target network row is connected (and not needing reconnect). */
   isConnected: () => Promise<boolean>;
+  /** The row's last recorded connect attempt. Optional: only Meta records one. */
+  lastAttempt?: () => Promise<ConnectAttempt>;
   wait: (ms: number) => Promise<void>;
   now: () => number;
 };
 
 export type RunOpts = { timeoutMs?: number; pollMs?: number; signal?: AbortSignal };
+
+/** Facebook Login for Business walks through several screens (businesses,
+ *  Pages, Instagram accounts, permissions): two minutes cut real people off. */
+const DEFAULT_TIMEOUT_MS = 10 * 60_000;
 
 /** Pure orchestration over an already-open popup. Injected deps make it testable. */
 export async function runNetworkOAuth(
@@ -71,7 +84,7 @@ export async function runNetworkOAuth(
   opts: RunOpts = {},
 ): Promise<OAuthOutcome> {
   if (!popup) return { ok: false, reason: "error", message: "Popup bloquée par le navigateur." };
-  const timeoutMs = opts.timeoutMs ?? 120_000;
+  const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const pollMs = opts.pollMs ?? 2_000;
 
   const started = await deps.start();
@@ -79,7 +92,21 @@ export async function runNetworkOAuth(
     popup.close();
     return { ok: false, reason: started.reason, message: started.message };
   }
+  // The attempt on record BEFORE this flow: a different one afterwards means the
+  // server finished this round-trip. Compared by value, never against the
+  // browser's clock (which can be off).
+  const before = deps.lastAttempt ? await deps.lastAttempt() : null;
   deps.navigate(started.url);
+
+  // A popup that closes itself after an incomplete connect is not a cancel:
+  // report what the server recorded, so the person knows what to fix.
+  const incomplete = async (): Promise<OAuthOutcome | null> => {
+    if (!deps.lastAttempt || !before) return null;
+    const after = await deps.lastAttempt();
+    return after.at && after.at !== before.at && after.reason
+      ? { ok: false, reason: "incomplete", detail: after.reason }
+      : null;
+  };
 
   const t0 = deps.now();
   while (deps.now() - t0 < timeoutMs) {
@@ -93,12 +120,13 @@ export async function runNetworkOAuth(
     }
     if (popup.closed) {
       // Closed by the user — one last check for the connect-then-close race.
-      return (await deps.isConnected()) ? { ok: true } : { ok: false, reason: "cancelled" };
+      if (await deps.isConnected()) return { ok: true };
+      return (await incomplete()) ?? { ok: false, reason: "cancelled" };
     }
     await deps.wait(pollMs);
   }
   popup.close();
-  return { ok: false, reason: "timeout" };
+  return (await incomplete()) ?? { ok: false, reason: "timeout" };
 }
 
 /**
@@ -171,6 +199,18 @@ export async function startNetworkOAuth(
         .eq("platform", platform)
         .maybeSingle();
       return !!data && data.connected && !data.needs_reconnect;
+    },
+    lastAttempt: async () => {
+      const { data } = await supabase
+        .from("networks")
+        .select("platform_metadata")
+        .eq("platform", platform)
+        .maybeSingle();
+      const md = (data?.platform_metadata ?? {}) as Record<string, unknown>;
+      return {
+        at: typeof md.connectAttemptAt === "string" ? md.connectAttemptAt : null,
+        reason: typeof md.connectReason === "string" ? md.connectReason : null,
+      };
     },
     wait: (ms) => new Promise((r) => setTimeout(r, ms)),
     now: () => Date.now(),

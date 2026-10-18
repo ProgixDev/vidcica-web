@@ -44,11 +44,14 @@ const METRICS: {
 export function CampaignDetail({
   campaign,
   currency = "EUR",
+  canBoost = true,
 }: {
   campaign: Campaign;
   /** The ad account's currency (see getMyAdAccountCurrency). A CAD account spends
    *  CAD; showing "€" would misstate what the campaign cost. */
   currency?: string;
+  /** The plan includes Boost (launch + activate). Pause never depends on it. */
+  canBoost?: boolean;
 }) {
   const t = useT();
   const meta = STATUS_META[campaign.status];
@@ -73,7 +76,7 @@ export function CampaignDetail({
           </Badge>
         </div>
 
-        <ActivatePauseControls campaign={campaign} />
+        <ActivatePauseControls campaign={campaign} canBoost={canBoost} />
       </div>
 
       <section className="flex flex-col gap-4">

@@ -14,18 +14,37 @@ const ENQUEUE_TIMEOUT_MS = 20_000;
 
 export type PublishFailureReason =
   | "auth_expired"
+  | "meta_no_page"
+  | "instagram_not_linked"
+  | "permission"
   | "encoding"
   | "rate_limited"
   | "rejected"
   | "unknown";
 
-/** Map the publish-job worker's `last_error` onto an actionable reason (drives
- *  the per-platform recovery CTA). Kept in sync with the SQL CASE in the mobile
- *  reconciler. */
+/**
+ * Map the publish-job worker's `last_error` onto an actionable reason (drives
+ * the per-platform recovery CTA). Mirrors `publish_failure_info()` in the
+ * database (vidcica migration 20261018110141), rule for rule and in order.
+ *
+ * Meta failures are stored with their reason first ("meta_no_page", "meta_permission:
+ * …"), so those prefixes are read before the older keyword rules: Meta's own
+ * messages often say "token" or "auth", which made every Facebook or Instagram
+ * failure read "reconnect". Only error 190 really means that.
+ */
 export function mapPublishFailureReason(
   lastError: string | null | undefined,
 ): PublishFailureReason {
   const e = (lastError ?? "").toLowerCase();
+  if (/^(needs_reconnect|network_not_connected|decrypt_failed)/.test(e)) return "auth_expired";
+  if (/"code": ?190|\[code 190/.test(e)) return "auth_expired";
+  if (/^meta_(no_page|page_unavailable)/.test(e)) return "meta_no_page";
+  if (/^instagram_not_linked/.test(e)) return "instagram_not_linked";
+  if (/^instagram_format/.test(e)) return "encoding";
+  if (/^instagram_container_error/.test(e)) return "rejected";
+  if (/^meta_permission/.test(e)) return "permission";
+  if (/^meta_rate_limited/.test(e)) return "rate_limited";
+  if (/^(meta_|instagram_|facebook_)/.test(e)) return "unknown";
   if (/network_not_connected|decrypt|token|auth|connect/.test(e)) return "auth_expired";
   if (/not_ready|video_url|fetch|encod|upload_failed/.test(e)) return "encoding";
   if (/rate|quota|limit/.test(e)) return "rate_limited";
@@ -126,6 +145,8 @@ export type UnpublishFailReason =
   | "not_deletable"
   | "unsupported_platform"
   | "reconnect_required"
+  /** Facebook: the Page the post went to is no longer shared with Vidcica. */
+  | "page_unavailable"
   | "delete_failed"
   | "error";
 
@@ -193,6 +214,8 @@ export function mapUnpublishReason(error: string | undefined): UnpublishFailReas
     case "reconnect_required":
     case "google_oauth_not_configured":
       return "reconnect_required";
+    case "page_unavailable":
+      return "page_unavailable";
     case "delete_failed":
     case "lookup_failed":
       return "delete_failed";

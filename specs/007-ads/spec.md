@@ -86,3 +86,43 @@ Resolved with owner before `/plan-feature`:
 - [x] **Activate/pause on web:** included, behind a confirmation, with the spend-cap/min-budget/needs-reconnect errors surfaced.
 - [x] **Leads scope:** full CRM parity (list + detail: status pipeline, notes, contact log, CSV export) wired to realtime, honest-empty until captures land.
 - [ ] **Route shape** (`/ads/new` single scrollable form vs stepped) and **export control placement** — plan decides (behavior identical).
+
+## Update 2026-10-18 — Meta approved the App Review: Boost made safe for every account
+
+Meta approved Vidcica's App Review (eight permissions and the Marketing API Access Tier) on
+2026-10-18. The backend changed the same day (vidcica commit `a6af3b2`, functions README
+"Meta launch hardening"). This web slice follows it. The Facebook/Instagram gate on Networks
+(`META_REVIEW_EMAILS`) stays on until the canary week ends (spec 003 update).
+
+Changed requirements (they replace the matching parts above):
+
+- **AC-13 (plan):** Boost is a Pro/Studio feature, and the server enforces it (`plan_required`).
+  `/ads/new` shows a plan prompt instead of the wizard on Free and Starter. A campaign page offers
+  no Launch or Activate on those plans, only a plan note. Pause is always offered for a running
+  campaign, whatever the plan. Tests: `campaign-manage`, `activate-pause-controls` ("without a
+  plan…", "keeps Pause…").
+- **AC-14 (account currency and minimum):** the budget step uses the ad account's live minimum
+  (`resolve-ad-account` → `minDailyBudget`, in the account's currency; fallback 5). The draft
+  saves the currency it was typed in (`campaigns.currency`). A launch under another currency is
+  refused (`currency_changed`). The save action no longer applies a fixed 5-unit floor: the
+  server knows the real one. Tests: `store` ("the ad account's live limits"), `actions` ("leaves
+  the minimum…", "saves the currency…"), `boost-wizard` ("shows the account's own minimum…").
+- **AC-15 (why only a draft):** the draft-only banner names the reason (connect Facebook, no ad
+  account, account disabled, Meta unreachable). It links to Networks only when a reconnect fixes
+  it and Facebook is offered to this account. Otherwise it says Facebook is coming, with no dead
+  link. Tests: `boost-wizard` ("why only a draft").
+- **AC-16 (launch a saved draft):** a `brouillon` campaign page has "Lancer sur Meta". It creates
+  the campaign paused; a refused launch names Meta's minimum in the account's currency. Tests:
+  `activate-pause-controls` ("launches a saved draft…", "names the account's minimum…").
+- **AC-17 (errors and links):** every reason the 2026-10-18 functions return has its own message
+  in both languages (`adsErrorKey`). A refused pause links to Ads Manager. Amounts come from the
+  server, in the account's currency (`adsErrorText`). Tests: `ads` ("maps the reasons…", "says the
+  amount…"), `activate-pause-controls` ("links to Ads Manager…").
+- **AC-18 (delete):** only drafts and ended campaigns can be deleted. `rejected` covers Meta's
+  WITH_ISSUES, which can still be delivering, so it gets a Pause button and no Delete. Tests:
+  `campaign-manage`, `activate-pause-controls` ("offers Pause on a refused campaign…").
+- **AC-19 (money everywhere):** ad spend and cost per lead on Analytics are shown in the ad
+  account's currency, never a fixed "€".
+
+Out of scope still: choosing or switching ad accounts (the server keeps the stored one while it is
+usable). Choosing the Facebook Page is now on Networks (spec 003 update).

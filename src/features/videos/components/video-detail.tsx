@@ -125,7 +125,9 @@ export function VideoDetail({
           ? t("videos.unpublishNotDeletable")
           : res.reason === "reconnect_required"
             ? t("videos.unpublishReconnect")
-            : t("videos.unpublishFailed"),
+            : res.reason === "page_unavailable"
+              ? t("videos.unpublishPageUnavailable")
+              : t("videos.unpublishFailed"),
       );
     });
   };
@@ -142,7 +144,8 @@ export function VideoDetail({
   };
 
   const metrics = [
-    { key: "videos.metrics.views", value: video.views },
+    // null = no platform reported views (Instagram shares none): "—", not 0.
+    { key: "videos.metrics.views", value: video.viewsReported === false ? null : video.views },
     { key: "videos.metrics.likes", value: video.likes },
     { key: "videos.metrics.comments", value: video.comments },
     { key: "videos.metrics.shares", value: video.shares },
@@ -297,12 +300,17 @@ export function VideoDetail({
                 <div key={m.key} className="bg-card flex flex-col gap-2 rounded-lg p-5">
                   <span className="text-muted-foreground text-[13px]">{t(m.key)}</span>
                   <span className="text-2xl font-semibold tracking-[-0.03em] tabular-nums">
-                    {compact(m.value)}
+                    {m.value === null ? "—" : compact(m.value)}
                   </span>
                 </div>
               ))}
             </div>
             <p className="text-muted-foreground text-xs">{t("videos.metrics.hint")}</p>
+            {video.networks.includes("instagram") ? (
+              <p className="text-muted-foreground text-xs" data-testid="video-metrics-instagram">
+                {t("videos.metrics.instagramViews")}
+              </p>
+            ) : null}
           </div>
         ) : null}
 

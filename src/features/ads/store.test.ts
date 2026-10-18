@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createBoostStore, isDraftReady, type BoostDeps } from "./store";
+import { createBoostStore, gateMinDaily, isDraftReady, type BoostDeps } from "./store";
 import type { BoostDraft } from "@/lib/vidcica/campaign";
 
 const readyDraft: Partial<BoostDraft> = {
@@ -44,6 +44,43 @@ describe("boost store — gate (AC-2)", () => {
     });
     await store.getState().init();
     expect(store.getState().phase).toBe("draftOnly");
+  });
+});
+
+describe("boost store — the ad account’s live limits", () => {
+  it("remembers the currency the person budgets in", async () => {
+    const { store } = make({
+      resolveAccount: async () => ({ ok: true, hasAccount: true, hasPage: true, currency: "CAD" }),
+    });
+    await store.getState().init();
+    expect(store.getState().draft.currency).toBe("CAD");
+  });
+
+  it("uses the account’s minimum when it has one, else the fallback", () => {
+    expect(gateMinDaily({ ok: true, hasAccount: true, hasPage: true, minDailyBudget: 3000 })).toBe(
+      3000,
+    );
+    expect(gateMinDaily({ ok: true, hasAccount: true, hasPage: true })).toBe(5);
+    expect(gateMinDaily(null)).toBe(5);
+  });
+
+  it("holds a budget below the account’s minimum back from submitting", async () => {
+    const { store, deps } = make({
+      resolveAccount: async () => ({
+        ok: true,
+        hasAccount: true,
+        hasPage: true,
+        currency: "XOF",
+        minDailyBudget: 3000,
+      }),
+    });
+    await store.getState().init();
+    store.getState().setDraft({ ...readyDraft, budgetDaily: 2000 });
+    await store.getState().submit();
+    expect(deps.createDraft).not.toHaveBeenCalled();
+    store.getState().setDraft({ budgetDaily: 3000 });
+    await store.getState().submit();
+    expect(deps.createDraft).toHaveBeenCalled();
   });
 });
 

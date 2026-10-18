@@ -61,6 +61,9 @@ export type BoostState = {
   draft: BoostDraft;
   /** What went wrong, as an i18n key: the wizard renders it in the page's language. */
   errorKey: MessageKey | null;
+  /** The failed launch, when the server named amounts (a minimum in the ad
+   *  account's currency): the wizard then says the amount, not just "too low". */
+  errorDetail: CreateFailure | null;
   /** Set once a campaigns row exists (real in_review OR a saved draft) — the UI links to it. */
   campaignId: string | null;
   /** True when the created campaign is a real Meta in_review (vs a saved draft). */
@@ -76,15 +79,19 @@ export type BoostState = {
 
 export type BoostStore = ReturnType<typeof createBoostStore>;
 
-/** Minimum a draft needs before it can be submitted (server re-validates). */
-export function isDraftReady(d: BoostDraft): boolean {
+/** A refused create-ad-campaign answer. */
+export type CreateFailure = Extract<CreateCampaignOutcome, { ok: false }>;
+
+/** Minimum a draft needs before it can be submitted (server re-validates).
+ *  `minDaily` is the account's live minimum (see gateMinDaily). */
+export function isDraftReady(d: BoostDraft, minDaily: number = MIN_DAILY_BUDGET): boolean {
   return (
     d.videoId.length > 0 &&
     d.name.trim().length > 0 &&
     d.ageMax >= d.ageMin &&
     d.countries.length > 0 &&
     (!needsWebsite(d.objective) || isWebLink(d.url)) &&
-    (d.budgetMode === "total" ? d.budgetTotal > 0 : d.budgetDaily >= MIN_DAILY_BUDGET)
+    (d.budgetMode === "total" ? d.budgetTotal > 0 : d.budgetDaily >= minDaily)
   );
 }
 
@@ -93,6 +100,12 @@ export function isDraftReady(d: BoostDraft): boolean {
  *  euros — a Canadian account spends CAD whatever the wizard says. */
 export function gateCurrency(gate: AdAccountOutcome | null): string {
   return (gate?.ok && gate.currency) || "EUR";
+}
+
+/** The account's smallest daily budget, in its currency (resolve-ad-account,
+ *  2026-10-18). Falls back to MIN_DAILY_BUDGET until the gate answers with one. */
+export function gateMinDaily(gate: AdAccountOutcome | null): number {
+  return (gate?.ok && gate.minDailyBudget) || MIN_DAILY_BUDGET;
 }
 
 export function createBoostStore(
@@ -112,14 +125,21 @@ export function createBoostStore(
       ...(init?.name ? { name: init.name } : {}),
     },
     errorKey: null,
+    errorDetail: null,
     campaignId: null,
     launched: false,
 
     init: async () => {
-      set({ phase: "checking", errorKey: null });
+      set({ phase: "checking", errorKey: null, errorDetail: null });
       const gate = await deps.resolveAccount();
       const canLaunch = gate.ok && gate.hasAccount && gate.hasPage;
-      set({ gate, phase: canLaunch ? "ready" : "draftOnly" });
+      set((s) => ({
+        gate,
+        phase: canLaunch ? "ready" : "draftOnly",
+        // Remember the currency the person budgets in: the launch is refused if
+        // the account bills in another one by then (`currency_changed`).
+        draft: gate.ok && gate.currency ? { ...s.draft, currency: gate.currency } : s.draft,
+      }));
     },
 
     setStep: (step) =>
@@ -130,9 +150,9 @@ export function createBoostStore(
     setDraft: (patch) => set((s) => ({ draft: { ...s.draft, ...patch } })),
 
     submit: async () => {
-      const { draft } = get();
-      if (!isDraftReady(draft)) return;
-      set({ phase: "creating", errorKey: null });
+      const { draft, gate } = get();
+      if (!isDraftReady(draft, gateMinDaily(gate))) return;
+      set({ phase: "creating", errorKey: null, errorDetail: null });
       const created = await deps.createDraft(draft);
       if (!created.ok) {
         set({ phase: "error", errorKey: created.errorKey });
@@ -144,13 +164,18 @@ export function createBoostStore(
         return;
       }
       // The draft IS saved (created.id) — surface the reason but keep it resumable.
-      set({ phase: "error", errorKey: adsErrorKey(out.reason), campaignId: created.id });
+      set({
+        phase: "error",
+        errorKey: adsErrorKey(out.reason),
+        errorDetail: out,
+        campaignId: created.id,
+      });
     },
 
     saveDraft: async () => {
-      const { draft } = get();
-      if (!isDraftReady(draft)) return;
-      set({ phase: "creating", errorKey: null });
+      const { draft, gate } = get();
+      if (!isDraftReady(draft, gateMinDaily(gate))) return;
+      set({ phase: "creating", errorKey: null, errorDetail: null });
       const created = await deps.createDraft(draft);
       if (!created.ok) {
         set({ phase: "error", errorKey: created.errorKey });

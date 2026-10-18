@@ -3,6 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 type Call = { method: string; args: unknown[] };
 let calls: Call[] = [];
 let result: { data: unknown; error: unknown } = { data: [{ id: "row" }], error: null };
+// What functions.invoke answers: data on 2xx, or an error whose context holds
+// the status and JSON body (how supabase-js reports a non-2xx answer).
+let invokeAnswer: { status: number; body: Record<string, unknown> } = { status: 200, body: {} };
+const invoked: Array<{ fn: string; body: unknown }> = [];
 
 function builder() {
   const node: Record<string, unknown> = {};
@@ -23,16 +27,26 @@ vi.mock("@/lib/supabase/server", () => ({
       calls.push({ method: "from", args });
       return builder();
     },
+    functions: {
+      invoke: async (fn: string, opts: { body: unknown }) => {
+        invoked.push({ fn, body: opts.body });
+        const { status, body } = invokeAnswer;
+        if (status >= 200 && status < 300) return { data: body, error: null };
+        return { data: null, error: { context: { status, json: async () => body } } };
+      },
+    },
   })),
 }));
 
-import { disconnectNetwork, setNetworkPublish } from "./actions";
+import { disconnectMeta, disconnectNetwork, selectMetaPage, setNetworkPublish } from "./actions";
 
 const uuid = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
 
 beforeEach(() => {
   calls = [];
   result = { data: [{ id: "row" }], error: null };
+  invokeAnswer = { status: 200, body: {} };
+  invoked.length = 0;
 });
 
 describe("network actions (AC-5)", () => {
@@ -75,5 +89,50 @@ describe("network actions (AC-5)", () => {
     result = { data: [], error: null };
     const out = await setNetworkPublish(uuid, true);
     expect(out.ok).toBe(false);
+  });
+});
+
+describe("Meta actions", () => {
+  it("selectMetaPage sends the Page id to meta-select-page", async () => {
+    invokeAnswer = { status: 200, body: { ok: true, pageId: "111" } };
+    expect(await selectMetaPage("111")).toEqual({ ok: true });
+    expect(invoked).toEqual([{ fn: "meta-select-page", body: { pageId: "111" } }]);
+  });
+
+  it("selectMetaPage refuses a malformed id without calling the server", async () => {
+    expect(await selectMetaPage("abc;drop")).toEqual({ ok: false, reason: "page_unavailable" });
+    expect(invoked).toHaveLength(0);
+  });
+
+  it("selectMetaPage passes the server reason through", async () => {
+    invokeAnswer = { status: 422, body: { error: "page_unavailable" } };
+    expect(await selectMetaPage("111")).toEqual({ ok: false, reason: "page_unavailable" });
+  });
+
+  it("disconnectMeta reports campaigns it could not pause, with the Ads Manager link", async () => {
+    invokeAnswer = {
+      status: 409,
+      body: {
+        error: "pause_failed",
+        campaigns: [{ id: "c1", name: "Boost — promo" }],
+        adsManagerUrl: "https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1",
+      },
+    };
+    expect(await disconnectMeta()).toEqual({
+      ok: false,
+      reason: "pause_failed",
+      campaigns: ["Boost — promo"],
+      adsManagerUrl: "https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1",
+    });
+    expect(invoked).toEqual([{ fn: "meta-disconnect", body: { force: false } }]);
+  });
+
+  it("disconnectMeta with force goes through and says what still runs", async () => {
+    invokeAnswer = {
+      status: 200,
+      body: { ok: true, paused: 0, stillRunning: 1, adsManagerUrl: "u" },
+    };
+    expect(await disconnectMeta(true)).toEqual({ ok: true, stillRunning: 1, adsManagerUrl: "u" });
+    expect(invoked).toEqual([{ fn: "meta-disconnect", body: { force: true } }]);
   });
 });

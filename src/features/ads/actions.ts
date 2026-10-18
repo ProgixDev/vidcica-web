@@ -7,7 +7,6 @@ import { entityId } from "@/lib/vidcica/id";
 import {
   boostDraftToRow,
   isWebLink,
-  MIN_DAILY_BUDGET,
   needsWebsite,
   SUPPORTED_OBJECTIVES,
   type BoostDraft,
@@ -38,6 +37,11 @@ const boostSchema = z.object({
   startDate: z.string().datetime().optional(),
   // Defaulted so a page loaded before the field existed can still save a draft.
   url: z.string().trim().max(2048).default(""),
+  // The ad account's currency the budget was typed in (ISO 4217), when known.
+  currency: z
+    .string()
+    .regex(/^[A-Z]{3}$/)
+    .optional(),
 });
 
 /** Failures carry an i18n key, never a sentence: the client renders it in the page's language. */
@@ -54,11 +58,11 @@ export async function createDraftCampaign(input: BoostDraft): Promise<CreateDraf
   if (parsed.data.ageMax < parsed.data.ageMin) {
     return { ok: false, errorKey: "ads.err.ageOrder" };
   }
-  // Activation refuses a smaller daily budget, so don't save a campaign that can't run.
-  if (parsed.data.budgetMode === "quotidien" && parsed.data.budgetDaily < MIN_DAILY_BUDGET) {
-    return { ok: false, errorKey: "ads.err.belowMinBudget" };
-  }
-  // Same for a Traffic ad with nowhere to send people: Meta would refuse it.
+  // No minimum-budget check here: the minimum depends on the ad account's
+  // currency (5 CAD, but thousands of XOF), which only Meta knows. The wizard
+  // shows the live one, and create-ad-campaign refuses a lower budget with the
+  // amount (`below_min_budget`) before anything reaches Meta.
+  // A Traffic ad with nowhere to send people: Meta would refuse it.
   if (needsWebsite(parsed.data.objective) && !isWebLink(parsed.data.url)) {
     return { ok: false, errorKey: "ads.err.missingUrl" };
   }
@@ -85,7 +89,7 @@ const idSchema = z.object({ id: entityId });
 /** Campaign fields carried over when cloning — creative + targeting + budget, never
  *  the Meta external ids or accrued metrics (a clone starts fresh as a `brouillon`). */
 const CLONE_COLUMNS =
-  "name, objective, budget_mode, budget_daily, budget_total, video_id, title, primary_text, cta, url, audience_mode, gender, age_min, age_max, countries";
+  "name, objective, budget_mode, budget_daily, budget_total, video_id, title, primary_text, cta, url, audience_mode, gender, age_min, age_max, countries, currency";
 
 type CloneRow = {
   name: string;
@@ -103,6 +107,7 @@ type CloneRow = {
   age_min: number | null;
   age_max: number | null;
   countries: string[] | null;
+  currency: string | null;
 };
 
 export type DuplicateResult = { ok: true; id: string } | { ok: false; errorKey: MessageKey };
@@ -151,6 +156,8 @@ export async function duplicateCampaign(input: { id: string }): Promise<Duplicat
     age_min: src.age_min,
     age_max: src.age_max,
     countries: src.countries ?? [],
+    // The budget was set in this currency: a launch under another one is refused.
+    currency: src.currency,
   };
 
   const { error } = await supabase.from("campaigns").insert(clone);
@@ -161,14 +168,20 @@ export async function duplicateCampaign(input: { id: string }): Promise<Duplicat
 
 export type DeleteResult = { ok: true } | { ok: false; errorKey: MessageKey };
 
-/** Statuses that may be deleted — never a live Meta campaign (would orphan spend). */
-const DELETABLE: readonly CampaignStatus[] = ["brouillon", "terminee", "rejected"];
+/**
+ * Statuses that may be deleted — never a campaign that can still deliver on Meta
+ * (deleting the row would orphan its spend). `rejected` is NOT one of them: it
+ * covers Meta's WITH_ISSUES, which can still be live and spending. A draft that
+ * failed mid-launch may leave a paused shell on Meta; with no ad running it
+ * costs nothing, so drafts stay deletable.
+ */
+const DELETABLE: readonly CampaignStatus[] = ["brouillon", "terminee"];
 
 /**
- * Delete a campaign (RLS own-row). Only drafts and ended/refused campaigns are
- * removable; a live/in-review/paused Meta campaign is refused with an honest message
- * (pause + end it first). The status guard is re-checked server-side, not trusted from
- * the client.
+ * Delete a campaign (RLS own-row). Only drafts and ended campaigns are removable;
+ * anything Meta may still deliver is refused with an honest message (pause + end
+ * it first). The status guard is re-checked server-side, not trusted from the
+ * client.
  */
 export async function deleteCampaign(input: { id: string }): Promise<DeleteResult> {
   const parsed = idSchema.safeParse(input);

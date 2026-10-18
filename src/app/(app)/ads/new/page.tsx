@@ -2,7 +2,17 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { listMyVideos } from "@/lib/vidcica/queries";
-import { BoostStoreProvider, BoostWizard, boostOptions, type VideoOption } from "@/features/ads";
+import { getMyEntitlement } from "@/lib/vidcica/billing-queries";
+import { TIERS } from "@/lib/vidcica/tiers";
+import { hasMetaReviewAccess, isPublishingPlatformEnabled } from "@/lib/vidcica/network";
+import { env } from "@/core/env";
+import {
+  BoostPlanPrompt,
+  BoostStoreProvider,
+  BoostWizard,
+  boostOptions,
+  type VideoOption,
+} from "@/features/ads";
 import { PageHeader } from "@/components/app-shell";
 import { getT } from "@/lib/i18n/server";
 
@@ -23,6 +33,28 @@ export default async function BoostPage({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/ads/new");
+
+  // Boost is a Pro/Studio feature, enforced by the server (create-ad-campaign
+  // and set-campaign-status answer 403 plan_required). Say so up front instead
+  // of letting someone fill five steps for nothing.
+  const { plan } = await getMyEntitlement();
+  if (!TIERS[plan].ads) {
+    return (
+      <>
+        <PageHeader title={t("ads.boostVideo")} />
+        <div className="w-full max-w-2xl">
+          <BoostPlanPrompt />
+        </div>
+      </>
+    );
+  }
+
+  // Can this account connect Facebook today? Read server-side: the App Review
+  // allowlist (META_REVIEW_EMAILS) must never reach the browser.
+  const canConnectMeta = isPublishingPlatformEnabled(
+    "facebook",
+    hasMetaReviewAccess(user.email, env.META_REVIEW_EMAILS),
+  );
 
   // Any video with a finished file can be boosted, published or not (Meta
   // pulls the MP4); see boostOptions.
@@ -54,7 +86,7 @@ export default async function BoostPage({
           initialName={preselected ? t("ads.boostName", { title: preselected.title }) : undefined}
           initialStep={preselected ? 1 : 0}
         >
-          <BoostWizard videos={videos} />
+          <BoostWizard videos={videos} canConnectMeta={canConnectMeta} />
         </BoostStoreProvider>
       </div>
     </>

@@ -9,7 +9,7 @@ import { rowToCampaign, type Campaign } from "@/lib/vidcica/campaign";
 
 /** Columns the ads UI needs — keep in sync with rowToCampaign. */
 const CAMPAIGN_COLUMNS =
-  "id, name, objective, status, budget_mode, budget_daily, budget_total, start_date, end_date, video_id, title, primary_text, cta, url, gender, age_min, age_max, countries, external_campaign_id, last_error, budget_spent, reach, impressions, clicks, conversions, leads, cpm, ctr, cpc, metrics_updated_at, created_at, updated_at";
+  "id, name, objective, status, budget_mode, budget_daily, budget_total, start_date, end_date, video_id, title, primary_text, cta, url, gender, age_min, age_max, countries, external_campaign_id, currency, last_error, budget_spent, reach, impressions, clicks, conversions, leads, cpm, ctr, cpc, metrics_updated_at, created_at, updated_at";
 
 /** All of the signed-in user's campaigns, newest first (RLS-scoped). */
 export async function listMyCampaigns(): Promise<Campaign[]> {

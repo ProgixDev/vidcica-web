@@ -13,7 +13,6 @@ import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   CAMPAIGN_OBJECTIVE_KEY,
-  MIN_DAILY_BUDGET,
   SUPPORTED_OBJECTIVES,
   isWebLink,
   needsWebsite,
@@ -21,6 +20,7 @@ import {
   type CampaignGender,
   type SupportedObjective,
 } from "@/lib/vidcica/campaign";
+import { adsErrorText, type AdAccountOutcome } from "@/lib/vidcica/ads";
 import {
   MAX_COUNTRIES,
   WORLDWIDE,
@@ -32,8 +32,42 @@ import {
 import { useLocale, useT } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 import type { MessageKey } from "@/lib/i18n";
-import { BOOST_STEPS, gateCurrency, isDraftReady } from "../store";
+import { BOOST_STEPS, gateCurrency, gateMinDaily, isDraftReady } from "../store";
 import { useBoostStore } from "../provider";
+
+/** The account's smallest daily budget, in its currency (live from Meta). */
+function useMinDaily(): number {
+  const gate = useBoostStore((s) => s.gate);
+  return gateMinDaily(gate);
+}
+
+/** Why the wizard can only save a draft, as the message to show. `canConnect`
+ *  is false while Facebook isn't offered to this account yet: then there is no
+ *  connect button to point at. */
+function draftOnlyKey(gate: AdAccountOutcome | null, canConnect: boolean): MessageKey {
+  if (gate?.ok) {
+    if (!gate.hasAccount) return "ads.draftOnly.noAdAccount";
+    if (!gate.hasPage) return canConnect ? "ads.draftOnly.noPage" : "ads.draftOnly.comingSoon";
+    return "ads.draftBanner";
+  }
+  switch (gate?.reason) {
+    case "needs_reconnect":
+    case "token_decrypt_failed":
+    case "no_ads_scope":
+      return canConnect ? "ads.draftOnly.connect" : "ads.draftOnly.comingSoon";
+    case "no_ad_account":
+      return "ads.draftOnly.noAdAccount";
+    case "ad_account_disabled":
+      return "ads.draftOnly.disabled";
+    case "meta_unreachable":
+      return "ads.draftOnly.unreachable";
+    default:
+      return "ads.draftBanner";
+  }
+}
+
+/** Reasons a Facebook (re)connect fixes: the banner links to Networks. */
+const CONNECT_FIXES: readonly MessageKey[] = ["ads.draftOnly.connect", "ads.draftOnly.noPage"];
 
 export type VideoOption = { id: string; title: string };
 
@@ -50,7 +84,8 @@ function useMoney() {
       new Intl.NumberFormat(locale === "en" ? "en-CA" : "fr-FR", {
         style: "currency",
         currency,
-        maximumFractionDigits: 0,
+        // Whole amounts stay whole; a live minimum like 1.55 keeps its cents.
+        maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
       }).format(Number.isFinite(amount) ? amount : 0),
   };
 }
@@ -69,7 +104,15 @@ const STEP_TITLE: Record<(typeof BOOST_STEPS)[number], MessageKey> = {
   review: "ads.step.review",
 };
 
-export function BoostWizard({ videos }: { videos: VideoOption[] }) {
+export function BoostWizard({
+  videos,
+  canConnectMeta = true,
+}: {
+  videos: VideoOption[];
+  /** False while Facebook isn't offered to this account yet (the App Review
+   *  gate on Networks): the draft banner then has nowhere to send people. */
+  canConnectMeta?: boolean;
+}) {
   const phase = useBoostStore((s) => s.phase);
   const init = useBoostStore((s) => s.init);
 
@@ -89,7 +132,7 @@ export function BoostWizard({ videos }: { videos: VideoOption[] }) {
   if (phase === "created") return <BoostDone />;
   if (videos.length === 0) return <NoVideos />;
 
-  return <BoostForm videos={videos} />;
+  return <BoostForm videos={videos} canConnectMeta={canConnectMeta} />;
 }
 
 function NoVideos() {
@@ -126,9 +169,13 @@ function BoostDone() {
   );
 }
 
-function BoostForm({ videos }: { videos: VideoOption[] }) {
+function BoostForm({ videos, canConnectMeta }: { videos: VideoOption[]; canConnectMeta: boolean }) {
   const t = useT();
+  const locale = useLocale();
   const phase = useBoostStore((s) => s.phase);
+  const gate = useBoostStore((s) => s.gate);
+  const errorDetail = useBoostStore((s) => s.errorDetail);
+  const minDaily = useMinDaily();
   const step = useBoostStore((s) => s.step);
   const setStep = useBoostStore((s) => s.setStep);
   const draft = useBoostStore((s) => s.draft);
@@ -146,6 +193,7 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
   const creating = phase === "creating";
   const key = BOOST_STEPS[step] ?? "video";
   const isLast = step === BOOST_STEPS.length - 1;
+  const bannerKey = draftOnly ? draftOnlyKey(gate, canConnectMeta) : null;
 
   function next() {
     if (!isLast) setStep(step + 1);
@@ -153,12 +201,21 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
 
   return (
     <div className="flex flex-col gap-6" data-testid="boost-wizard">
-      {draftOnly ? (
+      {bannerKey ? (
         <div
-          className="bg-warning-subtle text-warning rounded-md px-5 py-4 text-[13px] leading-relaxed"
+          className="bg-warning-subtle text-warning flex flex-col items-start gap-3 rounded-md px-5 py-4 text-[13px] leading-relaxed"
           data-testid="boost-draft-banner"
         >
-          {t("ads.draftBanner")}
+          <p>{t(bannerKey)}</p>
+          {CONNECT_FIXES.includes(bannerKey) ? (
+            <Link
+              href="/networks"
+              className="text-foreground font-semibold underline underline-offset-4"
+              data-testid="boost-connect-facebook"
+            >
+              {t("ads.draftOnly.connectLink")}
+            </Link>
+          ) : null}
         </div>
       ) : null}
 
@@ -190,7 +247,9 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
 
       {errorKey ? (
         <p role="alert" className="text-destructive text-[13px]" data-testid="boost-error">
-          {t(errorKey)}
+          {errorDetail
+            ? adsErrorText(t, errorDetail, locale === "en" ? "en-CA" : "fr-FR")
+            : t(errorKey)}
           {campaignId ? (
             <>
               {" "}
@@ -213,7 +272,7 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
           draftOnly ? (
             <Button
               onClick={() => void saveDraft()}
-              disabled={!isDraftReady(draft) || creating}
+              disabled={!isDraftReady(draft, minDaily) || creating}
               data-testid="boost-save-draft"
             >
               {creating ? t("ads.saving") : t("ads.saveDraft")}
@@ -221,14 +280,18 @@ function BoostForm({ videos }: { videos: VideoOption[] }) {
           ) : (
             <Button
               onClick={() => void submit()}
-              disabled={!isDraftReady(draft) || creating}
+              disabled={!isDraftReady(draft, minDaily) || creating}
               data-testid="boost-submit"
             >
               {creating ? t("ads.creating") : t("ads.createCampaign")}
             </Button>
           )
         ) : (
-          <Button onClick={next} disabled={!stepValid(key, draft)} data-testid="boost-next">
+          <Button
+            onClick={next}
+            disabled={!stepValid(key, draft, minDaily)}
+            data-testid="boost-next"
+          >
             {t("common.next")}
           </Button>
         )}
@@ -311,7 +374,11 @@ function CheckMark() {
   );
 }
 
-function stepValid(key: (typeof BOOST_STEPS)[number], draft: BoostDraft): boolean {
+function stepValid(
+  key: (typeof BOOST_STEPS)[number],
+  draft: BoostDraft,
+  minDaily: number,
+): boolean {
   switch (key) {
     case "video":
       return draft.videoId.length > 0 && draft.name.trim().length > 0;
@@ -320,9 +387,7 @@ function stepValid(key: (typeof BOOST_STEPS)[number], draft: BoostDraft): boolea
     case "audience":
       return draft.countries.length > 0 && draft.ageMax >= draft.ageMin;
     case "budget":
-      return draft.budgetMode === "total"
-        ? draft.budgetTotal > 0
-        : draft.budgetDaily >= MIN_DAILY_BUDGET;
+      return draft.budgetMode === "total" ? draft.budgetTotal > 0 : draft.budgetDaily >= minDaily;
     default:
       return true;
   }
@@ -584,6 +649,8 @@ function AudienceStep({ draft, setDraft }: StepProps) {
 function BudgetStep({ draft, setDraft }: StepProps) {
   const t = useT();
   const { currency, format } = useMoney();
+  // The account's own minimum, in its currency (5 CAD, but thousands of XOF).
+  const minDaily = useMinDaily();
   const amount = draft.budgetMode === "total" ? draft.budgetTotal : draft.budgetDaily;
   return (
     <div className="flex flex-col gap-5">
@@ -619,7 +686,7 @@ function BudgetStep({ draft, setDraft }: StepProps) {
             id="bw-budget-daily"
             data-testid="bw-budget-daily"
             type="number"
-            min={MIN_DAILY_BUDGET}
+            min={minDaily}
             value={draft.budgetDaily}
             onChange={(e) => setDraft({ budgetDaily: Number(e.target.value) })}
             aria-describedby="bw-budget-daily-min"
@@ -629,10 +696,10 @@ function BudgetStep({ draft, setDraft }: StepProps) {
             data-testid="bw-budget-min"
             className={cn(
               "text-[13px]",
-              draft.budgetDaily < MIN_DAILY_BUDGET ? "text-destructive" : "text-muted-foreground",
+              draft.budgetDaily < minDaily ? "text-destructive" : "text-muted-foreground",
             )}
           >
-            {t("ads.budgetDailyMin", { amount: format(MIN_DAILY_BUDGET) })}
+            {t("ads.budgetDailyMin", { amount: format(minDaily) })}
           </p>
         </div>
       )}

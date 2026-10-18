@@ -1,12 +1,20 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { formatNumber } from "@/lib/format";
-import { CAMPAIGN_STATUS_KEY, STATUS_META, type Campaign } from "@/lib/vidcica/campaign";
+import {
+  CAMPAIGN_STATUS_KEY,
+  STATUS_META,
+  formatAdMoney,
+  type Campaign,
+} from "@/lib/vidcica/campaign";
 import type { TFunction } from "@/lib/i18n";
 
 export type AdsCampaignRowProps = {
   t: TFunction;
   campaign: Campaign;
+  /** The ad account’s currency: Meta bills and reports spend in it. */
+  currency?: string;
+  /** Intl locale for the amounts. */
+  moneyLocale?: string;
 };
 
 /**
@@ -14,8 +22,14 @@ export type AdsCampaignRowProps = {
  * budget (real, cron-written). Deep-links to the campaign detail. Pure /
  * server-renderable. No fabricated ROAS: metrics are honest cron values.
  */
-export function AdsCampaignRow({ t, campaign }: AdsCampaignRowProps) {
+export function AdsCampaignRow({
+  t,
+  campaign,
+  currency = "EUR",
+  moneyLocale = "fr-FR",
+}: AdsCampaignRowProps) {
   const meta = STATUS_META[campaign.status];
+  const money = (n: number) => formatAdMoney(n, campaign.currency ?? currency, moneyLocale);
   return (
     <Link
       href={`/ads/${campaign.id}`}
@@ -25,10 +39,15 @@ export function AdsCampaignRow({ t, campaign }: AdsCampaignRowProps) {
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate text-[15px] font-semibold">{campaign.name}</span>
         <span className="text-muted-foreground truncate text-[13px] tabular-nums">
-          {t("analytics.ads.row.budget", {
-            spent: formatNumber(campaign.metrics.budgetSpent),
-            total: formatNumber(campaign.budgetTotal),
-          })}
+          {campaign.budgetMode === "total"
+            ? t("analytics.ads.row.budget", {
+                spent: money(campaign.metrics.budgetSpent),
+                total: money(campaign.budgetTotal),
+              })
+            : t("analytics.ads.row.budgetDaily", {
+                spent: money(campaign.metrics.budgetSpent),
+                daily: money(campaign.budgetDaily ?? 0),
+              })}
         </span>
       </span>
       <Badge variant={meta.variant} className="shrink-0">

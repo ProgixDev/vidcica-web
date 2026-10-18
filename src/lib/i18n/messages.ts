@@ -211,6 +211,28 @@ export const fr = {
   "networks.tagline.facebook": "Reels et publications",
   "networks.tagline.tiktok": "Vidéos courtes virales",
   "networks.tagline.threads": "Posts et fils de discussion",
+  "networks.reason.metaNoPage":
+    "Aucune Page Facebook n’a été partagée avec Vidcica. Reconnecte-toi et coche ta Page dans la fenêtre Facebook.",
+  "networks.reason.instagramNotLinked":
+    "Ta Page Facebook n’a pas de compte Instagram professionnel relié. Relie-le dans les paramètres de ta Page, puis reconnecte-toi.",
+  "networks.reason.metaError":
+    "Facebook n’a pas répondu pendant la connexion. Réessaie dans un instant.",
+  "networks.page.label": "Page Facebook utilisée",
+  "networks.page.choose": "Choisir une Page",
+  "networks.page.hint": "Tes publications et tes Boosts partent de cette Page.",
+  "networks.page.reconnect": "Reconnecte Facebook pour changer de Page.",
+  "networks.page.unavailable":
+    "Cette Page n’est plus partagée avec Vidcica. Reconnecte Facebook et coche-la.",
+  "networks.page.failed": "Le changement de Page a échoué. Réessaie.",
+  "networks.meta.disconnectConfirm":
+    "Déconnecter Facebook déconnecte aussi Instagram : c’est une seule connexion Meta. Tes Boosts en cours seront mis en pause. Continuer ?",
+  "networks.meta.pauseFailed":
+    "Ces Boosts n’ont pas pu être mis en pause : {campaigns}. Une fois déconnecté, Vidcica ne pourra plus les arrêter. Mets-les en pause dans le Gestionnaire de publicités, ou déconnecte quand même.",
+  "networks.meta.openAdsManager": "Ouvrir le Gestionnaire de publicités",
+  "networks.meta.disconnectAnyway": "Déconnecter quand même",
+  "networks.meta.stillRunning":
+    "Déconnecté. Des Boosts tournent encore ({count}) : mets-les en pause dans le Gestionnaire de publicités.",
+  "networks.meta.disconnectFailed": "La déconnexion a échoué. Réessaie.",
 
   // ── oauth return page (popup landing after oauth-callback) ─────────
   "oauth.successTitle": "Compte connecté",
@@ -620,6 +642,9 @@ export const fr = {
   "publish.reasonRateLimited": "Limite atteinte",
   "publish.reasonRejected": "Refusé par la plateforme",
   "publish.reasonUnknown": "Échec",
+  "publish.reasonMetaNoPage": "Aucune Page Facebook",
+  "publish.reasonInstagramNotLinked": "Instagram non relié",
+  "publish.reasonPermission": "Droits insuffisants sur la Page",
   "publish.statusPending": "En attente",
   "publish.statusPublished": "Publié",
   "publish.statusPublishing": "Publication…",
@@ -1070,6 +1095,46 @@ export const fr = {
   "ads.err.deleteLive":
     "Impossible de supprimer une campagne en diffusion. Mettez-la en pause et terminez-la d’abord.",
   "ads.err.deleteFailed": "La suppression a échoué. Réessayez.",
+  "ads.err.planRequired": "Boost est inclus dans les forfaits Pro et Studio.",
+  "ads.err.pauseInAdsManager":
+    "Meta a refusé la mise en pause depuis Vidcica. Mettez la campagne en pause dans le Gestionnaire de publicités.",
+  "ads.err.currencyChanged":
+    "Votre compte publicitaire facture maintenant dans une autre devise que ce brouillon. Dupliquez-le pour refaire le budget.",
+  "ads.err.launchInProgress": "Le lancement est déjà en cours. Patientez quelques secondes.",
+  "ads.err.adAccountDisabled":
+    "Votre compte publicitaire Meta est désactivé ou a un problème de paiement. Réglez-le dans le Gestionnaire de publicités.",
+  "ads.err.noAdsScope":
+    "Facebook n’a pas donné accès à vos publicités. Reconnectez Facebook et acceptez les autorisations publicité.",
+  "ads.err.tokenDecrypt": "Votre connexion Facebook est illisible. Reconnectez Facebook.",
+  "ads.err.metaUnreachable": "Meta n’a pas répondu. Réessayez dans un instant.",
+  "ads.err.metaRefused":
+    "Meta a refusé la campagne. Le détail est indiqué sur la page de la campagne.",
+  "ads.err.belowMinBudgetAmount":
+    "Le budget quotidien minimum de votre compte publicitaire est de {amount}.",
+  "ads.err.monthlyCapAmount":
+    "Cette campagne dépasserait le plafond mensuel de {cap} ({projected} prévus). Mettez une campagne en pause ou baissez le budget.",
+  "ads.draftOnly.connect":
+    "Connectez Facebook pour lancer des publicités. Vous pouvez déjà préparer et enregistrer un brouillon.",
+  "ads.draftOnly.noAdAccount":
+    "Votre compte Facebook n’a pas de compte publicitaire actif. Créez-en un dans le Gestionnaire de publicités ; en attendant, vous pouvez enregistrer un brouillon.",
+  "ads.draftOnly.disabled":
+    "Votre compte publicitaire Meta est désactivé ou a un problème de paiement. Réglez-le dans le Gestionnaire de publicités ; en attendant, vous pouvez enregistrer un brouillon.",
+  "ads.draftOnly.noPage":
+    "Aucune Page Facebook n’est partagée avec Vidcica. Reconnectez Facebook et cochez votre Page ; en attendant, vous pouvez enregistrer un brouillon.",
+  "ads.draftOnly.unreachable":
+    "Meta n’a pas répondu. Rechargez la page dans un instant ; en attendant, vous pouvez enregistrer un brouillon.",
+  "ads.draftOnly.comingSoon":
+    "La connexion Facebook arrive très bientôt sur votre compte. Vous pouvez déjà préparer et enregistrer un brouillon.",
+  "ads.draftOnly.connectLink": "Connecter Facebook",
+  "ads.plan.title": "Boost est inclus dans les forfaits Pro et Studio",
+  "ads.plan.description":
+    "Diffusez vos vidéos en publicité sur Facebook et Instagram, avec un budget que vous fixez et pouvez mettre en pause à tout moment.",
+  "ads.plan.cta": "Voir les forfaits",
+  "ads.plan.activateNote": "Lancer et activer une campagne demande un forfait Pro ou Studio.",
+  "ads.openAdsManager": "Ouvrir le Gestionnaire de publicités",
+  "ads.launch.note":
+    "Ce brouillon n’est pas encore créé chez Meta. Le lancer crée la campagne en pause : rien n’est dépensé avant que vous l’activiez.",
+  "ads.launch.button": "Lancer sur Meta",
 
   // ── generated (workflow) ──
   "security.metaTitle": "Sécurité",
@@ -1167,6 +1232,8 @@ export const fr = {
     "Instagram ne permet pas de supprimer une publication via son API. Supprimez-la depuis l’application Instagram.",
   "videos.unpublishReconnect": "Reconnectez ce réseau, puis réessayez.",
   "videos.unpublishFailed": "Impossible de retirer la publication. Réessayez.",
+  "videos.unpublishPageUnavailable":
+    "La Page de cette publication n’est plus partagée avec Vidcica. Reconnectez Facebook en la cochant, ou supprimez la publication depuis Facebook.",
   "videos.republish": "Republier",
   "videos.publishedOn": "Publié sur",
   "videos.stockAttribution": "Vidéos fournies par Pexels",
@@ -1176,6 +1243,8 @@ export const fr = {
   "videos.metrics.comments": "Commentaires",
   "videos.metrics.shares": "Partages",
   "videos.metrics.hint": "Mis à jour automatiquement plusieurs fois par jour.",
+  "videos.metrics.instagramViews":
+    "Instagram ne partage pas encore le nombre de vues avec Vidcica : les vues affichées ne comptent pas Instagram.",
   "videos.actions.title": "Actions",
   "videos.deleteConfirm": "Supprimer cette vidéo ? Elle sera déplacée dans la corbeille.",
   "videos.copyLink": "Copier le lien",
@@ -1393,7 +1462,8 @@ export const fr = {
   "analytics.ads.list.title": "Campagnes",
   "analytics.ads.metricsEmpty": "Les performances apparaîtront ici après la synchronisation Meta.",
   "analytics.ads.openCampaigns": "Voir les campagnes",
-  "analytics.ads.row.budget": "{spent} € sur {total} €",
+  "analytics.ads.row.budget": "{spent} sur {total}",
+  "analytics.ads.row.budgetDaily": "{spent} dépensés · {daily} par jour",
   "analytics.locked.title": "Analytique réservée aux abonnés",
   "analytics.locked.body": "Passez à une offre payante pour suivre vos performances en détail.",
 
@@ -1653,6 +1723,28 @@ export const en: Partial<Record<MessageKey, string>> = {
   "networks.tagline.facebook": "Reels and posts",
   "networks.tagline.tiktok": "Viral short videos",
   "networks.tagline.threads": "Posts and threads",
+  "networks.reason.metaNoPage":
+    "No Facebook Page was shared with Vidcica. Reconnect and tick your Page in the Facebook window.",
+  "networks.reason.instagramNotLinked":
+    "Your Facebook Page has no linked Instagram professional account. Link it in your Page settings, then reconnect.",
+  "networks.reason.metaError":
+    "Facebook didn’t answer during the connection. Try again in a moment.",
+  "networks.page.label": "Facebook Page in use",
+  "networks.page.choose": "Choose a Page",
+  "networks.page.hint": "Your posts and Boosts go out from this Page.",
+  "networks.page.reconnect": "Reconnect Facebook to change Pages.",
+  "networks.page.unavailable":
+    "This Page is no longer shared with Vidcica. Reconnect Facebook and tick it.",
+  "networks.page.failed": "Couldn’t change the Page. Try again.",
+  "networks.meta.disconnectConfirm":
+    "Disconnecting Facebook also disconnects Instagram: it’s one Meta login. Your running Boosts will be paused. Continue?",
+  "networks.meta.pauseFailed":
+    "These Boosts couldn’t be paused: {campaigns}. Once disconnected, Vidcica can’t stop them. Pause them in Ads Manager, or disconnect anyway.",
+  "networks.meta.openAdsManager": "Open Ads Manager",
+  "networks.meta.disconnectAnyway": "Disconnect anyway",
+  "networks.meta.stillRunning":
+    "Disconnected. Boosts are still running ({count}): pause them in Ads Manager.",
+  "networks.meta.disconnectFailed": "Couldn’t disconnect. Try again.",
 
   // ── oauth return page (popup landing after oauth-callback) ─────────
   "oauth.successTitle": "Account connected",
@@ -2055,6 +2147,9 @@ export const en: Partial<Record<MessageKey, string>> = {
   "publish.reasonRateLimited": "Limit reached",
   "publish.reasonRejected": "Rejected by the platform",
   "publish.reasonUnknown": "Failed",
+  "publish.reasonMetaNoPage": "No Facebook Page",
+  "publish.reasonInstagramNotLinked": "Instagram not linked",
+  "publish.reasonPermission": "Missing rights on the Page",
   "publish.statusPending": "Pending",
   "publish.statusPublished": "Published",
   "publish.statusPublishing": "Publishing…",
@@ -2499,6 +2594,44 @@ export const en: Partial<Record<MessageKey, string>> = {
   "ads.err.duplicateFailed": "The campaign couldn't be duplicated. Try again.",
   "ads.err.deleteLive": "A running campaign can't be deleted. Pause it and end it first.",
   "ads.err.deleteFailed": "The campaign couldn't be deleted. Try again.",
+  "ads.err.planRequired": "Boost is included in the Pro and Studio plans.",
+  "ads.err.pauseInAdsManager":
+    "Meta refused the pause from Vidcica. Pause the campaign in Ads Manager.",
+  "ads.err.currencyChanged":
+    "Your ad account now bills in a different currency than this draft. Duplicate it to set the budget again.",
+  "ads.err.launchInProgress": "The launch is already in progress. Wait a few seconds.",
+  "ads.err.adAccountDisabled":
+    "Your Meta ad account is disabled or has a payment issue. Fix it in Ads Manager.",
+  "ads.err.noAdsScope":
+    "Facebook didn’t grant access to your ads. Reconnect Facebook and accept the ads permissions.",
+  "ads.err.tokenDecrypt": "Your Facebook connection can’t be read. Reconnect Facebook.",
+  "ads.err.metaUnreachable": "Meta didn’t answer. Try again in a moment.",
+  "ads.err.metaRefused": "Meta refused the campaign. The details are on the campaign page.",
+  "ads.err.belowMinBudgetAmount": "Your ad account’s minimum daily budget is {amount}.",
+  "ads.err.monthlyCapAmount":
+    "This campaign would go over the monthly cap of {cap} ({projected} planned). Pause a campaign or lower the budget.",
+  "ads.draftOnly.connect":
+    "Connect Facebook to launch ads. You can already prepare and save a draft.",
+  "ads.draftOnly.noAdAccount":
+    "Your Facebook account has no active ad account. Create one in Ads Manager; meanwhile you can save a draft.",
+  "ads.draftOnly.disabled":
+    "Your Meta ad account is disabled or has a payment issue. Fix it in Ads Manager; meanwhile you can save a draft.",
+  "ads.draftOnly.noPage":
+    "No Facebook Page is shared with Vidcica. Reconnect Facebook and tick your Page; meanwhile you can save a draft.",
+  "ads.draftOnly.unreachable":
+    "Meta didn’t answer. Reload the page in a moment; meanwhile you can save a draft.",
+  "ads.draftOnly.comingSoon":
+    "Facebook connection is coming to your account very soon. You can already prepare and save a draft.",
+  "ads.draftOnly.connectLink": "Connect Facebook",
+  "ads.plan.title": "Boost is included in the Pro and Studio plans",
+  "ads.plan.description":
+    "Run your videos as ads on Facebook and Instagram, with a budget you set and can pause at any time.",
+  "ads.plan.cta": "See plans",
+  "ads.plan.activateNote": "Launching and activating a campaign needs a Pro or Studio plan.",
+  "ads.openAdsManager": "Open Ads Manager",
+  "ads.launch.note":
+    "This draft isn’t on Meta yet. Launching it creates the campaign paused: nothing is spent until you activate it.",
+  "ads.launch.button": "Launch on Meta",
 
   // ── generated (workflow) ──
   "security.metaTitle": "Security",
@@ -2594,6 +2727,8 @@ export const en: Partial<Record<MessageKey, string>> = {
     "Instagram does not allow deleting a post through its API. Delete it from the Instagram app.",
   "videos.unpublishReconnect": "Reconnect this network, then try again.",
   "videos.unpublishFailed": "Could not remove the post. Please try again.",
+  "videos.unpublishPageUnavailable":
+    "The Page this post went to is no longer shared with Vidcica. Reconnect Facebook and tick it, or delete the post on Facebook.",
   "videos.republish": "Republish",
   "videos.publishedOn": "Published on",
   "videos.stockAttribution": "Videos provided by Pexels",
@@ -2603,6 +2738,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "videos.metrics.comments": "Comments",
   "videos.metrics.shares": "Shares",
   "videos.metrics.hint": "Refreshed automatically several times a day.",
+  "videos.metrics.instagramViews":
+    "Instagram doesn’t share view counts with Vidcica yet: views shown don’t include Instagram.",
   "videos.actions.title": "Actions",
   "videos.deleteConfirm": "Delete this video? It will be moved to the trash.",
   "videos.copyLink": "Copy link",
@@ -2810,7 +2947,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "analytics.ads.list.title": "Campaigns",
   "analytics.ads.metricsEmpty": "Performance will appear here after the Meta sync.",
   "analytics.ads.openCampaigns": "View campaigns",
-  "analytics.ads.row.budget": "{spent} € of {total} €",
+  "analytics.ads.row.budget": "{spent} of {total}",
+  "analytics.ads.row.budgetDaily": "{spent} spent · {daily} a day",
   "analytics.locked.title": "Analytics is a paid feature",
   "analytics.locked.body": "Upgrade to a paid plan to track your performance in detail.",
 

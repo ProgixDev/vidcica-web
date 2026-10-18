@@ -8,8 +8,9 @@ import { type Campaign, type CampaignStatus } from "@/lib/vidcica/campaign";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
 
-/** Statuses safe to delete — mirrors the server guard in actions.ts. */
-const DELETABLE: readonly CampaignStatus[] = ["brouillon", "terminee", "rejected"];
+/** Statuses safe to delete — mirrors the server guard in actions.ts (`rejected`
+ *  can still be delivering on Meta, so it isn't one). */
+const DELETABLE: readonly CampaignStatus[] = ["brouillon", "terminee"];
 
 /**
  * Manage a campaign: Duplicate (clone → draft) + Delete (drafts/ended only, with an

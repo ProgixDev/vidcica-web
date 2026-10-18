@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getMyAdAccountCurrency, getMyCampaign } from "@/lib/vidcica/ads-queries";
+import { getMyEntitlement } from "@/lib/vidcica/billing-queries";
+import { TIERS } from "@/lib/vidcica/tiers";
 import { CampaignDetail } from "@/features/ads";
 import { getT } from "@/lib/i18n/server";
 
@@ -16,8 +18,14 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   } = await supabase.auth.getUser();
   if (!user) redirect(`/sign-in?next=/ads/${id}`);
 
-  const [campaign, currency] = await Promise.all([getMyCampaign(id), getMyAdAccountCurrency()]);
+  const [campaign, currency, entitlement] = await Promise.all([
+    getMyCampaign(id),
+    getMyAdAccountCurrency(),
+    getMyEntitlement(),
+  ]);
   if (!campaign) notFound();
+  // Money is in the currency the budget was set in when the row knows it.
+  const campaignCurrency = campaign.currency ?? currency;
 
   return (
     <div className="flex w-full max-w-3xl flex-col gap-8">
@@ -27,7 +35,11 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
       >
         ← {t("ads.myAds")}
       </Link>
-      <CampaignDetail campaign={campaign} currency={currency} />
+      <CampaignDetail
+        campaign={campaign}
+        currency={campaignCurrency}
+        canBoost={TIERS[entitlement.plan].ads}
+      />
     </div>
   );
 }

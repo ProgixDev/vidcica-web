@@ -94,10 +94,24 @@ describe("createDraftCampaign (AC-3)", () => {
     }
   });
 
-  it("rejects a daily budget below the activation minimum", async () => {
+  // The minimum depends on the ad account’s currency (5 CAD, thousands of XOF):
+  // the wizard shows the live one and create-ad-campaign enforces it. A fixed
+  // floor here would block real budgets in high-value currencies.
+  it("leaves the minimum daily budget to the server", async () => {
     const out = await createDraftCampaign({ ...valid, budgetDaily: 2 });
-    expect(out).toEqual({ ok: false, errorKey: "ads.err.belowMinBudget" });
-    expect(calls.find((c) => c.method === "insert")).toBeUndefined();
+    expect(out.ok).toBe(true);
+    expect(calls.find((c) => c.method === "insert")).toBeDefined();
+  });
+
+  it("saves the currency the budget was typed in", async () => {
+    await createDraftCampaign({ ...valid, currency: "CAD" });
+    const insert = calls.find((c) => c.method === "insert");
+    expect(insert?.args[0]).toMatchObject({ currency: "CAD" });
+  });
+
+  it("refuses a malformed currency", async () => {
+    const out = await createDraftCampaign({ ...valid, currency: "cad$" });
+    expect(out.ok).toBe(false);
   });
 
   // Meta refuses a Traffic ad with no website, but only at its last step, after

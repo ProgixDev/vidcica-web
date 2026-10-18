@@ -48,6 +48,10 @@ export type Video = {
    *  collected" are indistinguishable at the rolled-up column, so screens gate on
    *  publish state, not on these being non-zero). */
   views: number;
+  /** False when no platform reported views for this video (the collector
+   *  writes null then: Instagram shares no view count without
+   *  instagram_manage_insights). Screens show "—" rather than a false 0. */
+  viewsReported?: boolean;
   likes: number;
   comments: number;
   shares: number;
@@ -70,6 +74,7 @@ export function rowToVideo(r: VideoRow): Video {
     creditsUsed: r.credits_used ?? undefined,
     networks: (r.networks ?? []) as PlatformId[],
     views: r.views ?? 0,
+    viewsReported: r.views !== null,
     likes: r.likes ?? 0,
     comments: r.comments ?? 0,
     shares: r.shares ?? 0,
