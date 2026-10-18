@@ -4,7 +4,6 @@ import {
   platformToProvider,
   PLATFORMS,
   connectablePlatforms,
-  hasMetaReviewAccess,
   isPublishingPlatformEnabled,
   rowToNetwork,
   type Network,
@@ -86,23 +85,28 @@ describe("platformToProvider (AC-2/AC-4 mapping)", () => {
 });
 
 describe("isPublishingPlatformEnabled", () => {
-  it("allows only the platforms whose review has cleared", () => {
+  it("allows the platforms whose review has cleared, Meta included since 2026-10-18", () => {
     expect(isPublishingPlatformEnabled("tiktok")).toBe(true);
     expect(isPublishingPlatformEnabled("linkedin")).toBe(true);
     expect(isPublishingPlatformEnabled("youtube")).toBe(true);
+    expect(isPublishingPlatformEnabled("instagram")).toBe(true);
+    expect(isPublishingPlatformEnabled("facebook")).toBe(true);
   });
-  it("holds back the platforms still waiting on Meta", () => {
-    // Meta app is in Dev Mode (business verification outstanding); Threads was
-    // never submitted. Offering these ships a button that cannot succeed.
-    expect(isPublishingPlatformEnabled("instagram")).toBe(false);
-    expect(isPublishingPlatformEnabled("facebook")).toBe(false);
+  it("holds back Threads, which was never submitted for review", () => {
+    // Offering it ships a button that cannot succeed.
     expect(isPublishingPlatformEnabled("threads")).toBe(false);
   });
 });
 
 describe("connectablePlatforms", () => {
-  it("drops X and every platform still held back", () => {
-    expect(connectablePlatforms().map((p) => p.id)).toEqual(["youtube", "linkedin", "tiktok"]);
+  it("drops X and Threads, keeps the five live platforms", () => {
+    expect(connectablePlatforms().map((p) => p.id)).toEqual([
+      "youtube",
+      "linkedin",
+      "instagram",
+      "facebook",
+      "tiktok",
+    ]);
   });
 });
 
@@ -128,52 +132,18 @@ describe("networkStatus", () => {
   });
 
   it("reports a held-back platform as unavailable even when a row exists", () => {
-    // A row can exist from before the gate (or from a dev-mode connect): the UI
-    // must still not present it as connected/publishable.
-    const instagram = PLATFORMS.find((p) => p.id === "instagram")!;
-    expect(networkStatus(instagram, net({ platform: "instagram" }))).toBe("unavailable");
-    expect(networkStatus(instagram, undefined)).toBe("unavailable");
+    // A row can exist from a dev-mode connect: the UI must still not present it
+    // as connected/publishable.
+    const threads = PLATFORMS.find((p) => p.id === "threads")!;
+    expect(networkStatus(threads, net({ platform: "threads" }))).toBe("unavailable");
+    expect(networkStatus(threads, undefined)).toBe("unavailable");
   });
 
-  it("opens Instagram/Facebook for a Meta App Review account", () => {
+  it("offers Instagram and Facebook to every account", () => {
     const instagram = PLATFORMS.find((p) => p.id === "instagram")!;
     const facebook = PLATFORMS.find((p) => p.id === "facebook")!;
-    expect(networkStatus(instagram, undefined, true)).toBe("disconnected");
-    expect(networkStatus(facebook, undefined, true)).toBe("disconnected");
-    expect(networkStatus(instagram, net({ platform: "instagram" }), true)).toBe("connected");
-  });
-
-  it("never opens Threads or X, even for a review account", () => {
-    // Threads sits on the same Meta app but was never submitted, and X is gone
-    // for good. Review access must not widen past what is being reviewed.
-    const threads = PLATFORMS.find((p) => p.id === "threads")!;
-    expect(networkStatus(threads, undefined, true)).toBe("unavailable");
-    expect(networkStatus(x, undefined, true)).toBe("unavailable");
-  });
-});
-
-describe("hasMetaReviewAccess", () => {
-  it("is closed by default — no allowlist, no access", () => {
-    expect(hasMetaReviewAccess("someone@example.com", undefined)).toBe(false);
-    expect(hasMetaReviewAccess("someone@example.com", "")).toBe(false);
-  });
-
-  it("matches an allowlisted address regardless of case and padding", () => {
-    const list = " Reviewer@Example.com , second@example.com ";
-    expect(hasMetaReviewAccess("reviewer@example.com", list)).toBe(true);
-    expect(hasMetaReviewAccess("  SECOND@EXAMPLE.COM  ", list)).toBe(true);
-  });
-
-  it("rejects anyone not on the list, and a missing address", () => {
-    const list = "reviewer@example.com";
-    expect(hasMetaReviewAccess("someone.else@example.com", list)).toBe(false);
-    expect(hasMetaReviewAccess(null, list)).toBe(false);
-    expect(hasMetaReviewAccess(undefined, list)).toBe(false);
-    expect(hasMetaReviewAccess("   ", list)).toBe(false);
-  });
-
-  it("does not let an empty allowlist entry match an empty address", () => {
-    // A trailing comma yields an empty entry; it must not become a wildcard.
-    expect(hasMetaReviewAccess("", "reviewer@example.com,")).toBe(false);
+    expect(networkStatus(instagram, undefined)).toBe("disconnected");
+    expect(networkStatus(facebook, undefined)).toBe("disconnected");
+    expect(networkStatus(instagram, net({ platform: "instagram" }))).toBe("connected");
   });
 });

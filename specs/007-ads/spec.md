@@ -92,7 +92,8 @@ Resolved with owner before `/plan-feature`:
 Meta approved Vidcica's App Review (eight permissions and the Marketing API Access Tier) on
 2026-10-18. The backend changed the same day (vidcica commit `a6af3b2`, functions README
 "Meta launch hardening"). This web slice follows it. The Facebook/Instagram gate on Networks
-(`META_REVIEW_EMAILS`) stays on until the canary week ends (spec 003 update).
+(`META_REVIEW_EMAILS`) was removed the same day (spec 003, AC-N6), so the draft banner
+always links to Networks when a reconnect fixes the problem.
 
 Changed requirements (they replace the matching parts above):
 
@@ -108,9 +109,8 @@ Changed requirements (they replace the matching parts above):
   server knows the real one. Tests: `store` ("the ad account's live limits"), `actions` ("leaves
   the minimum…", "saves the currency…"), `boost-wizard` ("shows the account's own minimum…").
 - **AC-15 (why only a draft):** the draft-only banner names the reason (connect Facebook, no ad
-  account, account disabled, Meta unreachable). It links to Networks only when a reconnect fixes
-  it and Facebook is offered to this account. Otherwise it says Facebook is coming, with no dead
-  link. Tests: `boost-wizard` ("why only a draft").
+  account, account disabled, Meta unreachable). It links to Networks when a reconnect fixes it,
+  and only then. Tests: `boost-wizard` ("why only a draft").
 - **AC-16 (launch a saved draft):** a `brouillon` campaign page has "Lancer sur Meta". It creates
   the campaign paused; a refused launch names Meta's minimum in the account's currency. Tests:
   `activate-pause-controls` ("launches a saved draft…", "names the account's minimum…").

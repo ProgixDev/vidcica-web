@@ -53,12 +53,10 @@ const TAGLINE_KEY: Record<PlatformId, MessageKey> = {
 function NetworkCard({
   platform,
   net,
-  reviewAccess = false,
   soleAction = false,
 }: {
   platform: PlatformMeta;
   net?: Network;
-  reviewAccess?: boolean;
   /** True when this row holds the only connect/reconnect action in the list —
    *  it then gets the ink pill; several side by side stay pale. */
   soleAction?: boolean;
@@ -74,7 +72,7 @@ function NetworkCard({
     campaigns: string[];
     url: string | null;
   } | null>(null);
-  const status = networkStatus(platform, net, reviewAccess);
+  const status = networkStatus(platform, net);
   const connected = status === "connected";
   const meta = isMetaPlatform(platform.id);
   // Why the last Meta connect left this card unconnected (no Page shared, no
@@ -349,21 +347,15 @@ function NetworkCard({
  * `networks` realtime channel because it would stream token-ciphertext columns
  * to the browser (RLS gates rows, not columns).
  */
-export function NetworkList({
-  initial,
-  reviewAccess = false,
-}: {
-  initial: Network[];
-  reviewAccess?: boolean;
-}) {
+export function NetworkList({ initial }: { initial: Network[] }) {
   const byPlatform = new Map(initial.map((n) => [n.platform, n]));
-  // X is dropped (paid API, provider === null), and Instagram/Facebook/Threads
-  // are held back until Meta approves — see PUBLISHING_PLATFORMS. `reviewAccess`
-  // opens Instagram/Facebook for the App Review allowlist only.
-  const platforms = connectablePlatforms(reviewAccess);
+  // X is dropped (paid API, provider === null) and Threads is held back — see
+  // PUBLISHING_PLATFORMS. Instagram and Facebook are open to every account
+  // since Meta approved the App Review (2026-10-18).
+  const platforms = connectablePlatforms();
   // One filled action per group: the ink pill only when a single row can act.
   const actionable = platforms.filter((p) => {
-    const st = networkStatus(p, byPlatform.get(p.id), reviewAccess);
+    const st = networkStatus(p, byPlatform.get(p.id));
     return st === "disconnected" || st === "needs_reconnect";
   }).length;
   return (
@@ -373,7 +365,6 @@ export function NetworkList({
           key={p.id}
           platform={p}
           net={byPlatform.get(p.id)}
-          reviewAccess={reviewAccess}
           soleAction={actionable === 1}
         />
       ))}

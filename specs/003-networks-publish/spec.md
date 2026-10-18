@@ -61,8 +61,9 @@ row connected only when it can be used, and stores why not otherwise
 (`platform_metadata.connectReason`: `meta_no_page`, `instagram_not_linked`, `meta_error`).
 New functions: `meta-select-page` and `meta-disconnect`.
 
-Changed requirements (gate still on: `META_REVIEW_EMAILS` until the canary week ends; then
-Facebook and Instagram move into `PUBLISHING_PLATFORMS`):
+Changed requirements. **Gate removed the same day:** at the owner’s request there was no
+canary week. Facebook and Instagram moved into `PUBLISHING_PLATFORMS` for every account, and
+the `META_REVIEW_EMAILS` allowlist was deleted (AC-N6).
 
 - **AC-N1 (connect reasons):** a Meta card that couldn't connect says why and what to do (share a
   Page, link an Instagram professional account, try again). The reason is read from the row, not
@@ -86,3 +87,7 @@ Facebook and Instagram move into `PUBLISHING_PLATFORMS`):
 - **AC-N5 (views):** a video's views read "—" when no platform reported any. A video on
   Instagram carries a note: Instagram shares no view count without `instagram_manage_insights`,
   which isn't requested.
+- **AC-N6 (open to all):** Instagram and Facebook are offered to every account on Networks,
+  in the publish picker and on the landing page (“5 réseaux”). There is no per-account
+  allowlist any more. Tests: `network` (“offers Instagram and Facebook to every account”,
+  `connectablePlatforms`).

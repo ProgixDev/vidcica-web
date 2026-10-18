@@ -2,7 +2,7 @@
 
 ## What this product is
 
-**Vidcica Web** is the logged-in desktop workspace for Vidcica — a French-first (bilingual fr/en) product that turns a short script into an AI-generated short-form video and auto-publishes it to social networks (YouTube, LinkedIn, Instagram, Facebook live; TikTok/X/Threads partial), with credits + subscription billing and, later, in-app Meta Ads.
+**Vidcica Web** is the logged-in desktop workspace for Vidcica — a French-first (bilingual fr/en) product that turns a short script into an AI-generated short-form video and auto-publishes it to social networks (YouTube, TikTok, LinkedIn, Instagram and Facebook live for every account since 2026-10-18; Threads not yet; X dropped), with credits + subscription billing and in-app Meta Ads (Boost, Pro and Studio plans).
 
 The bet: creators and small businesses want finished, publishable vertical video without editing skills. Vidcica already ships as an Expo mobile app; the web is a **second front-end over the same live Supabase backend** (project `scoozakhhmowpzwotxgp`) — it reuses that backend's schema, RLS, realtime, and edge functions and **never owns migrations**. The web-specific win over mobile is Stripe billing (mobile uses RevenueCat IAP) and real wide desktop layouts. A marketing landing site already exists; this repo is the workspace, not marketing. Ground rules and non-obvious decisions: [VIDCICA_WEB_BUILD_BRIEF.md](../../VIDCICA_WEB_BUILD_BRIEF.md).
 

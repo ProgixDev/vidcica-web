@@ -4,8 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { listMyVideos } from "@/lib/vidcica/queries";
 import { getMyEntitlement } from "@/lib/vidcica/billing-queries";
 import { TIERS } from "@/lib/vidcica/tiers";
-import { hasMetaReviewAccess, isPublishingPlatformEnabled } from "@/lib/vidcica/network";
-import { env } from "@/core/env";
 import {
   BoostPlanPrompt,
   BoostStoreProvider,
@@ -49,13 +47,6 @@ export default async function BoostPage({
     );
   }
 
-  // Can this account connect Facebook today? Read server-side: the App Review
-  // allowlist (META_REVIEW_EMAILS) must never reach the browser.
-  const canConnectMeta = isPublishingPlatformEnabled(
-    "facebook",
-    hasMetaReviewAccess(user.email, env.META_REVIEW_EMAILS),
-  );
-
   // Any video with a finished file can be boosted, published or not (Meta
   // pulls the MP4); see boostOptions.
   const videos: VideoOption[] = boostOptions(await listMyVideos());
@@ -86,7 +77,7 @@ export default async function BoostPage({
           initialName={preselected ? t("ads.boostName", { title: preselected.title }) : undefined}
           initialStep={preselected ? 1 : 0}
         >
-          <BoostWizard videos={videos} canConnectMeta={canConnectMeta} />
+          <BoostWizard videos={videos} />
         </BoostStoreProvider>
       </div>
     </>

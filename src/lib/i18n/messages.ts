@@ -724,7 +724,7 @@ export const fr = {
   "landing.hero.chipSubtitles": "Sous-titres auto",
   "landing.stat.1.value": "≈ 3 min",
   "landing.stat.1.label": "de l’idée à la vidéo finale",
-  "landing.stat.2.value": "3 réseaux",
+  "landing.stat.2.value": "5 réseaux",
   "landing.stat.2.label": "publiés en un seul clic",
   "landing.stat.3.value": "9:16",
   "landing.stat.3.label": "format vertical natif",
@@ -856,7 +856,7 @@ export const fr = {
     "Oui. Le catalogue musical est composé de titres libres de droits sélectionnés pour l’usage sur les réseaux sociaux, et les séquences proviennent de banques licenciées ou de modèles d’IA générative.",
   "landing.faq.networks.q": "Sur quels réseaux puis-je publier ?",
   "landing.faq.networks.a":
-    "TikTok, YouTube Shorts et LinkedIn. Tu connectes tes comptes une fois, puis chaque vidéo se publie en un clic. Instagram, Facebook et Threads arrivent prochainement.",
+    "TikTok, Instagram, Facebook, YouTube Shorts et LinkedIn. Tu connectes tes comptes une fois, puis chaque vidéo se publie en un clic. Threads arrive prochainement.",
   "landing.faq.voiceLangs.q": "La voix off existe-t-elle en plusieurs langues ?",
   "landing.faq.voiceLangs.a":
     "Oui — français et anglais aujourd’hui, avec des voix naturelles générées par IA. D’autres langues arriveront ensuite.",
@@ -932,7 +932,7 @@ export const fr = {
 
   "useCase.restaurant.metaTitle": "Vidéos pour restaurants",
   "useCase.restaurant.metaDescription":
-    "Crée des vidéos de tes plats et publie-les sur TikTok, YouTube Shorts et LinkedIn. Menus du jour, coulisses, nouveautés — sans caméra ni montage.",
+    "Crée des vidéos de tes plats et publie-les sur Instagram, TikTok, Facebook, YouTube Shorts et LinkedIn. Menus, coulisses, nouveautés — sans caméra ni montage.",
   "useCase.restaurant.h1": "Des vidéos qui remplissent ta salle",
   "useCase.restaurant.intro":
     "Tes clients cherchent où manger sur leur téléphone. Publie chaque semaine un plat, une nouveauté ou les coulisses du service — sans matériel, sans monteur, sans y passer tes soirées.",
@@ -952,7 +952,7 @@ export const fr = {
 
   "useCase.coach.metaTitle": "Vidéos pour coachs et salles de sport",
   "useCase.coach.metaDescription":
-    "Publie des conseils, des séances et des transformations en vidéo courte. Voix off, sous-titres et publication automatique sur TikTok et Shorts.",
+    "Publie des conseils, des séances et des transformations en vidéo courte. Voix off, sous-titres et publication automatique sur TikTok, Instagram et Shorts.",
   "useCase.coach.h1": "Un rendez-vous vidéo régulier avec ton audience",
   "useCase.coach.intro":
     "En coaching, la régularité fait l’audience. Prépare une série de vidéos en une fois, programme-les, et laisse la publication tourner pendant que tu es avec tes clients.",
@@ -1123,8 +1123,6 @@ export const fr = {
     "Aucune Page Facebook n’est partagée avec Vidcica. Reconnectez Facebook et cochez votre Page ; en attendant, vous pouvez enregistrer un brouillon.",
   "ads.draftOnly.unreachable":
     "Meta n’a pas répondu. Rechargez la page dans un instant ; en attendant, vous pouvez enregistrer un brouillon.",
-  "ads.draftOnly.comingSoon":
-    "La connexion Facebook arrive très bientôt sur votre compte. Vous pouvez déjà préparer et enregistrer un brouillon.",
   "ads.draftOnly.connectLink": "Connecter Facebook",
   "ads.plan.title": "Boost est inclus dans les forfaits Pro et Studio",
   "ads.plan.description":
@@ -1279,7 +1277,7 @@ export const fr = {
     "Oui. Votre abonnement reste actif jusqu’à la fin de la période en cours, sans frais d’annulation.",
   "help.faq.q4": "Comment connecter Instagram ?",
   "help.faq.a4":
-    "Allez dans Réseaux, choisissez Instagram puis suivez l’étape OAuth. Vous devez disposer d’un compte Pro ou Créateur lié à une page Facebook.",
+    "Allez dans Réseaux, choisissez Instagram ou Facebook, puis connectez-vous avec Facebook. Cochez votre Page et le compte Instagram professionnel (Créateur ou Entreprise) qui lui est relié : une seule connexion remplit les deux cartes.",
   "help.faq.q5": "Mes vidéos supprimées sont-elles récupérables ?",
   "help.faq.a5": "Oui, pendant 30 jours. Allez dans Bibliothèque → Corbeille pour les restaurer.",
   "help.faq.q6": "Puis-je programmer plusieurs publications ?",
@@ -2229,7 +2227,7 @@ export const en: Partial<Record<MessageKey, string>> = {
   "landing.hero.chipSubtitles": "Auto subtitles",
   "landing.stat.1.value": "≈ 3 min",
   "landing.stat.1.label": "from idea to finished video",
-  "landing.stat.2.value": "3 networks",
+  "landing.stat.2.value": "5 networks",
   "landing.stat.2.label": "published in a single click",
   "landing.stat.3.value": "9:16",
   "landing.stat.3.label": "native vertical format",
@@ -2360,7 +2358,7 @@ export const en: Partial<Record<MessageKey, string>> = {
     "Yes. The music catalog is made up of royalty-free tracks selected for use on social media, and the footage comes from licensed libraries or generative AI models.",
   "landing.faq.networks.q": "Which networks can I publish to?",
   "landing.faq.networks.a":
-    "TikTok, YouTube Shorts and LinkedIn. You connect your accounts once, then each video publishes in one click. Instagram, Facebook and Threads are coming soon.",
+    "TikTok, Instagram, Facebook, YouTube Shorts and LinkedIn. You connect your accounts once, then each video publishes in one click. Threads is coming soon.",
   "landing.faq.voiceLangs.q": "Is the voiceover available in several languages?",
   "landing.faq.voiceLangs.a":
     "Yes — French and English today, with natural AI-generated voices. More languages will follow.",
@@ -2436,7 +2434,7 @@ export const en: Partial<Record<MessageKey, string>> = {
 
   "useCase.restaurant.metaTitle": "Social media videos for restaurants",
   "useCase.restaurant.metaDescription":
-    "Make social media videos for your restaurant with AI — dishes, daily menus, behind the scenes — and post them to TikTok, YouTube Shorts and LinkedIn without filming or editing.",
+    "Make social media videos for your restaurant with AI — dishes, daily menus, behind the scenes — and post them to Instagram, TikTok, Facebook, YouTube Shorts and LinkedIn without filming or editing.",
   "useCase.restaurant.h1": "Social media videos for restaurants, without a camera",
   "useCase.restaurant.intro":
     "Diners pick where to eat on their phone. Vidcica turns a dish or a daily menu into a short video — script, voiceover, captions and music — then posts it to your accounts while you run service.",
@@ -2456,7 +2454,7 @@ export const en: Partial<Record<MessageKey, string>> = {
 
   "useCase.coach.metaTitle": "Social media for personal trainers",
   "useCase.coach.metaDescription":
-    "Content ideas and AI-made videos for personal trainers and gyms: tips, sessions and client transformations, posted to TikTok and YouTube Shorts on a schedule.",
+    "Content ideas and AI-made videos for personal trainers and gyms: tips, sessions and client transformations, posted to TikTok, Instagram and YouTube Shorts on a schedule.",
   "useCase.coach.h1": "Social media for personal trainers, on autopilot",
   "useCase.coach.intro":
     "In coaching, consistency builds the audience. Batch a week of videos in one sitting, schedule them, and let publishing run while you are on the gym floor with clients.",
@@ -2466,7 +2464,7 @@ export const en: Partial<Record<MessageKey, string>> = {
 
   "useCase.ecommerce.metaTitle": "Product video maker for e-commerce",
   "useCase.ecommerce.metaDescription":
-    "Turn product pages into short video ads with AI. A product video maker for Shopify and e-commerce stores — voiceover, captions, and posting to TikTok and Shorts.",
+    "Turn product pages into short video ads with AI. A product video maker for Shopify and e-commerce stores — voiceover, captions, and posting to TikTok, Instagram and Shorts.",
   "useCase.ecommerce.h1": "A product video maker for your online store",
   "useCase.ecommerce.intro":
     "Filming every SKU is expensive. Generate a video from each product description, post it to your social accounts, and turn the best performers into ecommerce video ads.",
@@ -2620,8 +2618,6 @@ export const en: Partial<Record<MessageKey, string>> = {
     "No Facebook Page is shared with Vidcica. Reconnect Facebook and tick your Page; meanwhile you can save a draft.",
   "ads.draftOnly.unreachable":
     "Meta didn’t answer. Reload the page in a moment; meanwhile you can save a draft.",
-  "ads.draftOnly.comingSoon":
-    "Facebook connection is coming to your account very soon. You can already prepare and save a draft.",
   "ads.draftOnly.connectLink": "Connect Facebook",
   "ads.plan.title": "Boost is included in the Pro and Studio plans",
   "ads.plan.description":
@@ -2774,7 +2770,7 @@ export const en: Partial<Record<MessageKey, string>> = {
     "Yes. Your subscription stays active until the end of the current period, with no cancellation fee.",
   "help.faq.q4": "How do I connect Instagram?",
   "help.faq.a4":
-    "Go to Networks, choose Instagram and follow the OAuth step. You’ll need a Pro or Creator account linked to a Facebook page.",
+    "Go to Networks, choose Instagram or Facebook, then log in with Facebook. Tick your Page and the Instagram professional account (Creator or Business) linked to it: one login fills both cards.",
   "help.faq.q5": "Can I recover deleted videos?",
   "help.faq.a5": "Yes, for 30 days. Go to Library → Trash to restore them.",
   "help.faq.q6": "Can I schedule multiple posts?",

@@ -41,20 +41,18 @@ function useMinDaily(): number {
   return gateMinDaily(gate);
 }
 
-/** Why the wizard can only save a draft, as the message to show. `canConnect`
- *  is false while Facebook isn't offered to this account yet: then there is no
- *  connect button to point at. */
-function draftOnlyKey(gate: AdAccountOutcome | null, canConnect: boolean): MessageKey {
+/** Why the wizard can only save a draft, as the message to show. */
+function draftOnlyKey(gate: AdAccountOutcome | null): MessageKey {
   if (gate?.ok) {
     if (!gate.hasAccount) return "ads.draftOnly.noAdAccount";
-    if (!gate.hasPage) return canConnect ? "ads.draftOnly.noPage" : "ads.draftOnly.comingSoon";
+    if (!gate.hasPage) return "ads.draftOnly.noPage";
     return "ads.draftBanner";
   }
   switch (gate?.reason) {
     case "needs_reconnect":
     case "token_decrypt_failed":
     case "no_ads_scope":
-      return canConnect ? "ads.draftOnly.connect" : "ads.draftOnly.comingSoon";
+      return "ads.draftOnly.connect";
     case "no_ad_account":
       return "ads.draftOnly.noAdAccount";
     case "ad_account_disabled":
@@ -104,15 +102,7 @@ const STEP_TITLE: Record<(typeof BOOST_STEPS)[number], MessageKey> = {
   review: "ads.step.review",
 };
 
-export function BoostWizard({
-  videos,
-  canConnectMeta = true,
-}: {
-  videos: VideoOption[];
-  /** False while Facebook isn't offered to this account yet (the App Review
-   *  gate on Networks): the draft banner then has nowhere to send people. */
-  canConnectMeta?: boolean;
-}) {
+export function BoostWizard({ videos }: { videos: VideoOption[] }) {
   const phase = useBoostStore((s) => s.phase);
   const init = useBoostStore((s) => s.init);
 
@@ -132,7 +122,7 @@ export function BoostWizard({
   if (phase === "created") return <BoostDone />;
   if (videos.length === 0) return <NoVideos />;
 
-  return <BoostForm videos={videos} canConnectMeta={canConnectMeta} />;
+  return <BoostForm videos={videos} />;
 }
 
 function NoVideos() {
@@ -169,7 +159,7 @@ function BoostDone() {
   );
 }
 
-function BoostForm({ videos, canConnectMeta }: { videos: VideoOption[]; canConnectMeta: boolean }) {
+function BoostForm({ videos }: { videos: VideoOption[] }) {
   const t = useT();
   const locale = useLocale();
   const phase = useBoostStore((s) => s.phase);
@@ -193,7 +183,7 @@ function BoostForm({ videos, canConnectMeta }: { videos: VideoOption[]; canConne
   const creating = phase === "creating";
   const key = BOOST_STEPS[step] ?? "video";
   const isLast = step === BOOST_STEPS.length - 1;
-  const bannerKey = draftOnly ? draftOnlyKey(gate, canConnectMeta) : null;
+  const bannerKey = draftOnly ? draftOnlyKey(gate) : null;
 
   function next() {
     if (!isLast) setStep(step + 1);

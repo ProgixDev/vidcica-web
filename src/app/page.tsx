@@ -41,9 +41,9 @@ const bucketClip = (name: string) => ({
 const HERO_CLIP = clip("hero");
 
 // Only what a public user can actually publish to today — keep in sync with
-// PUBLISHING_PLATFORMS in lib/vidcica/network.ts. Instagram/Facebook/Threads
-// return here once Meta approves.
-const PLATFORMS = ["TikTok", "YouTube Shorts", "LinkedIn"];
+// PUBLISHING_PLATFORMS in lib/vidcica/network.ts. Instagram and Facebook since
+// Meta approved the App Review (2026-10-18); Threads isn't submitted yet.
+const PLATFORMS = ["TikTok", "Instagram", "YouTube Shorts", "Facebook", "LinkedIn"];
 
 /**
  * The first three cards are REAL Vidcica renders pulled from the production

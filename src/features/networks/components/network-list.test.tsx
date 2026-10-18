@@ -60,7 +60,6 @@ describe("<NetworkList /> — Meta", () => {
   it("says why a Meta card couldn’t connect (stored by the server)", () => {
     render(
       <NetworkList
-        reviewAccess
         initial={[
           net("facebook"),
           net("instagram", { connected: false, connectReason: "instagram_not_linked" }),
@@ -80,15 +79,12 @@ describe("<NetworkList /> — Meta", () => {
       { id: "222", name: "Autre", igUsername: null },
     ];
     const { unmount } = render(
-      <NetworkList reviewAccess initial={[net("facebook", { pageId: "111", pages })]} />,
+      <NetworkList initial={[net("facebook", { pageId: "111", pages })]} />,
     );
     expect(screen.getByTestId("network-page-select")).toHaveValue("111");
     unmount();
     render(
-      <NetworkList
-        reviewAccess
-        initial={[net("facebook", { pageId: "111", pages: pages.slice(0, 1) })]}
-      />,
+      <NetworkList initial={[net("facebook", { pageId: "111", pages: pages.slice(0, 1) })]} />,
     );
     expect(screen.queryByTestId("network-page-select")).not.toBeInTheDocument();
   });
@@ -98,7 +94,7 @@ describe("<NetworkList /> — Meta", () => {
       { id: "111", name: "Vidcica", igUsername: "vidcica" },
       { id: "222", name: "Autre", igUsername: null },
     ];
-    render(<NetworkList reviewAccess initial={[net("facebook", { pageId: "111", pages })]} />);
+    render(<NetworkList initial={[net("facebook", { pageId: "111", pages })]} />);
     fireEvent.change(screen.getByTestId("network-page-select"), { target: { value: "222" } });
     await waitFor(() => expect(actions.selectMetaPage).toHaveBeenCalledWith("222"));
     expect(refresh).toHaveBeenCalled();
@@ -114,7 +110,7 @@ describe("<NetworkList /> — Meta", () => {
         adsManagerUrl: "https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=1",
       })
       .mockResolvedValueOnce({ ok: true, stillRunning: 1, adsManagerUrl: null });
-    render(<NetworkList reviewAccess initial={[net("facebook")]} />);
+    render(<NetworkList initial={[net("facebook")]} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Déconnecter" }));
     expect(window.confirm).toHaveBeenCalled();
@@ -130,7 +126,7 @@ describe("<NetworkList /> — Meta", () => {
 
   it("does nothing when the person cancels the Meta disconnect", () => {
     vi.spyOn(window, "confirm").mockReturnValue(false);
-    render(<NetworkList reviewAccess initial={[net("instagram")]} />);
+    render(<NetworkList initial={[net("instagram")]} />);
     fireEvent.click(screen.getByRole("button", { name: "Déconnecter" }));
     expect(actions.disconnectMeta).not.toHaveBeenCalled();
   });

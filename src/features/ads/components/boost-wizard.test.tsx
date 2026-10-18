@@ -31,7 +31,7 @@ function renderWizard(deps: Partial<BoostDeps>, vids: VideoOption[] = videos, lo
 }
 
 describe("<BoostWizard /> — why only a draft", () => {
-  function renderGate(resolveAccount: BoostDeps["resolveAccount"], canConnectMeta: boolean) {
+  function renderGate(resolveAccount: BoostDeps["resolveAccount"]) {
     const deps: BoostDeps = {
       resolveAccount,
       createDraft: async () => ({ ok: true, id: "camp-1" }),
@@ -39,41 +39,32 @@ describe("<BoostWizard /> — why only a draft", () => {
     };
     render(
       <BoostStoreProvider deps={deps}>
-        <BoostWizard videos={videos} canConnectMeta={canConnectMeta} />
+        <BoostWizard videos={videos} />
       </BoostStoreProvider>,
     );
   }
 
   it("points to Facebook when a (re)connect fixes it", async () => {
-    renderGate(async () => ({ ok: false, reason: "needs_reconnect" }), true);
+    renderGate(async () => ({ ok: false, reason: "needs_reconnect" }));
     const banner = await screen.findByTestId("boost-draft-banner");
     expect(banner).toHaveTextContent("Connectez Facebook");
     expect(screen.getByTestId("boost-connect-facebook")).toHaveAttribute("href", "/networks");
   });
 
-  it("says Facebook is coming, with no dead link, while it isn’t offered yet", async () => {
-    renderGate(async () => ({ ok: false, reason: "needs_reconnect" }), false);
-    expect(await screen.findByTestId("boost-draft-banner")).toHaveTextContent("très bientôt");
-    expect(screen.queryByTestId("boost-connect-facebook")).not.toBeInTheDocument();
-  });
-
   it("names a disabled ad account, which no reconnect fixes", async () => {
-    renderGate(async () => ({ ok: false, reason: "ad_account_disabled" }), true);
+    renderGate(async () => ({ ok: false, reason: "ad_account_disabled" }));
     expect(await screen.findByTestId("boost-draft-banner")).toHaveTextContent("désactivé");
     expect(screen.queryByTestId("boost-connect-facebook")).not.toBeInTheDocument();
   });
 
   it("shows the account’s own minimum on the budget step", async () => {
-    renderGate(
-      async () => ({
-        ok: true,
-        hasAccount: true,
-        hasPage: true,
-        currency: "XOF",
-        minDailyBudget: 3000,
-      }),
-      true,
-    );
+    renderGate(async () => ({
+      ok: true,
+      hasAccount: true,
+      hasPage: true,
+      currency: "XOF",
+      minDailyBudget: 3000,
+    }));
     fireEvent.change(await screen.findByTestId("bw-video"), { target: { value: "v1" } });
     for (let i = 0; i < 3; i++) fireEvent.click(screen.getByTestId("boost-next"));
     // Intl puts a narrow no-break space in "3 000"; match any space.
