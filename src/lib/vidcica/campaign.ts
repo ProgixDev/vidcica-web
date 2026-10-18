@@ -208,6 +208,24 @@ export function boostDraftToRow(draft: BoostDraft, userId: string, id: string): 
  */
 export const DAYS_PER_MONTH = 30;
 
+/**
+ * How long a total budget runs: 7 days from its FIRST activation, then it stops.
+ * set-campaign-status sets that end when the campaign is first activated (the
+ * end made at creation is only a placeholder Meta requires) and keeps it in
+ * `endDate`, so a resumed campaign shows its real end. Mirrors TOTAL_RUN_DAYS in
+ * vidcica supabase/functions/set-campaign-status/total-run.ts; change both.
+ */
+export const TOTAL_RUN_DAYS = 7;
+
+/** A date as "25 octobre 2026" / "October 25, 2026". */
+export function formatAdDate(iso: string, locale: "fr" | "en" = "fr"): string {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-CA" : "fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(iso));
+}
+
 /** Is the campaign a created Meta campaign that can be activated/paused? */
 export function isLaunched(c: Pick<Campaign, "externalCampaignId">): boolean {
   return !!c.externalCampaignId;

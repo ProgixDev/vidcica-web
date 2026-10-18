@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import {
   budgetText,
+  formatAdDate,
   formatAdMoney,
   objectiveLabel,
   CAMPAIGN_OBJECTIVE_KEY,
@@ -11,7 +12,7 @@ import {
   type Campaign,
   type SupportedObjective,
 } from "@/lib/vidcica/campaign";
-import { useT } from "@/lib/i18n/provider";
+import { useLocale, useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
 import { ActivatePauseControls } from "./activate-pause-controls";
 import { CampaignManageControls } from "./campaign-manage";
@@ -54,7 +55,13 @@ export function CampaignDetail({
   canBoost?: boolean;
 }) {
   const t = useT();
+  const locale = useLocale();
   const meta = STATUS_META[campaign.status];
+  // A total budget's end, once its first activation set it.
+  const endsOn =
+    campaign.budgetMode === "total" && campaign.endDate
+      ? t("ads.endsOn", { date: formatAdDate(campaign.endDate, locale) })
+      : null;
   const noData = !campaign.metrics.updatedAt;
   const objectiveKey = CAMPAIGN_OBJECTIVE_KEY[campaign.objective as SupportedObjective];
 
@@ -69,6 +76,7 @@ export function CampaignDetail({
             <p className="text-muted-foreground text-[15px] leading-relaxed">
               {objectiveKey ? t(objectiveKey) : objectiveLabel(campaign.objective)} ·{" "}
               {budgetText(t, campaign, currency)}
+              {endsOn ? <span data-testid="detail-ends-on"> · {endsOn}</span> : null}
             </p>
           </div>
           <Badge variant={meta.variant} className="mt-2 shrink-0" data-testid="detail-status">

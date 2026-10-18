@@ -154,6 +154,24 @@ describe("<BoostWizard /> (AC-2)", () => {
     expect(screen.queryByTestId("bw-budget-runs")).not.toBeInTheDocument();
   });
 
+  // A total budget runs 7 days from its first activation, and both the budget
+  // step and the review say so (AC-21).
+  it("says a total budget runs 7 days from its activation, with the daily share", async () => {
+    renderWizard({
+      resolveAccount: async () => ({ ok: true, hasAccount: true, hasPage: true, currency: "CAD" }),
+    });
+    fireEvent.change(await screen.findByTestId("bw-video"), { target: { value: "v1" } });
+    for (let i = 0; i < 3; i++) fireEvent.click(screen.getByTestId("boost-next"));
+    fireEvent.change(screen.getByLabelText("Type de budget"), { target: { value: "total" } });
+    fireEvent.change(screen.getByTestId("bw-budget-total"), { target: { value: "70" } });
+    const ends = screen.getByTestId("bw-budget-ends");
+    expect(ends).toHaveTextContent("La campagne dure 7 jours à partir de son activation");
+    expect(ends).toHaveTextContent(/environ 10\s?\$/);
+
+    fireEvent.click(screen.getByTestId("boost-next"));
+    expect(screen.getByTestId("bw-review")).toHaveTextContent(/70\s?\$CA au total sur 7 jours/);
+  });
+
   it("says it in English on an English page", async () => {
     renderWizard({}, videos, "en");
     fireEvent.change(await screen.findByTestId("bw-video"), { target: { value: "v1" } });

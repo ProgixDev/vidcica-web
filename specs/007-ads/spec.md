@@ -128,7 +128,20 @@ Changed requirements (they replace the matching parts above):
   so, with a month's cost (daily × 30, the projection `set-campaign-status` uses for its monthly
   cap). The Activate confirmation of a daily campaign says it too; a total budget's doesn't.
   Tests: `boost-wizard` ("says a daily budget runs…", "says it in English…"),
-  `activate-pause-controls` ("says a daily campaign runs…", "doesn't say it for a total budget…").
+  `activate-pause-controls` ("says a daily campaign runs…").
+- **AC-21 (a total Boost runs 7 days from its activation):** a total budget runs
+  `TOTAL_RUN_DAYS` (7) from its first activation, then stops. Before vidcica `set-campaign-status`
+  v10 its end was 7 days after the campaign was created on Meta, whenever it was activated, and
+  nothing said so. The first activation now moves the ad set's end and keeps it in
+  `campaigns.end_date`. A resume keeps that end; once it has passed, Activate answers
+  `campaign_ended`. `sync-ad-insights` v10 marks the campaign `terminee`, since Meta's status still
+  says ACTIVE then.
+  - The budget step shows the run with its daily share; the review shows "… au total sur 7 jours".
+  - The Activate confirmation says "7 jours à partir de maintenant", or the end date on a resume.
+  - The campaign page shows "jusqu’au {date}".
+  - Tests: `boost-wizard` ("says a total budget runs 7 days…"), `activate-pause-controls` ("says a
+    total budget runs…", "says when a resumed total budget stops", "says the campaign is over…"),
+    `campaign-detail` ("shows when a running total budget stops…"), `ads` ("maps the reasons…").
 
 Out of scope still: choosing or switching ad accounts (the server keeps the stored one while it is
 usable). Choosing the Facebook Page is now on Networks (spec 003 update).

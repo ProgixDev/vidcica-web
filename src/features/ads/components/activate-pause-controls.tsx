@@ -12,7 +12,7 @@ import {
   type CreateCampaignOutcome,
   type StatusOutcome,
 } from "@/lib/vidcica/ads";
-import { isLaunched, type Campaign } from "@/lib/vidcica/campaign";
+import { formatAdDate, isLaunched, TOTAL_RUN_DAYS, type Campaign } from "@/lib/vidcica/campaign";
 import { useLocale, useT } from "@/lib/i18n/provider";
 
 /** DI'd for tests; defaults to the real edge client. */
@@ -36,8 +36,10 @@ type Problem = { text: string; link?: { href: string; label: string; external?: 
  *   enforces it too (`plan_required`).
  * - `set-campaign-status` enforces the monthly cap and the minimum in the ad
  *   account's currency; their amounts are shown in that currency.
- * - A daily budget has no end date on Meta, so the confirmation of a daily
- *   campaign says it runs every day until it is paused.
+ * - The confirmation says how long the campaign will spend. A daily budget has
+ *   no end date on Meta: it runs every day until paused. A total budget runs
+ *   TOTAL_RUN_DAYS from its first activation; once activated, `endDate` holds
+ *   that end, and a resume says when it stops.
  */
 export function ActivatePauseControls({
   campaign,
@@ -45,7 +47,7 @@ export function ActivatePauseControls({
   onSetStatus = realSetStatus,
   onLaunch = realLaunch,
 }: {
-  campaign: Pick<Campaign, "id" | "status" | "externalCampaignId" | "budgetMode">;
+  campaign: Pick<Campaign, "id" | "status" | "externalCampaignId" | "budgetMode" | "endDate">;
   /** The plan includes Boost (Pro/Studio). */
   canBoost?: boolean;
   onSetStatus?: SetStatusFn;
@@ -197,13 +199,17 @@ export function ActivatePauseControls({
             {t("ads.activate.confirmBefore")}{" "}
             <strong className="font-semibold">{t("ads.activate.confirmBold")}</strong>{" "}
             {t("ads.activate.confirmAfter")}{" "}
-            {campaign.budgetMode === "total" ? null : (
-              <>
-                <span data-testid="activate-confirm-daily">
-                  {t("ads.activate.confirmDaily")}
-                </span>{" "}
-              </>
-            )}
+            {campaign.budgetMode === "total" ? (
+              <span data-testid="activate-confirm-total">
+                {campaign.endDate
+                  ? t("ads.activate.confirmTotalEnds", {
+                      date: formatAdDate(campaign.endDate, locale),
+                    })
+                  : t("ads.activate.confirmTotalStart", { days: TOTAL_RUN_DAYS })}
+              </span>
+            ) : (
+              <span data-testid="activate-confirm-daily">{t("ads.activate.confirmDaily")}</span>
+            )}{" "}
             {t("ads.activate.confirmQuestion")}
           </p>
           <div className="flex flex-wrap gap-2">

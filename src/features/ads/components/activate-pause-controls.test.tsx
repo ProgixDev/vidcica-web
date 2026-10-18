@@ -53,13 +53,40 @@ describe("<ActivatePauseControls /> (AC-5/6)", () => {
     expect(screen.getByTestId("activate-confirm")).toHaveTextContent(/pause\. Confirmer \?/);
   });
 
-  it("doesn't say it for a total budget, which ends on its own", () => {
-    render(<ActivatePauseControls campaign={launched("en_pause", "total")} />);
+  // A total budget runs 7 days from its first activation (AC-21).
+  it("says a total budget runs 7 days from now on its first activation", () => {
+    render(<ActivatePauseControls campaign={launched("in_review", "total")} />);
     fireEvent.click(screen.getByTestId("activate-btn"));
-    expect(screen.getByTestId("activate-confirm")).toHaveTextContent(
-      /dépense réelle selon votre budget\. Confirmer \?/,
+    expect(screen.getByTestId("activate-confirm-total")).toHaveTextContent(
+      "La campagne dure 7 jours à partir de maintenant, puis s’arrête.",
     );
+    expect(screen.getByTestId("activate-confirm")).toHaveTextContent(/s’arrête\. Confirmer \?/);
     expect(screen.queryByTestId("activate-confirm-daily")).not.toBeInTheDocument();
+  });
+
+  it("says when a resumed total budget stops", () => {
+    render(
+      <ActivatePauseControls
+        campaign={{ ...launched("en_pause", "total"), endDate: "2026-10-25T16:00:00.000Z" }}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("activate-btn"));
+    expect(screen.getByTestId("activate-confirm-total")).toHaveTextContent(
+      "La campagne s’arrête le 25 octobre 2026.",
+    );
+  });
+
+  it("says the campaign is over when Meta's end has passed", async () => {
+    const onSetStatus = vi.fn(async () => ({ ok: false as const, reason: "campaign_ended" }));
+    render(
+      <ActivatePauseControls campaign={launched("en_pause", "total")} onSetStatus={onSetStatus} />,
+    );
+    fireEvent.click(screen.getByTestId("activate-btn"));
+    fireEvent.click(screen.getByTestId("activate-confirm-btn"));
+    expect(await screen.findByTestId("activate-error")).toHaveTextContent(
+      "Cette campagne est terminée : sa date de fin est passée.",
+    );
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("surfaces the monthly spend-cap error and does not refresh", async () => {

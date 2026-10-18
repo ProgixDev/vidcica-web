@@ -1064,6 +1064,10 @@ export const fr = {
   "ads.budgetDailyMin": "Minimum {amount} par jour.",
   "ads.budgetDailyRuns":
     "La campagne est diffusée chaque jour jusqu’à ce que vous la mettiez en pause, soit environ {monthly} par mois.",
+  "ads.budgetTotalRuns":
+    "La campagne dure {days} jours à partir de son activation, puis s’arrête : environ {perDay} par jour.",
+  "ads.budgetTotalOverDays": "{amount} au total sur {days} jours",
+  "ads.endsOn": "jusqu’au {date}",
   "ads.review.note":
     "La campagne est créée en pause. Aucune dépense tant que vous ne l’activez pas.",
   "ads.activate.draftNote":
@@ -1075,6 +1079,9 @@ export const fr = {
   "ads.activate.confirmAfter": "selon votre budget.",
   "ads.activate.confirmDaily":
     "La campagne est diffusée chaque jour jusqu’à ce que vous la mettiez en pause.",
+  "ads.activate.confirmTotalStart":
+    "La campagne dure {days} jours à partir de maintenant, puis s’arrête.",
+  "ads.activate.confirmTotalEnds": "La campagne s’arrête le {date}.",
   "ads.activate.confirmQuestion": "Confirmer ?",
   "ads.activate.activating": "Activation…",
   "ads.activate.confirmActivate": "Confirmer l’activation",
@@ -1113,6 +1120,8 @@ export const fr = {
   "ads.err.currencyChanged":
     "Votre compte publicitaire facture maintenant dans une autre devise que ce brouillon. Dupliquez-le pour refaire le budget.",
   "ads.err.launchInProgress": "Le lancement est déjà en cours. Patientez quelques secondes.",
+  "ads.err.campaignEnded":
+    "Cette campagne est terminée : sa date de fin est passée. Dupliquez-la pour la relancer.",
   "ads.err.adAccountDisabled":
     "Votre compte publicitaire Meta est désactivé ou a un problème de paiement. Réglez-le dans le Gestionnaire de publicités.",
   "ads.err.noAdsScope":
@@ -2575,6 +2584,10 @@ export const en: Partial<Record<MessageKey, string>> = {
   "ads.budgetDailyValue": "{amount} per day",
   "ads.budgetDailyMin": "Minimum {amount} per day.",
   "ads.budgetDailyRuns": "The campaign runs every day until you pause it, about {monthly} a month.",
+  "ads.budgetTotalRuns":
+    "The campaign runs for {days} days from when you activate it, then stops: about {perDay} a day.",
+  "ads.budgetTotalOverDays": "{amount} total over {days} days",
+  "ads.endsOn": "until {date}",
   "ads.review.note": "The campaign is created paused. No spend until you activate it.",
   "ads.activate.draftNote":
     "This draft hasn't been created on Meta yet. Ads must be available on your account (ad account + Facebook Page) to launch it.",
@@ -2584,6 +2597,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "ads.activate.confirmBold": "real spending",
   "ads.activate.confirmAfter": "based on your budget.",
   "ads.activate.confirmDaily": "The campaign runs every day until you pause it.",
+  "ads.activate.confirmTotalStart": "The campaign runs for {days} days from now, then stops.",
+  "ads.activate.confirmTotalEnds": "The campaign stops on {date}.",
   "ads.activate.confirmQuestion": "Confirm?",
   "ads.activate.activating": "Activating…",
   "ads.activate.confirmActivate": "Confirm activation",
@@ -2619,6 +2634,8 @@ export const en: Partial<Record<MessageKey, string>> = {
   "ads.err.currencyChanged":
     "Your ad account now bills in a different currency than this draft. Duplicate it to set the budget again.",
   "ads.err.launchInProgress": "The launch is already in progress. Wait a few seconds.",
+  "ads.err.campaignEnded":
+    "This campaign has ended: its end date has passed. Duplicate it to run it again.",
   "ads.err.adAccountDisabled":
     "Your Meta ad account is disabled or has a payment issue. Fix it in Ads Manager.",
   "ads.err.noAdsScope":

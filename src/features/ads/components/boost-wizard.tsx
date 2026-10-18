@@ -15,6 +15,7 @@ import {
   CAMPAIGN_OBJECTIVE_KEY,
   DAYS_PER_MONTH,
   SUPPORTED_OBJECTIVES,
+  TOTAL_RUN_DAYS,
   isWebLink,
   needsWebsite,
   type BoostDraft,
@@ -710,8 +711,19 @@ function BudgetStep({ draft, setDraft }: StepProps) {
           ? t("ads.budgetTotalValue", { amount: format(amount) })
           : t("ads.budgetDailyValue", { amount: format(amount) })}
       </m.p>
-      {/* A daily budget has no end date on Meta: say so, with what a month costs. */}
-      {draft.budgetMode === "total" ? null : (
+      {/* How long it spends: a daily budget until it is paused (no end date on
+          Meta), a total one for TOTAL_RUN_DAYS from its first activation. */}
+      {draft.budgetMode === "total" ? (
+        <p
+          className="text-muted-foreground text-[13px] leading-relaxed"
+          data-testid="bw-budget-ends"
+        >
+          {t("ads.budgetTotalRuns", {
+            days: TOTAL_RUN_DAYS,
+            perDay: format(draft.budgetTotal / TOTAL_RUN_DAYS),
+          })}
+        </p>
+      ) : (
         <p
           className="text-muted-foreground text-[13px] leading-relaxed"
           data-testid="bw-budget-runs"
@@ -747,7 +759,7 @@ function ReviewStep({ draft, videos }: { draft: StepProps["draft"]; videos: Vide
     [
       t("ads.review.budget"),
       draft.budgetMode === "total"
-        ? t("ads.budgetTotalValue", { amount: format(draft.budgetTotal) })
+        ? t("ads.budgetTotalOverDays", { amount: format(draft.budgetTotal), days: TOTAL_RUN_DAYS })
         : t("ads.budgetDailyValue", { amount: format(draft.budgetDaily) }),
     ],
   ];

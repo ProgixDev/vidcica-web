@@ -208,6 +208,8 @@ export function adsErrorKey(reason: string): MessageKey {
       return "ads.err.currencyChanged";
     case "launch_in_progress":
       return "ads.err.launchInProgress";
+    case "campaign_ended":
+      return "ads.err.campaignEnded";
     case "ad_account_disabled":
       return "ads.err.adAccountDisabled";
     case "no_ads_scope":

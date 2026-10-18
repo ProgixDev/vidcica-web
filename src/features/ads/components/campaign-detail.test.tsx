@@ -81,4 +81,22 @@ describe("<CampaignDetail /> (AC-7)", () => {
     expect(detail).toHaveTextContent("12,50 $CA"); // spent
     expect(detail).toHaveTextContent("25 $CA"); // the daily budget line
   });
+
+  // A total budget's end is set at its first activation (AC-21).
+  it("shows when a running total budget stops, and nothing for a daily one", () => {
+    const { unmount } = render(
+      <CampaignDetail
+        campaign={{
+          ...base,
+          budgetMode: "total",
+          budgetTotal: 70,
+          endDate: "2026-10-25T16:00:00.000Z",
+        }}
+      />,
+    );
+    expect(screen.getByTestId("detail-ends-on")).toHaveTextContent("jusqu’au 25 octobre 2026");
+    unmount();
+    render(<CampaignDetail campaign={{ ...base, endDate: "2026-10-25T16:00:00.000Z" }} />);
+    expect(screen.queryByTestId("detail-ends-on")).not.toBeInTheDocument();
+  });
 });

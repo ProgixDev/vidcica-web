@@ -183,6 +183,8 @@ describe("adsErrorKey", () => {
     expect(adsErrorKey("no_ads_scope")).toBe("ads.err.noAdsScope");
     expect(adsErrorKey("token_decrypt_failed")).toBe("ads.err.tokenDecrypt");
     expect(adsErrorKey("meta_unreachable")).toBe("ads.err.metaUnreachable");
+    // A total budget whose 7 days are over (set-campaign-status v10).
+    expect(adsErrorKey("campaign_ended")).toBe("ads.err.campaignEnded");
   });
 
   it("says the amount when the server named one, in the account’s currency", () => {
