@@ -201,6 +201,13 @@ export function boostDraftToRow(draft: BoostDraft, userId: string, id: string): 
   };
 }
 
+/**
+ * Days in a month, for spend projections. A daily budget has no end date on
+ * Meta: the campaign runs every day until it is paused. A month of it is the
+ * daily amount × 30, the projection set-campaign-status uses for its monthly cap.
+ */
+export const DAYS_PER_MONTH = 30;
+
 /** Is the campaign a created Meta campaign that can be activated/paused? */
 export function isLaunched(c: Pick<Campaign, "externalCampaignId">): boolean {
   return !!c.externalCampaignId;

@@ -123,6 +123,12 @@ Changed requirements (they replace the matching parts above):
   `campaign-manage`, `activate-pause-controls` ("offers Pause on a refused campaign…").
 - **AC-19 (money everywhere):** ad spend and cost per lead on Analytics are shown in the ad
   account's currency, never a fixed "€".
+- **AC-20 (a daily Boost runs until paused):** a daily budget has no end date on Meta (only a
+  total budget gets one), so the campaign runs every day until it is paused. The budget step says
+  so, with a month's cost (daily × 30, the projection `set-campaign-status` uses for its monthly
+  cap). The Activate confirmation of a daily campaign says it too; a total budget's doesn't.
+  Tests: `boost-wizard` ("says a daily budget runs…", "says it in English…"),
+  `activate-pause-controls` ("says a daily campaign runs…", "doesn't say it for a total budget…").
 
 Out of scope still: choosing or switching ad accounts (the server keeps the stored one while it is
 usable). Choosing the Facebook Page is now on Networks (spec 003 update).

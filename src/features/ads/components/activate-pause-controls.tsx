@@ -36,6 +36,8 @@ type Problem = { text: string; link?: { href: string; label: string; external?: 
  *   enforces it too (`plan_required`).
  * - `set-campaign-status` enforces the monthly cap and the minimum in the ad
  *   account's currency; their amounts are shown in that currency.
+ * - A daily budget has no end date on Meta, so the confirmation of a daily
+ *   campaign says it runs every day until it is paused.
  */
 export function ActivatePauseControls({
   campaign,
@@ -43,7 +45,7 @@ export function ActivatePauseControls({
   onSetStatus = realSetStatus,
   onLaunch = realLaunch,
 }: {
-  campaign: Pick<Campaign, "id" | "status" | "externalCampaignId">;
+  campaign: Pick<Campaign, "id" | "status" | "externalCampaignId" | "budgetMode">;
   /** The plan includes Boost (Pro/Studio). */
   canBoost?: boolean;
   onSetStatus?: SetStatusFn;
@@ -194,7 +196,15 @@ export function ActivatePauseControls({
           <p className="text-[15px] leading-relaxed">
             {t("ads.activate.confirmBefore")}{" "}
             <strong className="font-semibold">{t("ads.activate.confirmBold")}</strong>{" "}
-            {t("ads.activate.confirmAfter")}
+            {t("ads.activate.confirmAfter")}{" "}
+            {campaign.budgetMode === "total" ? null : (
+              <>
+                <span data-testid="activate-confirm-daily">
+                  {t("ads.activate.confirmDaily")}
+                </span>{" "}
+              </>
+            )}
+            {t("ads.activate.confirmQuestion")}
           </p>
           <div className="flex flex-wrap gap-2">
             <Button

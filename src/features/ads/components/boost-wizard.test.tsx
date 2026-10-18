@@ -136,6 +136,34 @@ describe("<BoostWizard /> (AC-2)", () => {
     expect(screen.getByTestId("boost-next")).toBeEnabled();
   });
 
+  // Regression: a daily budget has no end date on Meta, so the campaign runs until
+  // it is paused, and the budget step never said so (AC-20).
+  it("says a daily budget runs every day until paused, with a month’s cost", async () => {
+    renderWizard({
+      resolveAccount: async () => ({ ok: true, hasAccount: true, hasPage: true, currency: "CAD" }),
+    });
+    fireEvent.change(await screen.findByTestId("bw-video"), { target: { value: "v1" } });
+    for (let i = 0; i < 3; i++) fireEvent.click(screen.getByTestId("boost-next"));
+    fireEvent.change(screen.getByTestId("bw-budget-daily"), { target: { value: "5" } });
+    const runs = screen.getByTestId("bw-budget-runs");
+    expect(runs).toHaveTextContent("jusqu’à ce que vous la mettiez en pause");
+    expect(runs).toHaveTextContent(/environ 150\s?\$/);
+
+    // A total budget ends on its own: no such line.
+    fireEvent.change(screen.getByLabelText("Type de budget"), { target: { value: "total" } });
+    expect(screen.queryByTestId("bw-budget-runs")).not.toBeInTheDocument();
+  });
+
+  it("says it in English on an English page", async () => {
+    renderWizard({}, videos, "en");
+    fireEvent.change(await screen.findByTestId("bw-video"), { target: { value: "v1" } });
+    for (let i = 0; i < 3; i++) fireEvent.click(screen.getByTestId("boost-next"));
+    fireEvent.change(screen.getByTestId("bw-budget-daily"), { target: { value: "10" } });
+    expect(screen.getByTestId("bw-budget-runs")).toHaveTextContent(
+      /The campaign runs every day until you pause it, about .*300/,
+    );
+  });
+
   // Regression: Traffic was offered with nowhere to send people. Meta built the
   // campaign, ad set and creative, then refused the ad, leaving an empty campaign.
   it("asks Traffic for a website link and won't continue without a full one", async () => {

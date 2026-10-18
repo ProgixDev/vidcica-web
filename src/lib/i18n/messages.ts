@@ -1062,6 +1062,8 @@ export const fr = {
   "ads.budgetTotalValue": "{amount} au total",
   "ads.budgetDailyValue": "{amount} par jour",
   "ads.budgetDailyMin": "Minimum {amount} par jour.",
+  "ads.budgetDailyRuns":
+    "La campagne est diffusée chaque jour jusqu’à ce que vous la mettiez en pause, soit environ {monthly} par mois.",
   "ads.review.note":
     "La campagne est créée en pause. Aucune dépense tant que vous ne l’activez pas.",
   "ads.activate.draftNote":
@@ -1070,7 +1072,10 @@ export const fr = {
   "ads.activate.activate": "Activer la campagne",
   "ads.activate.confirmBefore": "L’activation lance la diffusion et engage une",
   "ads.activate.confirmBold": "dépense réelle",
-  "ads.activate.confirmAfter": "selon votre budget. Confirmer ?",
+  "ads.activate.confirmAfter": "selon votre budget.",
+  "ads.activate.confirmDaily":
+    "La campagne est diffusée chaque jour jusqu’à ce que vous la mettiez en pause.",
+  "ads.activate.confirmQuestion": "Confirmer ?",
   "ads.activate.activating": "Activation…",
   "ads.activate.confirmActivate": "Confirmer l’activation",
   "ads.field.url": "Lien de votre site",
@@ -2569,6 +2574,7 @@ export const en: Partial<Record<MessageKey, string>> = {
   "ads.budgetTotalValue": "{amount} total",
   "ads.budgetDailyValue": "{amount} per day",
   "ads.budgetDailyMin": "Minimum {amount} per day.",
+  "ads.budgetDailyRuns": "The campaign runs every day until you pause it, about {monthly} a month.",
   "ads.review.note": "The campaign is created paused. No spend until you activate it.",
   "ads.activate.draftNote":
     "This draft hasn't been created on Meta yet. Ads must be available on your account (ad account + Facebook Page) to launch it.",
@@ -2576,7 +2582,9 @@ export const en: Partial<Record<MessageKey, string>> = {
   "ads.activate.activate": "Activate campaign",
   "ads.activate.confirmBefore": "Activating starts delivery and triggers",
   "ads.activate.confirmBold": "real spending",
-  "ads.activate.confirmAfter": "based on your budget. Confirm?",
+  "ads.activate.confirmAfter": "based on your budget.",
+  "ads.activate.confirmDaily": "The campaign runs every day until you pause it.",
+  "ads.activate.confirmQuestion": "Confirm?",
   "ads.activate.activating": "Activating…",
   "ads.activate.confirmActivate": "Confirm activation",
   "ads.field.url": "Your website link",

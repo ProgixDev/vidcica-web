@@ -11,12 +11,22 @@ afterEach(() => {
   refresh.mockClear();
 });
 
-type C = Pick<Campaign, "id" | "status" | "externalCampaignId">;
-const launched = (status: Campaign["status"]): C => ({
+type C = Pick<Campaign, "id" | "status" | "externalCampaignId" | "budgetMode">;
+const launched = (
+  status: Campaign["status"],
+  budgetMode: Campaign["budgetMode"] = "quotidien",
+): C => ({
   id: "c1",
   status,
   externalCampaignId: "ext1",
+  budgetMode,
 });
+const draft: C = {
+  id: "c1",
+  status: "brouillon",
+  externalCampaignId: undefined,
+  budgetMode: "quotidien",
+};
 
 describe("<ActivatePauseControls /> (AC-5/6)", () => {
   it("requires an explicit confirmation before activating (real spend)", async () => {
@@ -30,6 +40,26 @@ describe("<ActivatePauseControls /> (AC-5/6)", () => {
     fireEvent.click(screen.getByTestId("activate-confirm-btn"));
     await waitFor(() => expect(onSetStatus).toHaveBeenCalledWith("c1", "activate"));
     expect(refresh).toHaveBeenCalled();
+  });
+
+  // Regression: a daily Boost has no end date on Meta and runs until paused, but
+  // the confirmation only said "real spending based on your budget" (AC-20).
+  it("says a daily campaign runs every day until paused before activating", () => {
+    render(<ActivatePauseControls campaign={launched("en_pause")} />);
+    fireEvent.click(screen.getByTestId("activate-btn"));
+    expect(screen.getByTestId("activate-confirm-daily")).toHaveTextContent(
+      "La campagne est diffusée chaque jour jusqu’à ce que vous la mettiez en pause.",
+    );
+    expect(screen.getByTestId("activate-confirm")).toHaveTextContent(/pause\. Confirmer \?/);
+  });
+
+  it("doesn't say it for a total budget, which ends on its own", () => {
+    render(<ActivatePauseControls campaign={launched("en_pause", "total")} />);
+    fireEvent.click(screen.getByTestId("activate-btn"));
+    expect(screen.getByTestId("activate-confirm")).toHaveTextContent(
+      /dépense réelle selon votre budget\. Confirmer \?/,
+    );
+    expect(screen.queryByTestId("activate-confirm-daily")).not.toBeInTheDocument();
   });
 
   it("surfaces the monthly spend-cap error and does not refresh", async () => {
@@ -66,11 +96,7 @@ describe("<ActivatePauseControls /> (AC-5/6)", () => {
   });
 
   it("shows a note and a launch button (no activate) for a not-yet-created brouillon", () => {
-    render(
-      <ActivatePauseControls
-        campaign={{ id: "c1", status: "brouillon", externalCampaignId: undefined }}
-      />,
-    );
+    render(<ActivatePauseControls campaign={draft} />);
     expect(screen.getByTestId("campaign-draft-note")).toBeInTheDocument();
     expect(screen.getByTestId("launch-btn")).toBeInTheDocument();
     expect(screen.queryByTestId("activate-btn")).not.toBeInTheDocument();
@@ -78,12 +104,7 @@ describe("<ActivatePauseControls /> (AC-5/6)", () => {
 
   it("launches a saved draft on Meta, then re-reads the page", async () => {
     const onLaunch = vi.fn(async () => ({ ok: true as const, status: "in_review" }));
-    render(
-      <ActivatePauseControls
-        campaign={{ id: "c1", status: "brouillon", externalCampaignId: undefined }}
-        onLaunch={onLaunch}
-      />,
-    );
+    render(<ActivatePauseControls campaign={draft} onLaunch={onLaunch} />);
     fireEvent.click(screen.getByTestId("launch-btn"));
     await waitFor(() => expect(onLaunch).toHaveBeenCalledWith("c1"));
     expect(refresh).toHaveBeenCalled();
@@ -96,24 +117,14 @@ describe("<ActivatePauseControls /> (AC-5/6)", () => {
       minDaily: 5,
       currency: "CAD",
     }));
-    render(
-      <ActivatePauseControls
-        campaign={{ id: "c1", status: "brouillon", externalCampaignId: undefined }}
-        onLaunch={onLaunch}
-      />,
-    );
+    render(<ActivatePauseControls campaign={draft} onLaunch={onLaunch} />);
     fireEvent.click(screen.getByTestId("launch-btn"));
     expect(await screen.findByTestId("activate-error")).toHaveTextContent("5 $CA");
     expect(refresh).not.toHaveBeenCalled();
   });
 
   it("without a plan with Boost: no launch, no activate, a plan note instead", () => {
-    const { unmount } = render(
-      <ActivatePauseControls
-        campaign={{ id: "c1", status: "brouillon", externalCampaignId: undefined }}
-        canBoost={false}
-      />,
-    );
+    const { unmount } = render(<ActivatePauseControls campaign={draft} canBoost={false} />);
     expect(screen.queryByTestId("launch-btn")).not.toBeInTheDocument();
     expect(screen.getByTestId("campaign-plan-note")).toBeInTheDocument();
     unmount();

@@ -13,6 +13,7 @@ import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   CAMPAIGN_OBJECTIVE_KEY,
+  DAYS_PER_MONTH,
   SUPPORTED_OBJECTIVES,
   isWebLink,
   needsWebsite,
@@ -709,6 +710,15 @@ function BudgetStep({ draft, setDraft }: StepProps) {
           ? t("ads.budgetTotalValue", { amount: format(amount) })
           : t("ads.budgetDailyValue", { amount: format(amount) })}
       </m.p>
+      {/* A daily budget has no end date on Meta: say so, with what a month costs. */}
+      {draft.budgetMode === "total" ? null : (
+        <p
+          className="text-muted-foreground text-[13px] leading-relaxed"
+          data-testid="bw-budget-runs"
+        >
+          {t("ads.budgetDailyRuns", { monthly: format(draft.budgetDaily * DAYS_PER_MONTH) })}
+        </p>
+      )}
     </div>
   );
 }
