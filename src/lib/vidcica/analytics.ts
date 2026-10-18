@@ -80,9 +80,13 @@ export type AnalyticsInputs = {
 };
 
 /** Campaigns whose spend/leads count toward analytics (shared by overview + ads
- *  so the two surfaces can never disagree on the set). */
-const billableCampaigns = (campaigns: ReadonlyArray<Campaign>): ReadonlyArray<Campaign> =>
-  campaigns.filter((c) => c.status === "active" || c.status === "terminee");
+ *  so the two surfaces can never disagree on the set): every campaign that
+ *  exists on Meta, whatever its status now. The metrics are lifetime totals, so
+ *  a paused or refused campaign's past spend is real money; counting only
+ *  active/ended ones showed 0 for a paused campaign that had spent. Drafts never
+ *  launched have no Meta campaign and no metrics. */
+export const billableCampaigns = (campaigns: ReadonlyArray<Campaign>): ReadonlyArray<Campaign> =>
+  campaigns.filter((c) => !!c.externalCampaignId);
 
 /** Real cumulative ad spend — sum of the metric column the cron writes. NOT
  *  range-scaled: the metrics are lifetime cumulative totals from Meta, and
