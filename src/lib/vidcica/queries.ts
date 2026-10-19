@@ -4,7 +4,7 @@
  * every row to `user_id = auth.uid()`, so no explicit user filter is needed.
  */
 import "server-only";
-import type { PlatformId } from "@/lib/vidcica/network";
+import { isPlatformId, type PlatformId } from "@/lib/vidcica/network";
 import { createClient } from "@/lib/supabase/server";
 import { entityId } from "@/lib/vidcica/id";
 import { rowToVideo, type Video } from "@/lib/vidcica/video";
@@ -144,9 +144,10 @@ export async function getPublishTargets(videoId: string): Promise<PublishTarget[
 
   const byPlatform = new Map<string, PublishTarget>();
   for (const row of data) {
-    if (byPlatform.has(row.platform)) continue;
+    // Skip removed platforms (Threads jobs from before 2026-10-19).
+    if (!isPlatformId(row.platform) || byPlatform.has(row.platform)) continue;
     byPlatform.set(row.platform, {
-      platform: row.platform as PlatformId,
+      platform: row.platform,
       externalPostId: row.external_post_id,
     });
   }

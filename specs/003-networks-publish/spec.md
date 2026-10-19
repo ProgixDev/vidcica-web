@@ -12,7 +12,7 @@ The P0 workspace lets a user create and download a video, but the whole point of
 
 ## Desired behavior (the what)
 
-1. **Manage connections.** On a networks screen the user sees each supported platform (YouTube, LinkedIn, Instagram, Facebook, TikTok, X, Threads) with its connection state: connected (with the account handle), not connected, or needs-reconnect. Platforms whose backend isn't configured yet show "Bientôt disponible" and can't be connected.
+1. **Manage connections.** On a networks screen the user sees each supported platform (YouTube, LinkedIn, Instagram, Facebook, TikTok; X and, since 2026-10-19, Threads were dropped) with its connection state: connected (with the account handle), not connected, or needs-reconnect. Platforms whose backend isn't configured yet show "Bientôt disponible" and can't be connected.
 2. **Connect an account.** The user clicks connect on a platform; a provider consent window opens; after they authorize, the connection appears as connected **without a manual refresh**. If they cancel, nothing changes and they see no error. A platform that isn't configured returns a graceful "bientôt disponible".
 3. **Reconnect / disconnect.** A needs-reconnect account offers a one-click reconnect. A connected account can be disconnected. Each connected account can be toggled to include/exclude it from publishing.
 4. **Publish a finished video.** From a ready video, the user opens publish, picks one or more **connected** networks, optionally edits the per-network caption/hashtags, chooses **publish now or schedule for later**, and (for YouTube) whether to post as a Short. Confirming enqueues the publish.

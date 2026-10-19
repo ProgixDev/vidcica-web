@@ -130,8 +130,8 @@ export async function enqueuePublish(
  * Platforms whose live post `delete-post` can actually remove.
  *
  * The edge function answers honestly for the rest: Instagram media is NOT
- * deletable through the Graph API (`not_deletable`), and TikTok / LinkedIn /
- * Threads return `unsupported_platform`. The UI must therefore only offer
+ * deletable through the Graph API (`not_deletable`), and TikTok / LinkedIn
+ * return `unsupported_platform`. The UI must therefore only offer
  * "Retirer" for these two rather than imply a success it cannot deliver.
  */
 export const UNPUBLISHABLE_PLATFORMS: readonly PlatformId[] = ["youtube", "facebook"];
@@ -234,7 +234,7 @@ export function mapUnpublishReason(error: string | undefined): UnpublishFailReas
  *
  * The rest deliberately return null rather than a plausible-looking broken
  * link. TikTok stores a PUBLISH id ("v_pub_file~v2-1.765...") which is not the
- * video id, and Instagram/Threads store a media id, not the shortcode their
+ * video id, and Instagram stores a media id, not the shortcode its
  * public URLs use. There is no way to turn either into a working link without
  * an extra API round-trip.
  */

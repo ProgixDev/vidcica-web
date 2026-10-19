@@ -50,6 +50,29 @@ describe("listMyNetworks (AC-1)", () => {
     expect(order?.args[0]).toBe("platform");
   });
 
+  it("skips rows of a removed platform (Threads rows are still in the database)", async () => {
+    const base = {
+      name: "n",
+      handle: null,
+      avatar_url: null,
+      connected: true,
+      needs_reconnect: false,
+      publishes_enabled: true,
+      last_sync: null,
+      followers: null,
+      platform_metadata: null,
+    };
+    result = {
+      data: [
+        { ...base, id: "th", platform: "threads" },
+        { ...base, id: "yt", platform: "youtube" },
+      ],
+      error: null,
+    };
+    const nets = await listMyNetworks();
+    expect(nets.map((n) => n.platform)).toEqual(["youtube"]);
+  });
+
   it("returns [] on error (no throw)", async () => {
     result = { data: null, error: { message: "boom" } };
     expect(await listMyNetworks()).toEqual([]);

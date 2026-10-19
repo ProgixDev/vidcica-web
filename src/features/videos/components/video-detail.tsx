@@ -261,7 +261,7 @@ export function VideoDetail({
                         {t("videos.viewPost")}
                       </a>
                     ) : (
-                      // TikTok stores a publish id and Instagram/Threads a media
+                      // TikTok stores a publish id and Instagram a media
                       // id, neither of which yields a public URL. Say so rather
                       // than ship a link that 404s.
                       <span className="text-muted-foreground text-xs">

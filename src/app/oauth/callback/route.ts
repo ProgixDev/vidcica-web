@@ -4,7 +4,7 @@ import { clientEnv } from "@/core/env.client";
 /**
  * OAuth callback on a domain we actually OWN.
  *
- * Providers (Google, Meta, TikTok, LinkedIn, Threads) send the creator's browser
+ * Providers (Google, Meta, TikTok, LinkedIn) send the creator's browser
  * here after they approve the consent screen. We forward the query string to the
  * `oauth-callback` Edge Function server-to-server, then send the browser wherever
  * that function says to go.

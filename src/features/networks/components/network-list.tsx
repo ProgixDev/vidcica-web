@@ -48,7 +48,6 @@ const TAGLINE_KEY: Record<PlatformId, MessageKey> = {
   instagram: "networks.tagline.instagram",
   facebook: "networks.tagline.facebook",
   tiktok: "networks.tagline.tiktok",
-  threads: "networks.tagline.threads",
   x: "common.comingSoon", // filtered out of the list anyway
 };
 
@@ -383,7 +382,7 @@ export function NetworkList({
 }) {
   const t = useT();
   const byPlatform = new Map(initial.map((n) => [n.platform, n]));
-  // X is dropped (paid API, provider === null) and Threads is held back — see
+  // X is dropped (paid API, provider === null) and Threads was removed — see
   // PUBLISHING_PLATFORMS. Instagram and Facebook are open to every account
   // since Meta approved the App Review (2026-10-18).
   const platforms = connectablePlatforms();

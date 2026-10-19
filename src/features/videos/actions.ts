@@ -151,7 +151,7 @@ export type UploadedVideoInput = z.infer<typeof UploadedVideoSchema>;
  * an AI script/segments.
  *
  * SECURITY: `video_url` is fetched later by the publish pipeline (YouTube/TikTok
- * stream it; Meta/Threads pull it), so an attacker-controlled URL would be an
+ * stream it; Meta pulls it), so an attacker-controlled URL would be an
  * SSRF vector. We only accept URLs under THIS project's `user-uploads` bucket in
  * the CALLER's own folder — i.e. a file they actually uploaded — never an
  * arbitrary URL. RLS scopes the insert to the caller too.

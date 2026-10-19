@@ -210,7 +210,6 @@ export const fr = {
   "networks.tagline.instagram": "Reels, stories et posts",
   "networks.tagline.facebook": "Reels et publications",
   "networks.tagline.tiktok": "Vidéos courtes virales",
-  "networks.tagline.threads": "Posts et fils de discussion",
   "networks.reason.metaNoPage":
     "Aucune Page Facebook n’a été partagée avec Vidcica. Reconnecte-toi et coche ta Page dans la fenêtre Facebook.",
   "networks.reason.instagramNotLinked":
@@ -929,7 +928,7 @@ export const fr = {
     "Oui. Le catalogue musical est composé de titres libres de droits sélectionnés pour l’usage sur les réseaux sociaux, et les séquences proviennent de banques licenciées ou de modèles d’IA générative.",
   "landing.faq.networks.q": "Sur quels réseaux puis-je publier ?",
   "landing.faq.networks.a":
-    "TikTok, Instagram, Facebook, YouTube Shorts et LinkedIn. Tu connectes tes comptes une fois, puis chaque vidéo se publie en un clic. Threads arrive prochainement.",
+    "TikTok, Instagram, Facebook, YouTube Shorts et LinkedIn. Tu connectes tes comptes une fois, puis chaque vidéo se publie en un clic.",
   "landing.faq.voiceLangs.q": "La voix off existe-t-elle en plusieurs langues ?",
   "landing.faq.voiceLangs.a":
     "Oui — français et anglais aujourd’hui, avec des voix naturelles générées par IA. D’autres langues arriveront ensuite.",
@@ -1809,7 +1808,6 @@ export const en: Partial<Record<MessageKey, string>> = {
   "networks.tagline.instagram": "Reels, stories and posts",
   "networks.tagline.facebook": "Reels and posts",
   "networks.tagline.tiktok": "Viral short videos",
-  "networks.tagline.threads": "Posts and threads",
   "networks.reason.metaNoPage":
     "No Facebook Page was shared with Vidcica. Reconnect and tick your Page in the Facebook window.",
   "networks.reason.instagramNotLinked":
@@ -2516,7 +2514,7 @@ export const en: Partial<Record<MessageKey, string>> = {
     "Yes. The music catalog is made up of royalty-free tracks selected for use on social media, and the footage comes from licensed libraries or generative AI models.",
   "landing.faq.networks.q": "Which networks can I publish to?",
   "landing.faq.networks.a":
-    "TikTok, Instagram, Facebook, YouTube Shorts and LinkedIn. You connect your accounts once, then each video publishes in one click. Threads is coming soon.",
+    "TikTok, Instagram, Facebook, YouTube Shorts and LinkedIn. You connect your accounts once, then each video publishes in one click.",
   "landing.faq.voiceLangs.q": "Is the voiceover available in several languages?",
   "landing.faq.voiceLangs.a":
     "Yes — French and English today, with natural AI-generated voices. More languages will follow.",

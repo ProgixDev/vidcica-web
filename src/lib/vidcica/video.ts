@@ -6,7 +6,7 @@
  */
 import type { Database } from "@/lib/supabase/database.types";
 import type { MessageKey } from "@/lib/i18n";
-import type { PlatformId } from "@/lib/vidcica/network";
+import { isPlatformId, type PlatformId } from "@/lib/vidcica/network";
 
 export type VideoRow = Database["public"]["Tables"]["videos"]["Row"];
 
@@ -72,7 +72,8 @@ export function rowToVideo(r: VideoRow): Video {
     durationSec: r.duration_sec,
     hashtags: r.hashtags,
     creditsUsed: r.credits_used ?? undefined,
-    networks: (r.networks ?? []) as PlatformId[],
+    // Drops removed platforms (a video published to Threads before 2026-10-19).
+    networks: (r.networks ?? []).filter(isPlatformId),
     views: r.views ?? 0,
     viewsReported: r.views !== null,
     likes: r.likes ?? 0,

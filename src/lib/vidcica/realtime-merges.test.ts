@@ -17,4 +17,7 @@ describe("mergePublishJob (AC-9 per-platform status)", () => {
   it("ignores a row without platform/status", () => {
     expect(mergePublishJob({}, {})).toEqual({});
   });
+  it("ignores a removed platform (Threads)", () => {
+    expect(mergePublishJob({}, { platform: "threads", status: "succeeded" })).toEqual({});
+  });
 });

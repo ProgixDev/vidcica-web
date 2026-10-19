@@ -51,18 +51,13 @@ export function isMetaConnectReason(v: unknown): v is MetaConnectReason {
   return v === "meta_no_page" || v === "instagram_not_linked" || v === "meta_error";
 }
 
-/** The seven social platforms (brand names stay English). */
-export type PlatformId =
-  | "youtube"
-  | "tiktok"
-  | "instagram"
-  | "facebook"
-  | "linkedin"
-  | "x"
-  | "threads";
+/** The social platforms (brand names stay English). Threads was removed for
+ *  good on 2026-10-19 (owner's decision): its leftover database rows are
+ *  dropped at the read edge by `isPlatformId`. */
+export type PlatformId = "youtube" | "tiktok" | "instagram" | "facebook" | "linkedin" | "x";
 
 /** OAuth provider key that `oauth-start` expects (a platform maps to a provider). */
-export type OAuthProvider = "google" | "meta" | "linkedin" | "tiktok" | "threads";
+export type OAuthProvider = "google" | "meta" | "linkedin" | "tiktok";
 
 export type Network = {
   id: string; // DB row id (needed for RLS updates)
@@ -127,9 +122,19 @@ export const PLATFORMS: ReadonlyArray<PlatformMeta> = [
   { id: "instagram", label: "Instagram", provider: "meta" },
   { id: "facebook", label: "Facebook", provider: "meta" },
   { id: "tiktok", label: "TikTok", provider: "tiktok" },
-  { id: "threads", label: "Threads", provider: "threads" },
   { id: "x", label: "X", provider: null }, // paid API — not offered
 ];
+
+/**
+ * True for a platform this site knows. The database still holds rows for
+ * platforms that were removed (`threads` rows in `networks`, `publish_jobs` and
+ * `videos.networks`): every read of a platform value from the database goes
+ * through this guard, so a leftover row is skipped instead of reaching a
+ * per-platform map (icon, label, preview) that no longer has it.
+ */
+export function isPlatformId(v: unknown): v is PlatformId {
+  return typeof v === "string" && PLATFORMS.some((p) => p.id === v);
+}
 
 /**
  * Platforms a PUBLIC user can actually connect and publish to today.
@@ -149,9 +154,10 @@ export const PLATFORMS: ReadonlyArray<PlatformMeta> = [
  *               day, at the owner's request (no canary week); the per-account
  *               review allowlist (META_REVIEW_EMAILS) was removed with it.
  *
- *  HELD BACK
- *   - threads   Same Meta app; its permissions were never submitted for review.
+ *  NOT OFFERED
  *   - x         Dropped for good (paid API) — `provider: null` already hides it.
+ *   - threads   Removed for good on 2026-10-19 (owner's decision); no longer in
+ *               the catalog at all.
  *
  * Without this gate the Networks page renders a Connecter button that cannot
  * succeed, and the publish picker offers a platform the backend will reject.

@@ -5,6 +5,7 @@ import {
   PLATFORMS,
   connectablePlatforms,
   heldConnections,
+  isPlatformId,
   isPublishingPlatformEnabled,
   rowToNetwork,
   type Network,
@@ -116,14 +117,28 @@ describe("isPublishingPlatformEnabled", () => {
     expect(isPublishingPlatformEnabled("instagram")).toBe(true);
     expect(isPublishingPlatformEnabled("facebook")).toBe(true);
   });
-  it("holds back Threads, which was never submitted for review", () => {
-    // Offering it ships a button that cannot succeed.
-    expect(isPublishingPlatformEnabled("threads")).toBe(false);
+  it("never offers X (paid API)", () => {
+    expect(isPublishingPlatformEnabled("x")).toBe(false);
+  });
+});
+
+describe("isPlatformId", () => {
+  it("accepts every platform in the catalog", () => {
+    for (const p of PLATFORMS) expect(isPlatformId(p.id)).toBe(true);
+  });
+  it("rejects Threads, removed on 2026-10-19, whose rows are still in the database", () => {
+    expect(isPlatformId("threads")).toBe(false);
+  });
+  it("rejects anything else", () => {
+    expect(isPlatformId("myspace")).toBe(false);
+    expect(isPlatformId("")).toBe(false);
+    expect(isPlatformId(null)).toBe(false);
+    expect(isPlatformId(42)).toBe(false);
   });
 });
 
 describe("connectablePlatforms", () => {
-  it("drops X and Threads, keeps the five live platforms", () => {
+  it("drops X, keeps the five live platforms", () => {
     expect(connectablePlatforms().map((p) => p.id)).toEqual([
       "youtube",
       "linkedin",
@@ -155,12 +170,9 @@ describe("networkStatus", () => {
     expect(networkStatus(x, undefined)).toBe("unavailable");
   });
 
-  it("reports a held-back platform as unavailable even when a row exists", () => {
-    // A row can exist from a dev-mode connect: the UI must still not present it
-    // as connected/publishable.
-    const threads = PLATFORMS.find((p) => p.id === "threads")!;
-    expect(networkStatus(threads, net({ platform: "threads" }))).toBe("unavailable");
-    expect(networkStatus(threads, undefined)).toBe("unavailable");
+  it("reports X as unavailable even when a row exists", () => {
+    // Every account still has a seeded x row: never present it as connectable.
+    expect(networkStatus(x, net({ platform: "x", connected: true }))).toBe("unavailable");
   });
 
   it("offers Instagram and Facebook to every account", () => {

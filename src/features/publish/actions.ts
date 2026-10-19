@@ -7,7 +7,7 @@ import { enqueuePublish, type EnqueueOutcome } from "@/lib/vidcica/publishing";
 import type { PlatformId } from "@/lib/vidcica/network";
 
 // Only connectable platforms are publishable (X has no provider — never valid).
-const CONNECTABLE = ["youtube", "tiktok", "instagram", "facebook", "linkedin", "threads"] as const;
+const CONNECTABLE = ["youtube", "tiktok", "instagram", "facebook", "linkedin"] as const;
 
 const Input = z.object({
   videoId: entityId,

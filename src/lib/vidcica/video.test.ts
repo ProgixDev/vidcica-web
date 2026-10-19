@@ -40,6 +40,12 @@ describe("rowToVideo (AC-5 shape)", () => {
     expect(v.hashtags).toEqual(["#ai", "#short"]);
   });
 
+  it("drops removed platforms from the networks it was published to", () => {
+    // A video published to Threads before 2026-10-19 still lists it.
+    const v = rowToVideo({ ...row, networks: ["threads", "youtube"] } as unknown as VideoRow);
+    expect(v.networks).toEqual(["youtube"]);
+  });
+
   it("coerces null optionals to undefined", () => {
     const v = rowToVideo({
       ...row,

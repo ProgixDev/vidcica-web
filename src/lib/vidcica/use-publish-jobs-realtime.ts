@@ -3,7 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { mapPublishFailureReason, type PublishFailureReason } from "@/lib/vidcica/publishing";
-import type { PlatformId } from "@/lib/vidcica/network";
+import { isPlatformId, type PlatformId } from "@/lib/vidcica/network";
 
 export type PublishJobView = {
   status: "queued" | "running" | "succeeded" | "failed" | string;
@@ -17,12 +17,13 @@ type JobRow = { platform?: string; status?: string; last_error?: string | null; 
 
 /** Fold a publish_jobs change into the per-platform map. Pure — unit-tested (AC-9). */
 export function mergePublishJob(map: PublishStatusMap, row: JobRow): PublishStatusMap {
-  if (!row.platform || !row.status) return map;
+  // A removed platform (Threads) never enters the map.
+  if (!isPlatformId(row.platform) || !row.status) return map;
   const view: PublishJobView = {
     status: row.status,
     reason: row.status === "failed" ? mapPublishFailureReason(row.last_error) : undefined,
   };
-  return { ...map, [row.platform as PlatformId]: view };
+  return { ...map, [row.platform]: view };
 }
 
 /**

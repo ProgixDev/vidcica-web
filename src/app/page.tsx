@@ -42,7 +42,7 @@ const HERO_CLIP = clip("hero");
 
 // Only what a public user can actually publish to today — keep in sync with
 // PUBLISHING_PLATFORMS in lib/vidcica/network.ts. Instagram and Facebook since
-// Meta approved the App Review (2026-10-18); Threads isn't submitted yet.
+// Meta approved the App Review (2026-10-18). Threads was removed (2026-10-19).
 const PLATFORMS = ["TikTok", "Instagram", "YouTube Shorts", "Facebook", "LinkedIn"];
 
 /**

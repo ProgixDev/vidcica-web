@@ -505,62 +505,6 @@ function FacebookCard({
   );
 }
 
-function ThreadsCard({
-  handle,
-  caption,
-  hashtags,
-  thumbnailUrl,
-}: Omit<NativeCardPreviewProps, "platform">) {
-  const t = useT();
-  return (
-    <div style={{ background: "#000", borderRadius: 16, overflow: "hidden", padding: 12 }}>
-      <div style={{ display: "flex", gap: 10 }}>
-        <Avatar color="#fff" size={36} />
-        <div style={{ flex: 1, color: "#fff" }}>
-          <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>{handle}</p>
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, margin: 0 }}>
-            {t("publish.justNow")}
-          </p>
-          <p
-            style={{
-              fontSize: 13,
-              lineHeight: 1.4,
-              marginTop: 4,
-              display: "-webkit-box",
-              WebkitLineClamp: 4,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {caption || "—"}
-          </p>
-          {hashtags.length > 0 && (
-            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, marginTop: 2 }}>
-              {tagLine(hashtags, 3)}
-            </p>
-          )}
-          <Thumb
-            url={thumbnailUrl}
-            style={{
-              width: "100%",
-              aspectRatio: "4 / 5",
-              borderRadius: 14,
-              marginTop: 6,
-              border: "1px solid rgba(255,255,255,0.1)",
-            }}
-          />
-          <div style={{ display: "flex", gap: 18, marginTop: 8 }}>
-            <Glyph d={HEART} size={18} />
-            <Glyph d={COMMENT} size={18} />
-            <Glyph d={REPEAT} size={18} />
-            <Glyph d={SEND} size={18} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function ActionLabel({ d, label }: { d: string; label: string }) {
   return (
     <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600 }}>
@@ -581,8 +525,6 @@ export function NativeCardPreview({ platform, asShort = true, ...rest }: NativeC
       return <LinkedInCard {...rest} />;
     case "facebook":
       return <FacebookCard {...rest} />;
-    case "threads":
-      return <ThreadsCard {...rest} />;
     case "instagram":
     default:
       return <InstagramCard {...rest} />;
