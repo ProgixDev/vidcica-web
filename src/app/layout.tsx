@@ -78,12 +78,28 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
+  // The site and the company behind it. The Organization's `logo` is what
+  // Google may show for the brand; it points at the identity-01 mark (the
+  // favicon alone left Google on its cached old logo, 2026-10-19).
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: site.name,
-    url: site.url,
-    description: site.description,
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${site.url}/#website`,
+        name: site.name,
+        url: site.url,
+        description: site.description,
+        publisher: { "@id": `${site.url}/#organization` },
+      },
+      {
+        "@type": "Organization",
+        "@id": `${site.url}/#organization`,
+        name: site.name,
+        url: site.url,
+        logo: `${site.url}/icon-512.png`,
+      },
+    ],
   };
 
   // Resolve the theme before first paint so there is no flash. Dark is the
