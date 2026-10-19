@@ -49,3 +49,39 @@ Resolved before `/plan-feature`.
 - [x] **Checkout completion:** popup + detect via `profiles.tier` (no backend change). Cleaner web return URL is a signed-off follow-up.
 - [x] **Scope:** subscriptions only (credit packs deferred).
 - [ ] **Credits realtime publication:** confirm `credits_accounts` is in the realtime publication; if not, AC-7 falls back to `router.refresh()` after checkout (plan verifies).
+
+## Update 2026-10-18 — Payments made safe (subscriptions, plan changes, return page)
+
+An audit of the live Stripe account found that no payment had ever completed, and four bugs:
+upgrading opened a second subscription (billing both), the Stripe return address was the app's
+(`vidcica://billing`), the webhook could restore an old plan after a change, and the website said
+"Le paiement a échoué" after 3 minutes even when the payment went through. The backend changed
+the same day (vidcica commits `0e1ee8d` onward: `create-checkout-session` v26, `change-plan`,
+`stripe-webhook`; plan in `C:\Users\Tech-Space\.claude\plans\keen-watching-wand.md`).
+
+Owner's decisions: an upgrade charges the prorated difference now, after a confirmation showing the
+exact amount, and its credits follow the days left; a downgrade takes effect at the end of the paid
+month and can be undone; plan changes happen inside Vidcica, not in Stripe's portal.
+
+- **AC-9 (upgrade):** a subscriber's "Passer à {plan}" opens a confirmation with the amount due
+  today (`change-plan` preview), the monthly price after, the card, and a note when it drops a
+  scheduled downgrade or undoes a cancellation. Nothing is charged before "Confirmer et payer". When
+  the bank asks for 3-D Secure, a "Valider le paiement" button opens Stripe's invoice page from its
+  own click. Tests: `paywall` ("an upgrade shows the amount…", "when the bank asks…").
+- **AC-10 (downgrade):** a lower plan is scheduled for the end of the paid month ("vous gardez
+  {plan} jusqu’au {date}"), shown as a notice with "Garder {plan}" until then. Tests: `paywall` ("a
+  downgrade is scheduled…").
+- **AC-11 (cancel, card, failed renewal):** "Résilier" (on the Free card) keeps the plan until the
+  period end, with "Reprendre l’abonnement". "Carte et factures" opens Stripe's portal for the card,
+  billing details and invoices only. A failed renewal blocks changes and points to the card. Tests:
+  `paywall` ("cancelling keeps the plan…", "a failed renewal…").
+- **AC-12 (Checkout, no second subscription):** people without a subscription buy through Checkout;
+  a subscriber is refused a second subscription (`has_subscription`). A payment the account doesn't
+  show yet reads "Paiement reçu…", never "échoué". A popup that looks closed keeps being checked for
+  a grace period. A credit pack counts as bought when a new `stripe_pack` ledger row appears. Tests:
+  `billing` (runCheckout, startCheckout, startCreditCheckout), `paywall` ("a payment that is still
+  being activated…").
+- **AC-13 (return page):** Stripe returns the popup to the public `/checkout/return` (never
+  localized). It reports the status on the `vidcica:billing` BroadcastChannel and to the opener on
+  our origin only, then closes. Without an opener it goes to `/billing?status=…`, where the paywall
+  says the plan is activating. Tests: `checkout/return/view` and `i18n/routing`.

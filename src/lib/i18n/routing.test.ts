@@ -56,6 +56,8 @@ describe("localizedPath", () => {
     // Supabase, Google, Meta and TikTok all hold these exact URLs.
     expect(localizedPath("/auth/callback", "en")).toBe("/auth/callback");
     expect(localizedPath("/oauth/connected", "en")).toBe("/oauth/connected");
+    // Stripe sends the popup back here; the payment functions build the URL.
+    expect(localizedPath("/checkout/return", "en")).toBe("/checkout/return");
   });
 });
 

@@ -1,13 +1,14 @@
 "use client";
 
 /**
- * Stripe Billing Portal launcher — the web's cancel/resume/invoices surface.
- * Reuses the existing `openBillingPortal` path (create-portal-session) exactly
- * like the paywall's manage button; opened in a popup because the edge function
- * hard-codes a mobile return URL. Since invoices live in Stripe, this button IS
- * the receipts story on web (the mobile receipts.tsx has no web equivalent).
+ * Stripe customer portal launcher: card, billing details and invoices (plan
+ * changes and cancelling live on the Abonnement page since 2026-10-18, through
+ * change-plan). Opened in a popup that Stripe returns to /checkout/return; the
+ * page is re-read once the person is done. Since invoices live in Stripe, this
+ * button IS the receipts story on web.
  */
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { openBillingPortal } from "@/lib/vidcica/billing";
@@ -17,6 +18,7 @@ const POPUP = "width=520,height=760";
 
 export function ManagePortalButton() {
   const t = useT();
+  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -31,13 +33,15 @@ export function ManagePortalButton() {
       if (out.reason === "no_customer") setMessage(t("billing.portalNoCustomer"));
       else if (out.reason === "not_configured") setMessage(t("billing.portalUnavailable"));
       else setMessage(t("billing.portalFailed"));
+      return;
     }
+    void out.closed.then(() => router.refresh());
   }
 
   return (
     <div className="flex flex-col items-start gap-3">
       <Button onClick={manage} disabled={pending} data-testid="open-billing-portal">
-        {pending ? t("billing.opening") : t("billing.managePlan")}
+        {pending ? t("billing.opening") : t("billing.cardAndInvoices")}
       </Button>
       {message ? (
         <p role="alert" className="text-destructive text-[13px]">

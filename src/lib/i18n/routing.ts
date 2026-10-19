@@ -19,11 +19,13 @@ export const LOCALE_HEADER = "x-vidcica-locale";
 export const PATH_HEADER = "x-vidcica-path";
 
 /** Paths that must never be localized: OAuth/email callbacks whose URLs are
- *  registered in Supabase, Google, Meta and TikTok consoles, plus machine
- *  endpoints. A locale prefix here would 404 a live redirect. */
+ *  registered in Supabase, Google, Meta and TikTok consoles, the Stripe return
+ *  page (built by the payment functions), plus machine endpoints. A locale
+ *  prefix here would 404 a live redirect. */
 const UNLOCALIZED = [
   "/auth",
   "/oauth",
+  "/checkout",
   "/api",
   "/robots.txt",
   "/sitemap.xml",

@@ -15,8 +15,9 @@ import { formatNumber } from "@/lib/format";
 const POPUP = "width=520,height=760";
 
 /** Buy-credits panel: one card per pack. Opens Stripe Checkout in a popup (like
- *  the subscription paywall) and detects the top-up via the credit balance rising
- *  (the stripe-webhook grants the pack before the popup returns). The live balance
+ *  the subscription paywall) and detects the top-up by a new `stripe_pack` ledger
+ *  row (stripe-webhook grants it once the payment clears). A payment reported but
+ *  not granted yet reads "payment received", never "failed". The live balance
  *  ring in CreditsView updates on its own over realtime. */
 export function BuyCreditsSection({ packs }: { packs: CreditPack[] }) {
   const t = useT();
@@ -44,9 +45,11 @@ export function BuyCreditsSection({ packs }: { packs: CreditPack[] }) {
     if (out.ok) {
       setMessage({ kind: "ok", text: t("billing.credits.bought") });
       router.refresh();
+    } else if (out.reason === "pending") {
+      setMessage({ kind: "ok", text: t("billing.checkoutPending") });
     } else if (out.reason === "not_configured") {
       setMessage({ kind: "err", text: t("billing.checkoutUnavailable") });
-    } else if (out.reason !== "cancelled") {
+    } else if (out.reason === "error") {
       setMessage({ kind: "err", text: t("billing.checkoutFailed") });
     }
   }
