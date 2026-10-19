@@ -3,6 +3,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import type { TFunction } from "@/lib/i18n";
 import { modelsAvailableTo, modelsUnlockedAt } from "@/lib/vidcica/models";
+import { connectablePlatforms } from "@/lib/vidcica/network";
 import { ORDERED_TIERS, TIERS, type Plan, type TierDef } from "@/lib/vidcica/tiers";
 import { cn } from "@/lib/utils";
 
@@ -184,6 +185,9 @@ function BoolCell({ on, t }: { on: boolean; t: TFunction }) {
 
 function ComparisonTable({ t }: { t: TFunction }) {
   const unlimited = t("landing.pricing.unlimited");
+  // A plan whose allowance covers every network there is to connect (Pro and
+  // Studio) reads "All": its number (7) dates from when X and Threads counted.
+  const connectable = new Set(connectablePlatforms().map((p) => p.provider)).size;
 
   const rows: Row[] = [
     {
@@ -217,7 +221,11 @@ function ComparisonTable({ t }: { t: TFunction }) {
       labelKey: "landing.pricing.row.voiceover",
       render: (tier) => <BoolCell on={tier.voiceover} t={t} />,
     },
-    { labelKey: "landing.pricing.row.networks", render: (tier) => tier.networks },
+    {
+      labelKey: "landing.pricing.row.networks",
+      render: (tier) =>
+        tier.networks >= connectable ? t("landing.pricing.allNetworks") : tier.networks,
+    },
     {
       labelKey: "landing.pricing.row.accounts",
       render: (tier) => (tier.accountsPerPlatform === -1 ? unlimited : tier.accountsPerPlatform),
