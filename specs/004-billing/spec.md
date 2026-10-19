@@ -85,3 +85,18 @@ month and can be undone; plan changes happen inside Vidcica, not in Stripe's por
   localized). It reports the status on the `vidcica:billing` BroadcastChannel and to the opener on
   our origin only, then closes. Without an opener it goes to `/billing?status=…`, where the paywall
   says the plan is activating. Tests: `checkout/return/view` and `i18n/routing`.
+
+## Update 2026-10-19 — Credit packs where people look for them
+
+The packs lived only on `/billing/credits`, in a side column. The billing page, the low-balance
+credit counter and the "not enough credits" message all led to the plans instead.
+
+- **AC-14 (packs on the billing page):** `/billing` shows "Recharger des crédits" under the plans
+  (anchor `#packs`). Each pack card has the same shape as a plan card: credits, the price with
+  "paiement unique", the price per credit, and the saving against the smallest pack from 5 %. The
+  middle pack is "Populaire" and carries the only filled button. The credits page keeps the same
+  cards in a compact column. Tests: `packs` (pricing, saving, popular) and `buy-credits-section`.
+- **AC-15 (links land on the packs):** a low balance (under 20 % of the month) makes the sidebar card
+  and the top-bar counter link to `/billing#packs`. The "not enough credits" message during video
+  creation offers "Acheter des crédits" → `/billing#packs`. The mobile app is unchanged: store
+  builds can't sell credits (decision 2026-07-16).

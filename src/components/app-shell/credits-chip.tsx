@@ -8,7 +8,8 @@ import { useCreditsRealtime } from "@/lib/vidcica/use-credits-realtime";
 /**
  * Live credit balance, mirroring the mobile app's CreditsChip: `{credits} /
  * {monthly} crédits`, danger-tinted under 20 % of the monthly grant, links to
- * billing. Seeded server-side, kept live over the credits_accounts channel.
+ * billing; when low, straight to the credit packs (/billing#packs). Seeded
+ * server-side, kept live over the credits_accounts channel.
  */
 export function CreditsChip({
   userId,
@@ -27,11 +28,12 @@ export function CreditsChip({
   const t = useT();
   const credits = useCreditsRealtime(userId, initial);
   const low = monthlyCredits > 0 && credits / monthlyCredits < 0.2;
+  const href = low ? "/billing#packs" : "/billing";
 
   if (variant === "chip") {
     return (
       <Link
-        href="/billing"
+        href={href}
         data-testid="shell-credits-chip"
         className={cn(
           "flex h-10 items-center rounded-full px-4 text-[13px] font-semibold whitespace-nowrap transition-colors",
@@ -49,7 +51,7 @@ export function CreditsChip({
   const pct = monthlyCredits > 0 ? Math.min(100, Math.round((credits / monthlyCredits) * 100)) : 0;
   return (
     <Link
-      href="/billing"
+      href={href}
       data-testid="shell-credits-card"
       className={cn(
         "bg-secondary hover:bg-accent flex flex-col gap-2.5 rounded-md p-4 transition-colors",

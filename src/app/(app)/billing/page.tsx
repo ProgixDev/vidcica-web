@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { getMyEntitlement } from "@/lib/vidcica/billing-queries";
-import { Paywall } from "@/features/billing";
+import { getMyEntitlement, listCreditPacks } from "@/lib/vidcica/billing-queries";
+import { BuyCreditsSection, Paywall } from "@/features/billing";
 import { ProfileSection, ProfileLinkRow } from "@/features/profile";
 import { PageHeader } from "@/components/app-shell";
 import { getT } from "@/lib/i18n/server";
@@ -29,7 +29,7 @@ export default async function BillingPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in?next=/billing");
 
-  const entitlement = await getMyEntitlement();
+  const [entitlement, packs] = await Promise.all([getMyEntitlement(), listCreditPacks()]);
   const parsed = returnStatusSchema.safeParse((await searchParams).status);
 
   return (
@@ -40,6 +40,9 @@ export default async function BillingPage({
         entitlement={entitlement}
         returnStatus={parsed.success ? parsed.data : undefined}
       />
+      {/* Packs right under the plans: the low-balance and not-enough-credits
+          links land here (#packs). */}
+      <BuyCreditsSection packs={packs} layout="grid" id="packs" />
       <div className="w-full max-w-2xl">
         <ProfileSection title={t("billing.moreTitle")}>
           <ProfileLinkRow

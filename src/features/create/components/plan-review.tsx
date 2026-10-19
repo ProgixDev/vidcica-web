@@ -12,9 +12,11 @@ import { useCreateStore } from "../provider";
 function BlockedNotice({ reason }: { reason: EnqueueGenerationFailReason }) {
   const t = useT();
   const billing = { labelKey: "create.viewPlans" as MessageKey, href: "/billing" };
+  // Not enough credits: a pack is the quickest fix, so land on them.
+  const packs = { labelKey: "create.buyCredits" as MessageKey, href: "/billing#packs" };
   const map: Record<EnqueueGenerationFailReason, { msgKey: MessageKey; action?: typeof billing }> =
     {
-      insufficient_credits: { msgKey: "create.blockInsufficientCredits", action: billing },
+      insufficient_credits: { msgKey: "create.blockInsufficientCredits", action: packs },
       model_locked: { msgKey: "create.blockModelLocked", action: billing },
       daily_cap: { msgKey: "create.blockDailyCap" },
       not_live: { msgKey: "create.blockNotLive" },
