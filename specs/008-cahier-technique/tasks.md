@@ -15,25 +15,26 @@ Tick a box only with evidence: the commit, the check that passed, a screenshot o
 - [x] Branches `feat/cahier-technique` (web from `master`, app from `main`)
 - [x] Tracker: spec.md, plan.md, tasks.md; app decision record `vidcica/docs/decisions/2026-10-24-cahier-technique.md`
 - [x] [W] Mockup images copied to `public/media/` (images only; nothing from the zip runs)
-- [ ] [O] 4 test inboxes. Accounts `qa-free` / `qa-starter` / `qa-pro` / `qa-studio`, tiers set by SQL, passwords in `C:\dev\vidcica-secrets\plan-test-accounts.env`
-- [ ] [S] `_shared/rollout.ts` (`isV2`) + `app_config` `cahier_v2` = `testers` + `cahier_v2_testers`, listed in check:shared
+- [x] [S] 4 QA accounts `qa-{free,starter,pro,studio}@vidcica.com`, created already confirmed (owner chose server-side, no inbox), tiers set by SQL, passwords in `C:\dev\vidcica-secrets\plan-test-accounts.env`. Sign-in checked 2026-10-24
+- [x] [S] `_shared/rollout.ts` (`isV2`) + `app_config` `cahier_v2` = `testers` + `cahier_v2_testers`, listed in check:shared
 
 ## Phase 1 — Plan limits on the server (B4, F)
 
-- [ ] [S] F: migration `plan_limits` (table seeded with the client's table, public read)
-- [ ] [S] F: migration `videos` server-only columns (`size_bytes`, `source`, `script_paid_blocks`) + backfill + `profiles.timezone`
-- [ ] [S] F: `videos` guard trigger (insert + update, user sessions, aware of the switch)
-- [ ] [S] F: `plan_for`, `plan_usage`, `my_plan()` RPC (limits + usage + balance + script prices)
-- [ ] [S] F: `_shared/plan-limits.ts` (`loadPlan`, `planError`, `minPlanFor`) + error codes, synced copies
-- [ ] [S] B4/B3/B5/B6: `enqueue-generation` (duration by scenes, models per plan incl. the path with no model, voice refused for v2 and dropped for old builds, Stock voice for Starter+, quality = min(plan, model), library + storage, caps up to the plan, plan seconds + logo flags in the render settings, service-role status change, no 60 s clamp)
-- [ ] [S] B3: `generation-worker` fails + refunds when the voice runs past the plan's maximum
-- [ ] [S] B3: `generate-plan` refuses a length above the plan before any work
-- [ ] [S] F: `create-ad-campaign` / `set-campaign-status`, Pro capped at 5 active campaigns
-- [ ] [W] F: `src/lib/vidcica/tiers.ts` values = client table; Free credits « À la carte »; unit test against the table
-- [ ] [A] F: `src/lib/tiers.ts` + `policy.ts` values = client table; Free « À la carte » (not 20)
-- [ ] [W] F: new error codes mapped (message + « Passer à l'offre … »)
-- [ ] [A] F: new error codes mapped (message + paywall)
-- [ ] [S] F: `scripts/plan-limits-matrix.mjs`, first version (generation rows)
+- [x] [S] F: migration `plan_limits` (table seeded with the client's table, public read)
+- [x] [S] F: migration `videos` server-only columns (`size_bytes`, `source`, `script_paid_blocks`) + backfill + `profiles.timezone`
+- [x] [S] F: `videos` guard trigger (insert + update, user sessions, aware of the switch)
+- [x] [S] F: `plan_for`, `plan_usage`, `my_plan()` RPC (limits + usage + balance + script prices)
+- [x] [S] F: `_shared/plans.ts` (`loadPlan`, `loadUsage`, `planRefusal`, `minPlanFor`) + error codes, synced copies
+- [x] [S] B4/B3/B5/B6: `enqueue-generation` (duration by scenes, models per plan incl. the path with no model, voice refused for v2 and dropped for old builds, Stock voice for Starter+, quality = min(plan, model), library + storage, caps up to the plan, plan seconds + logo flags in the render settings, service-role status change, no 60 s clamp)
+- [ ] [S] B3: `generation-worker` fails + refunds when the voice runs past the plan's maximum (code done, deploys with phase 2)
+- [x] [S] B3: `generate-plan` refuses a length above the plan before any work (v56+)
+- [ ] [S] F: `create-ad-campaign` / `set-campaign-status`, Pro capped at 5 active campaigns (code done, deploys with the release batch)
+- [x] [W] F: `src/lib/vidcica/tiers.ts` values = client table; Free credits « À la carte »; unit test against the table. New fields `libraryMax`, `storageMb`, `scheduleDaysAhead`, `schedulePerDay`, `phoneImport`, `vidcicaLogo`, `activeCampaigns`; Free support `help_center`. `tiers.test.ts` holds the section F table (drift guard). Pricing comparison table = the mockup's 16 rows, card lists in the mockup's words; `lib/vidcica/units.ts` writes « 1 min 30 » / « 1 Go ». `pnpm verify` green 2026-10-24
+- [x] [A] F: `src/lib/tiers.ts` + `policy.ts` values = client table; Free « À la carte » (not 20). Same new fields; `STORAGE_LIMITS` → `LIBRARY_LIMITS`; home chip + credits screen read "N crédits" with no "/ 0" for Free; paywall blurbs name the durations; `formatVideoLength` / `formatMegabytes` in `format.ts`. tsc + lint (0 errors) + check:shared green; check:colors still fails on 134 old leaks in files not touched here
+- [x] [W] F: new error codes mapped (message + « Passer à l'offre … »). Requests send `v: 2`; `duration_locked` (generate-plan + enqueue), `voice_locked`, `library_full`, `storage_full`, `model_locked` with the plan; `plan_unavailable` → "momentanément indisponible"; `components/blocked-notice.tsx` (composer + review); script-too-long and render-too-long messages name the plan's longest video
+- [x] [A] F: new error codes mapped (message + paywall). Requests send `v: 2`; `src/lib/plan-refusal.ts` → paywall with reason, the unlocking plan preselected and the limit spelled out (durationLocked, voiceLocked, storageFull, lockedModel; library_full reuses storage_limit); empty draft dropped; Stock plan call now sends the length (the server assumed 30 s, above Free's 15 s)
+- [x] [S] F: `scripts/plan-limits-matrix.mjs`, first version (generation rows). 81/81 against production on 2026-10-24
+- [x] [S] Outage fix (not in the brief): OpenAI shut gpt-4.1-nano down on 2026-10-23. generate-plan, write-script, improve-script and support-chat moved to gpt-5.6-luna, deployed for everyone on 2026-10-24 (owner's go)
 
 ## Phase 2 — Rendering (B7, B6, B3, brand kit)
 
@@ -72,6 +73,8 @@ Tick a box only with evidence: the commit, the check that passed, a screenshot o
 - [ ] [A] B3: durations 15 s → 3 min with locks (composer)
 - [ ] [A] B5: voice option locked on Free + « ! » sheet
 - [ ] [A] B2: with too few credits, « Recharge tes crédits sur vidcica.com »
+- [ ] [W][A] B3: the script-length guard follows the plan (web `features/create/script-length.ts` and app `src/lib/script-length.ts` still say `MAX_VIDEO_SEC = 60`); the default length never above the plan (Free's composer defaults to 30 s today, which the server now refuses)
+- [ ] [W] B2/E1: « ≈ N vidéos IA de 30 s par mois » ignores the script price; follow the mockup (credits line only) or count the script
 
 ## Phase 4 — Signup (A1–A5)
 
@@ -141,7 +144,7 @@ Tick a box only with evidence: the commit, the check that passed, a screenshot o
 - [ ] [A] D1: same in the app chat
 - [ ] [S] D1: `scripts/lia-questions.mjs`, 25-question report
 - [ ] [C] D1: report reviewed by the client
-- [ ] [W] E1: shared plan card (mockup) + comparison table, used on home / tarifs / billing
+- [ ] [W] E1: shared plan card (mockup) + comparison table, used on home / tarifs / billing (the table's rows and the card lists already match the mockup since Phase 1; left: card design, currency, « Pour découvrir Vidcica » lines, ✓/– lists, price notes, the billing page's use)
 - [ ] [A] E1: paywall = the 4 mockup cards (Free included)
 - [ ] [W] W0: new home page, every mockup section (FR word for word + EN)
 - [ ] [W] W0: header/footer as the mockup (Suppression des données, support@, Rouyn-Noranda, Google Play)

@@ -1,55 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useT } from "@/lib/i18n/provider";
-import type { MessageKey } from "@/lib/i18n";
-import type { EnqueueGenerationFailReason } from "@/lib/vidcica/generation";
 import { useCreateStore } from "../provider";
-
-/** Blocked reason → plain-language message + the right recovery (AC-11). */
-function BlockedNotice({ reason }: { reason: EnqueueGenerationFailReason }) {
-  const t = useT();
-  const billing = { labelKey: "create.viewPlans" as MessageKey, href: "/billing" };
-  // Not enough credits: a pack is the quickest fix, so land on them.
-  const packs = { labelKey: "create.buyCredits" as MessageKey, href: "/billing#packs" };
-  const map: Record<EnqueueGenerationFailReason, { msgKey: MessageKey; action?: typeof billing }> =
-    {
-      insufficient_credits: { msgKey: "create.blockInsufficientCredits", action: packs },
-      model_locked: { msgKey: "create.blockModelLocked", action: billing },
-      daily_cap: { msgKey: "create.blockDailyCap" },
-      not_live: { msgKey: "create.blockNotLive" },
-      disabled: { msgKey: "create.blockDisabled" },
-      in_progress: { msgKey: "create.blockInProgress" },
-      no_plan: { msgKey: "create.blockNoPlan" },
-      image_not_supported: { msgKey: "create.blockImageNotSupported" },
-      script_too_long: { msgKey: "create.blockScriptTooLong" },
-      content_blocked: { msgKey: "create.blockContentBlocked" },
-      unauthenticated: { msgKey: "create.blockUnauthenticated" },
-      error: { msgKey: "create.blockError" },
-    };
-  const { msgKey, action } = map[reason];
-  return (
-    <div role="alert" className="bg-destructive-subtle flex flex-col gap-4 rounded-lg p-5">
-      <p className="text-destructive text-[15px] leading-relaxed font-medium">{t(msgKey)}</p>
-      {action ? (
-        <Link
-          href={action.href}
-          className={buttonVariants({ variant: "default", className: "self-start" })}
-        >
-          {t(action.labelKey)}
-        </Link>
-      ) : null}
-    </div>
-  );
-}
+import { BlockedNotice } from "./blocked-notice";
 
 export function PlanReview() {
   const t = useT();
   const plan = useCreateStore((s) => s.plan);
   const phase = useCreateStore((s) => s.phase);
   const blockedReason = useCreateStore((s) => s.blockedReason);
+  const planBlock = useCreateStore((s) => s.planBlock);
   const confirmEnqueue = useCreateStore((s) => s.confirmEnqueue);
   const backToEdit = useCreateStore((s) => s.backToEdit);
 
@@ -85,7 +47,9 @@ export function PlanReview() {
         ))}
       </ol>
 
-      {phase === "blocked" && blockedReason ? <BlockedNotice reason={blockedReason} /> : null}
+      {phase === "blocked" && blockedReason ? (
+        <BlockedNotice reason={blockedReason} block={planBlock} />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-2">
         <Button

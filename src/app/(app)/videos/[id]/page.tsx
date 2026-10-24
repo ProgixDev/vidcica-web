@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getMyDraft, getMyVideo, getLatestJob, getPublishTargets } from "@/lib/vidcica/queries";
+import { getMyEntitlement } from "@/lib/vidcica/billing-queries";
+import { TIERS } from "@/lib/vidcica/tiers";
 import { hasRenderedVideo } from "@/lib/vidcica/video";
 import { DraftCard, RenderProgress, VideoDetail } from "@/features/videos";
 import { buttonVariants } from "@/components/ui/button";
@@ -30,6 +32,9 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
   const targets = hasRenderedVideo(video) ? await getPublishTargets(id) : [];
   // A draft with no render job yet: show its script and let it be continued.
   const draft = !hasRenderedVideo(video) && !job ? await getMyDraft(id) : null;
+  // A render in progress may fail on a voice longer than the plan allows; the
+  // message names that length.
+  const entitlement = !hasRenderedVideo(video) && job ? await getMyEntitlement() : null;
 
   return (
     <>
@@ -55,6 +60,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
               jobId={job.jobId}
               initialStatus={job.status}
               initialLastError={job.lastError}
+              maxLengthSec={entitlement ? TIERS[entitlement.plan].maxLengthSec : undefined}
             />
           ) : draft ? (
             <DraftCard draft={draft} />

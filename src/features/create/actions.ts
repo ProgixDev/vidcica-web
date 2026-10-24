@@ -129,5 +129,5 @@ export async function enqueueAction(
   if (outcome.ok) {
     return { ok: true, videoId, jobId: outcome.jobId, charged: outcome.charged };
   }
-  return { ok: false, reason: outcome.reason, message: outcome.message };
+  return { ok: false, reason: outcome.reason, message: outcome.message, block: outcome.block };
 }

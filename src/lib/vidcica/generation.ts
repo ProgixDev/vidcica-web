@@ -9,17 +9,56 @@
  * (server or browser); its session provides the bearer token and RLS scope.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import { clientEnv } from "@/core/env.client";
 import type { Database } from "@/lib/supabase/database.types";
 import type { GenerationJobStatus } from "@/lib/vidcica/video";
+import type { Plan } from "@/lib/vidcica/tiers";
 
 type DB = SupabaseClient<Database>;
 
 const SUPABASE_URL = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
 
+/**
+ * Sent as `v` with every request: this client shows the plan refusals (brief
+ * "Cahier technique" B3–B5), so the server refuses what the person's plan
+ * doesn't include (a longer video, voice-over on Free) instead of quietly
+ * capping or dropping it, as it still does for older app builds.
+ */
+export const CLIENT_VERSION = 2;
+
 async function token(supabase: DB): Promise<string | null> {
   const { data } = await supabase.auth.getSession();
   return data.session?.access_token ?? null;
+}
+
+// ── Plan refusals ──────────────────────────────────────────────────────
+
+/**
+ * What a plan refusal (HTTP 403 from the server's `planRefusal`) tells the
+ * screen: the person's plan, the cheapest plan that unlocks the request (null
+ * when none does) and the limit reached — seconds for a duration (and for
+ * `script_too_long`, the longest video allowed), videos for the library,
+ * megabytes for storage.
+ */
+export type PlanBlock = { plan: Plan | null; requiredPlan: Plan | null; limit?: number };
+
+const PlanName = z.enum(["free", "starter", "pro", "studio"]);
+const PlanRefusalBody = z.object({
+  plan: PlanName.nullable().catch(null),
+  requiredPlan: PlanName.nullable().catch(null),
+  limit: z.number().optional().catch(undefined),
+  limitMb: z.number().optional().catch(undefined),
+  maxSeconds: z.number().optional().catch(undefined),
+});
+
+/** Read a refusal body defensively: a missing or odd field reads as unknown. */
+export function readPlanBlock(body: unknown): PlanBlock {
+  const parsed = PlanRefusalBody.safeParse(body);
+  if (!parsed.success) return { plan: null, requiredPlan: null };
+  const { plan, requiredPlan, limit, limitMb, maxSeconds } = parsed.data;
+  const value = limit ?? limitMb ?? maxSeconds;
+  return value === undefined ? { plan, requiredPlan } : { plan, requiredPlan, limit: value };
 }
 
 // ── Phase A: plan ──────────────────────────────────────────────────────
@@ -58,8 +97,15 @@ export type GeneratePlanOutcome =
   | { ok: true; plan: VideoPlan }
   | {
       ok: false;
-      reason: "not_configured" | "unauthenticated" | "content_blocked" | "error";
+      reason:
+        | "not_configured"
+        | "unauthenticated"
+        | "content_blocked"
+        | "duration_locked"
+        | "error";
       message?: string;
+      /** Set when the plan refused the request (`duration_locked`). */
+      block?: PlanBlock;
     };
 
 export async function generatePlan(
@@ -72,7 +118,7 @@ export async function generatePlan(
     const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-plan`, {
       method: "POST",
       headers: { Authorization: `Bearer ${t}`, "Content-Type": "application/json" },
-      body: JSON.stringify(input),
+      body: JSON.stringify({ ...input, v: CLIENT_VERSION }),
     });
     const body = (await res.json().catch(() => ({}))) as {
       ok?: boolean;
@@ -84,6 +130,10 @@ export async function generatePlan(
     // can act on, not a raw code to print.
     if (body.error === "content_blocked" || body.error === "ai_refused") {
       return { ok: false, reason: "content_blocked" };
+    }
+    // A length above the plan's: refused before any work, naming the plan that allows it.
+    if (body.error === "duration_not_allowed") {
+      return { ok: false, reason: "duration_locked", block: readPlanBlock(body) };
     }
     if (!res.ok || !body.ok || !body.plan) {
       return { ok: false, reason: "error", message: body.error ?? `HTTP ${res.status}` };
@@ -122,14 +172,34 @@ export type EnqueueGenerationFailReason =
   | "in_progress"
   | "no_plan"
   | "model_locked"
+  | "duration_locked"
+  | "voice_locked"
+  | "library_full"
+  | "storage_full"
   | "image_not_supported"
   | "script_too_long"
   | "content_blocked"
   | "error";
 
+/** The reasons that come from the person's plan, each naming the plan that unlocks it. */
+export const PLAN_REASONS: ReadonlySet<EnqueueGenerationFailReason> = new Set([
+  "model_locked",
+  "duration_locked",
+  "voice_locked",
+  "library_full",
+  "storage_full",
+]);
+
 export type EnqueueGenerationOutcome =
   | { ok: true; jobId: string; charged: number }
-  | { ok: false; reason: EnqueueGenerationFailReason; message?: string };
+  | {
+      ok: false;
+      reason: EnqueueGenerationFailReason;
+      message?: string;
+      /** Set for the plan reasons (`PLAN_REASONS`) and `script_too_long`
+       *  (its limit: the longest video the plan allows, in seconds). */
+      block?: PlanBlock;
+    };
 
 export async function enqueueGeneration(
   supabase: DB,
@@ -141,7 +211,7 @@ export async function enqueueGeneration(
     const res = await fetch(`${SUPABASE_URL}/functions/v1/enqueue-generation`, {
       method: "POST",
       headers: { Authorization: `Bearer ${t}`, "Content-Type": "application/json" },
-      body: JSON.stringify(input),
+      body: JSON.stringify({ ...input, v: CLIENT_VERSION }),
     });
     const body = (await res.json().catch(() => ({}))) as {
       ok?: boolean;
@@ -152,10 +222,14 @@ export async function enqueueGeneration(
     if (res.ok && body.ok && body.jobId) {
       return { ok: true, jobId: body.jobId, charged: body.charged ?? 0 };
     }
+    const reason = mapEnqueueReason(body.error);
     return {
       ok: false,
-      reason: mapEnqueueReason(body.error),
+      reason,
       message: body.error ?? `HTTP ${res.status}`,
+      ...(PLAN_REASONS.has(reason) || reason === "script_too_long"
+        ? { block: readPlanBlock(body) }
+        : {}),
     };
   } catch (e) {
     return { ok: false, reason: "error", message: (e as Error).message };
@@ -166,6 +240,8 @@ export async function enqueueGeneration(
 export function mapEnqueueReason(error: string | undefined): EnqueueGenerationFailReason {
   switch (error) {
     case "generation_not_live":
+    // The plan table could not be read: a passing server problem, not a refusal.
+    case "plan_unavailable":
       return "not_live";
     case "generation_disabled":
       return "disabled";
@@ -180,6 +256,15 @@ export function mapEnqueueReason(error: string | undefined): EnqueueGenerationFa
       return "no_plan";
     case "model_not_allowed":
       return "model_locked";
+    // The plan rules (brief section F): each refusal names the plan that unlocks it.
+    case "duration_not_allowed":
+      return "duration_locked";
+    case "voice_not_allowed":
+      return "voice_locked";
+    case "library_full":
+      return "library_full";
+    case "storage_full":
+      return "storage_full";
     case "image_not_supported":
       return "image_not_supported";
     case "script_too_long":

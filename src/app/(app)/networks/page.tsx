@@ -26,7 +26,7 @@ export default async function NetworksPage() {
 
   // The plan's network allowance (Free 1, Starter 3), enforced by the server
   // (oauth-start, oauth-callback). A plan allowing at least as many networks as
-  // there are to connect (Pro and Studio: TIERS networks 7) shows no limit.
+  // there are to connect (Pro and Studio: TIERS networks 5) shows no limit.
   const tier = TIERS[entitlement.plan];
   const available = new Set(connectablePlatforms().map((p) => p.provider)).size;
   const allowance = {

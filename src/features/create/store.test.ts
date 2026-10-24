@@ -87,6 +87,35 @@ describe("create store (AC-8..AC-11)", () => {
     }
   });
 
+  it("a length the plan refuses → error phase in the composer, naming the plan", async () => {
+    const block = { plan: "free" as const, requiredPlan: "starter" as const, limit: 15 };
+    const s = makeStore({
+      plan: async () => ({ ok: false, reason: "duration_locked", block }),
+    });
+    await s.getState().requestPlan();
+    expect(s.getState().phase).toBe("error");
+    expect(s.getState().plan).toBeNull();
+    expect(s.getState().blockedReason).toBe("duration_locked");
+    expect(s.getState().planBlock).toEqual(block);
+    // Asking again clears the refusal.
+    s.getState().backToEdit();
+    expect(s.getState().blockedReason).toBeNull();
+    expect(s.getState().planBlock).toBeNull();
+  });
+
+  it("a render the plan refuses → blocked on the review screen with the plan details", async () => {
+    const block = { plan: "free" as const, requiredPlan: "starter" as const };
+    const s = makeStore({
+      enqueue: async () => ({ ok: false, reason: "voice_locked", block }),
+    });
+    await s.getState().requestPlan();
+    await s.getState().confirmEnqueue();
+    expect(s.getState().phase).toBe("blocked");
+    expect(s.getState().blockedReason).toBe("voice_locked");
+    expect(s.getState().planBlock).toEqual(block);
+    expect(s.getState().result).toBeNull();
+  });
+
   it("AC-11: a hard error uses the error phase", async () => {
     const s = makeStore({ enqueue: async () => ({ ok: false, reason: "error", message: "boom" }) });
     await s.getState().requestPlan();

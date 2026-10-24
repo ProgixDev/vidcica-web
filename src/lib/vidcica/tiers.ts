@@ -1,8 +1,13 @@
 /**
- * Canonical subscription-tier matrix for the web — the single source of truth
- * for plan label / price / monthly credits / headline features. Ported from
- * ClipFlow/src/lib/tiers.ts (values kept in lockstep; the server's
- * `create-checkout-session` + `stripe-webhook` own the actual pricing/grant).
+ * Canonical subscription-tier matrix for the web — plan label / price / monthly
+ * credits / headline features, and the limits shown in the interface.
+ *
+ * The limits are the client's table (brief "Cahier technique" of 2026-10-23,
+ * section F). The SERVER enforces them from `public.plan_limits` (vidcica
+ * `_shared/plans.ts`); these values only drive what the screens show and lock.
+ * `tiers.test.ts` holds the client's table and fails when the two drift, and
+ * vidcica `scripts/plan-limits-matrix.mjs` checks the server side. The server's
+ * `create-checkout-session` + `stripe-webhook` own the actual pricing/grant.
  */
 import type { MessageKey } from "@/lib/i18n";
 
@@ -17,7 +22,7 @@ export type TierDef = {
   priceEUR: number;
   /** Credits granted each month. */
   monthlyCredits: number;
-  /** Max video length the composer offers (seconds). */
+  /** Longest video the plan makes (seconds): 15 / 30 / 90 / 180. */
   maxLengthSec: number;
   /** Quality cap. */
   maxQuality: "720p" | "1080p";
@@ -30,23 +35,34 @@ export type TierDef = {
   landingFeatureKeys: MessageKey[];
   /** AI voiceover + burned-in captions. Free is silent stock footage only. */
   voiceover: boolean;
-  /** Connected networks the plan allows (Facebook + Instagram, one Meta login,
-   *  count as one). ENFORCED by the server since 2026-10-18: oauth-start and
-   *  oauth-callback refuse a new connection beyond it (`network_limit`,
-   *  vidcica `_shared/plan-limits.ts`: Free 1, Starter 3, Pro/Studio every
-   *  network). Change both together. */
+  /** Connected networks the plan allows: 1 / 3 / 5 / 5, and 5 is every network
+   *  there is (TikTok, Instagram, Facebook, YouTube, LinkedIn). Facebook +
+   *  Instagram, one Meta login, count as one. ENFORCED by the server since
+   *  2026-10-18: oauth-start and oauth-callback refuse a new connection beyond
+   *  it (`network_limit`, vidcica `_shared/plan-limits.ts`: Free 1, Starter 3,
+   *  Pro/Studio every network). Change both together. */
   networks: number;
   /** Connected accounts per platform. -1 = unlimited. */
   accountsPerPlatform: number;
-  /** Saved-video library cap. -1 = unlimited. */
-  storageLimit: number;
-  /** Scheduled publishing. */
-  scheduling: boolean;
+  /** Videos the library holds (finished and rendering, trash excluded). -1 = unlimited. */
+  libraryMax: number;
+  /** Storage for generated + imported videos, in megabytes. */
+  storageMb: number;
+  /** How many days ahead a video can be scheduled. 0 = no scheduling, -1 = unlimited. */
+  scheduleDaysAhead: number;
+  /** Videos that can be scheduled for one day. -1 = unlimited. */
+  schedulePerDay: number;
+  /** Import a video from the phone / computer into the library. */
+  phoneImport: boolean;
+  /** The Vidcica logo is drawn on the plan's videos. */
+  vidcicaLogo: boolean;
   analytics: "none" | "basic" | "advanced";
   /** In-app Meta Ads campaigns + lead capture. */
   ads: boolean;
+  /** Boost campaigns running at once. -1 = unlimited. */
+  activeCampaigns: number;
   brandKit: boolean;
-  support: "none" | "email" | "priority" | "dedicated";
+  support: "help_center" | "email" | "priority" | "dedicated";
 };
 
 export const TIERS: Readonly<Record<Plan, TierDef>> = {
@@ -64,12 +80,17 @@ export const TIERS: Readonly<Record<Plan, TierDef>> = {
     voiceover: false,
     networks: 1,
     accountsPerPlatform: 1,
-    storageLimit: 10,
-    scheduling: false,
+    libraryMax: 10,
+    storageMb: 30,
+    scheduleDaysAhead: 0,
+    schedulePerDay: 0,
+    phoneImport: false,
+    vidcicaLogo: true,
     analytics: "none",
     ads: false,
+    activeCampaigns: 0,
     brandKit: false,
-    support: "none",
+    support: "help_center",
   },
   starter: {
     id: "starter",
@@ -86,14 +107,21 @@ export const TIERS: Readonly<Record<Plan, TierDef>> = {
       "tiers.starter.f2",
       "tiers.starter.f3",
       "tiers.starter.f4",
+      "tiers.starter.f5",
+      "tiers.starter.f6",
     ],
     voiceover: true,
     networks: 3,
     accountsPerPlatform: 1,
-    storageLimit: 100,
-    scheduling: false,
+    libraryMax: 100,
+    storageMb: 500,
+    scheduleDaysAhead: 3,
+    schedulePerDay: 2,
+    phoneImport: true,
+    vidcicaLogo: true,
     analytics: "basic",
     ads: false,
+    activeCampaigns: 0,
     brandKit: false,
     support: "email",
   },
@@ -103,9 +131,13 @@ export const TIERS: Readonly<Record<Plan, TierDef>> = {
     labelKey: "tiers.pro.label",
     priceEUR: 45,
     monthlyCredits: 300,
-    maxLengthSec: 60,
+    maxLengthSec: 90,
     maxQuality: "1080p",
-    highlights: ["300 crédits / mois", "1080p · jusqu’à 60 s", "Programmation · analytics · pubs"],
+    highlights: [
+      "300 crédits / mois",
+      "1080p · jusqu’à 1 min 30",
+      "Programmation · analytics · pubs",
+    ],
     highlightKeys: ["tiers.pro.h1", "tiers.pro.h2", "tiers.pro.h3"],
     landingFeatureKeys: [
       "tiers.pro.f1",
@@ -113,14 +145,21 @@ export const TIERS: Readonly<Record<Plan, TierDef>> = {
       "tiers.pro.f3",
       "tiers.pro.f4",
       "tiers.pro.f5",
+      "tiers.pro.f6",
+      "tiers.pro.f7",
     ],
     voiceover: true,
-    networks: 7,
+    networks: 5,
     accountsPerPlatform: 5,
-    storageLimit: 500,
-    scheduling: true,
+    libraryMax: 500,
+    storageMb: 1024,
+    scheduleDaysAhead: 7,
+    schedulePerDay: 4,
+    phoneImport: true,
+    vidcicaLogo: false,
     analytics: "advanced",
     ads: true,
+    activeCampaigns: 5,
     brandKit: true,
     support: "priority",
   },
@@ -130,23 +169,33 @@ export const TIERS: Readonly<Record<Plan, TierDef>> = {
     labelKey: "tiers.studio.label",
     priceEUR: 99,
     monthlyCredits: 600,
-    maxLengthSec: 60,
+    maxLengthSec: 180,
     maxQuality: "1080p",
-    highlights: ["600 crédits / mois", "Bibliothèque illimitée", "Support dédié"],
+    highlights: [
+      "600 crédits / mois",
+      "Vidéos jusqu’à 3 min · bibliothèque illimitée",
+      "Support dédié",
+    ],
     highlightKeys: ["tiers.studio.h1", "tiers.studio.h2", "tiers.studio.h3"],
     landingFeatureKeys: [
       "tiers.studio.f1",
       "tiers.studio.f2",
       "tiers.studio.f3",
       "tiers.studio.f4",
+      "tiers.studio.f5",
     ],
     voiceover: true,
-    networks: 7,
+    networks: 5,
     accountsPerPlatform: -1,
-    storageLimit: -1,
-    scheduling: true,
+    libraryMax: -1,
+    storageMb: 4096,
+    scheduleDaysAhead: -1,
+    schedulePerDay: -1,
+    phoneImport: true,
+    vidcicaLogo: false,
     analytics: "advanced",
     ads: true,
+    activeCampaigns: -1,
     brandKit: true,
     support: "dedicated",
   },

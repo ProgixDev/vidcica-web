@@ -3,8 +3,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import type { TFunction } from "@/lib/i18n";
 import { modelsAvailableTo, modelsUnlockedAt } from "@/lib/vidcica/models";
-import { connectablePlatforms } from "@/lib/vidcica/network";
 import { ORDERED_TIERS, TIERS, type Plan, type TierDef } from "@/lib/vidcica/tiers";
+import { formatMegabytes, formatVideoLength } from "@/lib/vidcica/units";
 import { cn } from "@/lib/utils";
 
 /**
@@ -184,68 +184,82 @@ function BoolCell({ on, t }: { on: boolean; t: TFunction }) {
 }
 
 function ComparisonTable({ t }: { t: TFunction }) {
-  const unlimited = t("landing.pricing.unlimited");
-  // A plan whose allowance covers every network there is to connect (Pro and
-  // Studio) reads "All": its number (7) dates from when X and Threads counted.
-  const connectable = new Set(connectablePlatforms().map((p) => p.provider)).size;
+  const none = <BoolCell on={false} t={t} />;
 
+  // The rows and wording of the client's mockup (Tarifs, brief of 2026-10-23).
+  // -1 is "unlimited" in the tier matrix; 0 is "not included".
   const rows: Row[] = [
     {
       labelKey: "landing.pricing.row.credits",
       render: (tier) => (isPayg(tier) ? t("landing.pricing.payg") : tier.monthlyCredits),
     },
     {
-      labelKey: "landing.pricing.row.videos",
-      render: (tier) =>
-        isPayg(tier) ? (
-          <Dash className="text-muted-foreground mx-auto size-4" />
-        ) : (
-          videosPerMonth(tier)
-        ),
-    },
-    {
-      labelKey: "landing.pricing.row.models",
-      render: (tier) => {
-        const n = modelsAvailableTo(tier.id).length;
-        return n === 1
-          ? t("landing.pricing.modelsCountOne")
-          : t("landing.pricing.modelsCount", { n });
-      },
+      labelKey: "landing.pricing.row.length",
+      render: (tier) => formatVideoLength(tier.maxLengthSec, t),
     },
     { labelKey: "landing.pricing.row.quality", render: (tier) => tier.maxQuality },
     {
-      labelKey: "landing.pricing.row.length",
-      render: (tier) => t("landing.pricing.seconds", { n: tier.maxLengthSec }),
+      labelKey: "landing.pricing.row.models",
+      render: (tier) => modelsAvailableTo(tier.id).length,
     },
     {
       labelKey: "landing.pricing.row.voiceover",
       render: (tier) => <BoolCell on={tier.voiceover} t={t} />,
     },
-    {
-      labelKey: "landing.pricing.row.networks",
-      render: (tier) =>
-        tier.networks >= connectable ? t("landing.pricing.allNetworks") : tier.networks,
-    },
+    { labelKey: "landing.pricing.row.networks", render: (tier) => tier.networks },
     {
       labelKey: "landing.pricing.row.accounts",
-      render: (tier) => (tier.accountsPerPlatform === -1 ? unlimited : tier.accountsPerPlatform),
+      render: (tier) =>
+        tier.accountsPerPlatform === -1 ? t("landing.pricing.unlimited") : tier.accountsPerPlatform,
+    },
+    {
+      labelKey: "landing.pricing.row.scheduleAhead",
+      render: (tier) =>
+        tier.scheduleDaysAhead === 0
+          ? none
+          : tier.scheduleDaysAhead === -1
+            ? t("landing.pricing.unlimitedFem")
+            : t("landing.pricing.days", { n: tier.scheduleDaysAhead }),
+    },
+    {
+      labelKey: "landing.pricing.row.schedulePerDay",
+      render: (tier) =>
+        tier.schedulePerDay === 0
+          ? none
+          : tier.schedulePerDay === -1
+            ? t("landing.pricing.unlimited")
+            : tier.schedulePerDay,
+    },
+    {
+      labelKey: "landing.pricing.row.storage",
+      render: (tier) => formatMegabytes(tier.storageMb, t),
     },
     {
       labelKey: "landing.pricing.row.library",
       render: (tier) =>
-        tier.storageLimit === -1
-          ? unlimited
-          : t("landing.pricing.videosCount", { n: tier.storageLimit }),
+        tier.libraryMax === -1
+          ? t("landing.pricing.unlimitedFem")
+          : t("landing.pricing.videosCount", { n: tier.libraryMax }),
     },
     {
-      labelKey: "landing.pricing.row.scheduling",
-      render: (tier) => <BoolCell on={tier.scheduling} t={t} />,
+      labelKey: "landing.pricing.row.phoneImport",
+      render: (tier) => <BoolCell on={tier.phoneImport} t={t} />,
     },
     {
-      labelKey: "landing.pricing.row.analytics",
-      render: (tier) => t(`landing.pricing.analytics.${tier.analytics}`),
+      labelKey: "landing.pricing.row.watermark",
+      render: (tier) => t(tier.vidcicaLogo ? "landing.pricing.yes" : "landing.pricing.no"),
     },
-    { labelKey: "landing.pricing.row.ads", render: (tier) => <BoolCell on={tier.ads} t={t} /> },
+    {
+      labelKey: "landing.pricing.row.ads",
+      render: (tier) =>
+        !tier.ads ? (
+          none
+        ) : tier.activeCampaigns === -1 ? (
+          t("landing.pricing.unlimitedFemPlural")
+        ) : (
+          <BoolCell on t={t} />
+        ),
+    },
     {
       labelKey: "landing.pricing.row.brandKit",
       render: (tier) => <BoolCell on={tier.brandKit} t={t} />,

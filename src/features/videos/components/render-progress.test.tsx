@@ -32,6 +32,23 @@ describe("<RenderProgress /> when the render failed", () => {
     expect(push).toHaveBeenCalledWith("/create?draft=vid_x");
   });
 
+  // The voice limit is the plan's longest video since the client's brief
+  // (2026-10-23): 15 s on Free… 3 min on Studio, no longer a flat 60 s.
+  it("names the plan's longest video", () => {
+    render(
+      <RenderProgress
+        videoId="vid_x"
+        jobId="job-1"
+        initialStatus="failed"
+        initialLastError="script_too_long:95"
+        maxLengthSec={90}
+      />,
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "La voix off dure 95 s, au-delà de la durée maximale de ton offre (1 min 30).",
+    );
+  });
+
   it("keeps the generic message for any other failure", () => {
     render(
       <RenderProgress

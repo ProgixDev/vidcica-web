@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { fetchGenerationJob } from "@/lib/vidcica/generation";
 import type { GenerationJobStatus } from "@/lib/vidcica/video";
+import { formatVideoLength } from "@/lib/vidcica/units";
 import { RENDER_STAGES, isTerminal, stageView } from "../progress";
 import { useT } from "@/lib/i18n/provider";
 
@@ -22,11 +23,14 @@ export function RenderProgress({
   jobId,
   initialStatus,
   initialLastError = null,
+  maxLengthSec,
 }: {
   videoId: string;
   jobId: string;
   initialStatus: GenerationJobStatus;
   initialLastError?: string | null;
+  /** The person's plan's longest video (seconds): the voice limit the worker applies. */
+  maxLengthSec?: number;
 }) {
   const t = useT();
   const router = useRouter();
@@ -67,7 +71,12 @@ export function RenderProgress({
             {t("videos.renderTooLongTitle")}
           </h2>
           <p className="text-subtle-foreground text-[13px] leading-relaxed">
-            {t("videos.renderTooLongBody", { seconds: tooLong[1] ?? "" })}
+            {maxLengthSec !== undefined
+              ? t("videos.renderTooLongBody", {
+                  seconds: tooLong[1] ?? "",
+                  max: formatVideoLength(maxLengthSec, t),
+                })
+              : t("videos.renderTooLongBodyShort", { seconds: tooLong[1] ?? "" })}
           </p>
         </div>
         <Button

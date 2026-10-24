@@ -10,6 +10,7 @@ import { useCreateStore } from "../provider";
 import { estimateCost } from "../cost";
 import { LENGTHS, MUSIC_MOODS, RATIOS, VOICES } from "../options";
 import { MAX_SCRIPT_WORDS, MAX_VIDEO_SEC, lengthFor, narrationEstimate } from "../script-length";
+import { BlockedNotice } from "./blocked-notice";
 import { ModelMenu } from "./model-menu";
 
 /** Clickable starter ideas — kills the blank-page freeze on first visit. */
@@ -32,6 +33,8 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
   const phase = useCreateStore((s) => s.phase);
   const error = useCreateStore((s) => s.error);
   const errorKey = useCreateStore((s) => s.errorKey);
+  const blockedReason = useCreateStore((s) => s.blockedReason);
+  const planBlock = useCreateStore((s) => s.planBlock);
   const setInput = useCreateStore((s) => s.setInput);
   const requestPlan = useCreateStore((s) => s.requestPlan);
   const backToEdit = useCreateStore((s) => s.backToEdit);
@@ -238,6 +241,11 @@ export function Composer({ credits, plan }: { credits: number; plan: Plan }) {
       ) : null}
 
       <p className="text-muted-foreground text-xs">{t("create.planNote")}</p>
+
+      {/* A length the plan refuses: name the plan that allows it. */}
+      {phase === "error" && blockedReason ? (
+        <BlockedNotice reason={blockedReason} block={planBlock} />
+      ) : null}
 
       {(error || errorKey) && phase === "error" ? (
         <div role="alert" className="flex flex-col gap-3">

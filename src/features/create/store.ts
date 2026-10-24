@@ -1,5 +1,5 @@
 import { createStore } from "zustand/vanilla";
-import type { GeneratePlanOutcome, VideoPlan } from "@/lib/vidcica/generation";
+import type { GeneratePlanOutcome, PlanBlock, VideoPlan } from "@/lib/vidcica/generation";
 import type { EnqueueGenerationFailReason } from "@/lib/vidcica/generation";
 import { DEFAULT_COMPOSER_INPUT, type ComposerInput } from "./schema";
 
@@ -20,7 +20,7 @@ export type CreatePhase =
 
 export type EnqueueResult =
   | { ok: true; videoId: string; jobId: string; charged: number }
-  | { ok: false; reason: EnqueueGenerationFailReason; message?: string };
+  | { ok: false; reason: EnqueueGenerationFailReason; message?: string; block?: PlanBlock };
 
 export type CreateDeps = {
   plan: (input: ComposerInput) => Promise<GeneratePlanOutcome>;
@@ -36,7 +36,11 @@ export type CreateState = {
   /** i18n key for an app-authored error — resolved with `t()` at the call site.
    *  Takes precedence over `error` when set. */
   errorKey: import("@/lib/i18n").MessageKey | null;
+  /** Why the request was refused. On the review screen (phase `blocked`) for a
+   *  render; in the composer (phase `error`) for a length the plan refuses. */
   blockedReason: EnqueueGenerationFailReason | null;
+  /** For a plan refusal: the plan, the plan that unlocks it and the limit. */
+  planBlock: PlanBlock | null;
   result: { videoId: string; jobId: string; charged: number } | null;
   setInput: (patch: Partial<ComposerInput>) => void;
   requestPlan: () => Promise<void>;
@@ -55,12 +59,13 @@ export function createCreateStore(deps: CreateDeps, initial?: Partial<ComposerIn
     error: null,
     errorKey: null,
     blockedReason: null,
+    planBlock: null,
     result: null,
 
     setInput: (patch) => set((s) => ({ input: { ...s.input, ...patch } })),
 
     requestPlan: async () => {
-      set({ phase: "planning", error: null, errorKey: null });
+      set({ phase: "planning", error: null, errorKey: null, blockedReason: null, planBlock: null });
       const outcome = await deps.plan(get().input);
       if (outcome.ok) {
         set({ phase: "review", plan: outcome.plan });
@@ -71,6 +76,15 @@ export function createCreateStore(deps: CreateDeps, initial?: Partial<ComposerIn
         set({ phase: "error", error: null, errorKey: "create.errPlanUnavailable" });
       } else if (outcome.reason === "content_blocked") {
         set({ phase: "error", error: null, errorKey: "create.errContentBlocked" });
+      } else if (outcome.reason === "duration_locked") {
+        // The plan refuses this length: the composer names the plan that allows it.
+        set({
+          phase: "error",
+          error: null,
+          errorKey: null,
+          blockedReason: "duration_locked",
+          planBlock: outcome.block ?? null,
+        });
       } else {
         set({
           phase: "error",
@@ -80,12 +94,19 @@ export function createCreateStore(deps: CreateDeps, initial?: Partial<ComposerIn
       }
     },
 
-    backToEdit: () => set({ phase: "idle", error: null, errorKey: null, blockedReason: null }),
+    backToEdit: () =>
+      set({ phase: "idle", error: null, errorKey: null, blockedReason: null, planBlock: null }),
 
     confirmEnqueue: async () => {
       const { plan, input } = get();
       if (!plan) return;
-      set({ phase: "enqueuing", error: null, errorKey: null, blockedReason: null });
+      set({
+        phase: "enqueuing",
+        error: null,
+        errorKey: null,
+        blockedReason: null,
+        planBlock: null,
+      });
       const res = await deps.enqueue(input, plan);
       if (res.ok) {
         set({
@@ -103,7 +124,7 @@ export function createCreateStore(deps: CreateDeps, initial?: Partial<ComposerIn
           errorKey: res.message ? null : "create.errGeneric",
         });
       } else {
-        set({ phase: "blocked", blockedReason: res.reason });
+        set({ phase: "blocked", blockedReason: res.reason, planBlock: res.block ?? null });
       }
     },
 
@@ -114,6 +135,7 @@ export function createCreateStore(deps: CreateDeps, initial?: Partial<ComposerIn
         error: null,
         errorKey: null,
         blockedReason: null,
+        planBlock: null,
         result: null,
       }),
   }));
