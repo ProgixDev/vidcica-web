@@ -35,3 +35,4 @@ ship → /update-docs                           status: shipped; learnings disti
 | [004](004-billing/spec.md)                                                                  | Billing: subscriptions & credits (Stripe on web)            | active  |
 | [005](005-notifications/spec.md)                                                            | Notification centre (notifications table + realtime)        | active  |
 | [006](006-support/spec.md)                                                                  | Support: Lia chat (support-chat) & contact form             | active  |
+| [008](008-cahier-technique/spec.md)                                                         | Client "Cahier technique": limits, script, signup, pages…   | active  |
